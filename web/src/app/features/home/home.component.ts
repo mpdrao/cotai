@@ -8,4 +8,4 @@ import { Component } from '@angular/core';
     <p>Abra o link de uma lista (<code>/l/&lt;slug&gt;</code>) ou entre em <a href="/dashboard">/dashboard</a>.</p>
   `,
 })
-export class HomePage {}
+export class HomeComponent {}

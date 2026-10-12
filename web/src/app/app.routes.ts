@@ -1,24 +1,28 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  // Guest area (no login)
+  // Guest area
   {
     path: 'l/:slug',
-    loadComponent: () => import('./guest/gift-list.page').then((m) => m.GiftListPage),
+    loadChildren: () =>
+      import('./features/gift-list/gift-list.routes').then((m) => m.GIFT_LIST_ROUTES),
   },
   {
     path: 'r/:reservationId',
-    loadComponent: () => import('./guest/reservation.page').then((m) => m.ReservationPage),
+    loadChildren: () =>
+      import('./features/reservation/reservation.routes').then((m) => m.RESERVATION_ROUTES),
   },
   // Organizer area
   {
     path: 'dashboard',
-    loadComponent: () => import('./organizer/dashboard.page').then((m) => m.DashboardPage),
+    loadChildren: () =>
+      import('./features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
   },
   {
     path: '',
     pathMatch: 'full',
-    loadComponent: () => import('./home.page').then((m) => m.HomePage),
+    loadChildren: () =>
+      import('./features/home/home.routes').then((m) => m.HOME_ROUTES),
   },
   { path: '**', redirectTo: '' },
 ];
