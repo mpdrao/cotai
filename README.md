@@ -1,4 +1,4 @@
-# Cotai 🎁
+# Cotai
 
 Lista de presentes **com cotas** para qualquer evento (casamento, chá de bebê, churrasco…).
 
@@ -87,7 +87,7 @@ Variáveis de ambiente (valores padrão servem **apenas** para desenvolvimento):
 | `PAYMENT_WEBHOOK_SECRET` | chave HMAC do webhook |
 | `PUBLIC_BASE_URL` | base dos links de checkout / QR |
 
-> ⚠️ Troque todos os segredos antes de qualquer ambiente real.
+> Aviso: Troque todos os segredos antes de qualquer ambiente real.
 
 ## Decisões de design que valem conhecer
 
