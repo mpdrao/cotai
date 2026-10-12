@@ -1,10 +1,10 @@
 import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { PublicApi, ReservationView } from '../api/public-api';
+import { ReservationService } from '../services/reservation.service';
+import { ReservationView } from '../../../core/models/reservation.model';
 
-/** Shows the QR code / link and polls every 3 s until the reservation leaves PENDING. */
 @Component({
-  selector: 'app-reservation-page',
+  selector: 'app-reservation-detail',
   imports: [CurrencyPipe],
   template: `
     @if (view(); as r) {
@@ -29,8 +29,8 @@ import { PublicApi, ReservationView } from '../api/public-api';
     }
   `,
 })
-export class ReservationPage implements OnDestroy {
-  private readonly api = inject(PublicApi);
+export class ReservationDetailComponent implements OnDestroy {
+  private readonly reservationService = inject(ReservationService);
   private readonly id = location.pathname.split('/').pop() ?? '';
   private readonly token = sessionStorage.getItem(`manage:${this.id}`) ?? '';
   private timer?: ReturnType<typeof setInterval>;
@@ -44,23 +44,24 @@ export class ReservationPage implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    clearInterval(this.timer);
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   }
 
   protected qrUrl(payload: string): string {
-    // Placeholder renderer. TODO: render the QR client-side (e.g. `qrcode` package) instead of a 3rd party.
     return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(payload)}`;
   }
 
   protected cancel(): void {
-    this.api.cancelReservation(this.id, this.token).subscribe(() => this.refresh());
+    this.reservationService.cancelReservation(this.id, this.token).subscribe(() => this.refresh());
   }
 
   private refresh(): void {
-    this.api.getReservation(this.id, this.token).subscribe({
+    this.reservationService.getReservation(this.id, this.token).subscribe({
       next: (v) => {
         this.view.set(v);
-        if (v.status !== 'PENDING') {
+        if (v.status !== 'PENDING' && this.timer) {
           clearInterval(this.timer);
         }
       },

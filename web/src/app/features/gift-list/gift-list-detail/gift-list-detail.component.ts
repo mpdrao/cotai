@@ -2,10 +2,11 @@ import { Component, inject, input, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { PublicApi, PublicGiftList, PublicItem } from '../api/public-api';
+import { GiftListService } from '../services/gift-list.service';
+import { PublicGiftList, PublicItem } from '../../../core/models/gift-list.model';
 
 @Component({
-  selector: 'app-gift-list-page',
+  selector: 'app-gift-list-detail',
   imports: [CurrencyPipe, FormsModule],
   template: `
     @if (list(); as l) {
@@ -49,11 +50,11 @@ import { PublicApi, PublicGiftList, PublicItem } from '../api/public-api';
     .error { color: #b91c1c; }
   `,
 })
-export class GiftListPage {
-  private readonly api = inject(PublicApi);
+export class GiftListDetailComponent {
+  private readonly giftListService = inject(GiftListService);
   private readonly router = inject(Router);
 
-  /** Bound from the route param via withComponentInputBinding or read below. */
+  /** Bound from route param or fallback to location */
   readonly slug = input<string>();
 
   protected readonly list = signal<PublicGiftList | null>(null);
@@ -67,7 +68,7 @@ export class GiftListPage {
 
   constructor() {
     const slug = location.pathname.split('/').pop() ?? '';
-    this.api.getGiftList(slug).subscribe({
+    this.giftListService.getGiftList(slug).subscribe({
       next: (l) => this.list.set(l),
       error: () => this.notFound.set(true),
     });
@@ -80,9 +81,8 @@ export class GiftListPage {
   }
 
   protected reserve(item: PublicItem): void {
-    // One key per submit attempt: a double click or a network retry must not create two reservations.
     const key = crypto.randomUUID();
-    this.api
+    this.giftListService
       .reserve(item.id, { guestName: this.guestName, guestEmail: this.guestEmail, quantity: this.quantity }, key)
       .subscribe({
         next: (r) => {
