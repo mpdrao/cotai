@@ -20,7 +20,7 @@ import { ReservationView } from '../../../core/models/reservation.model';
         <p><a [href]="r.payment.checkoutUrl" target="_blank" rel="noopener">Abrir link de pagamento</a></p>
         <button (click)="cancel()">Cancelar reserva</button>
       } @else if (r.status === 'CONFIRMED') {
-        <p>Pagamento confirmado. Obrigado! 🎉</p>
+        <p>Pagamento confirmado. Obrigado!</p>
       }
     } @else if (error()) {
       <p>{{ error() }}</p>
