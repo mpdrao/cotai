@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mock Gateway · checkout</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #f4f4f2; display: grid; place-items: center; min-height: 100vh; margin: 0; }
+        .card { background: #fff; border-radius: 12px; padding: 28px; width: min(420px, 92vw); box-shadow: 0 6px 24px rgba(0,0,0,.08); text-align: center; }
+        .badge { font-size: 12px; background: #fde68a; color: #78350f; padding: 2px 8px; border-radius: 99px; }
+        .amount { font-size: 34px; font-weight: 700; margin: 12px 0; }
+        .muted { color: #6b7280; font-size: 13px; word-break: break-all; }
+        button { font: inherit; padding: 10px 18px; border-radius: 8px; border: 0; cursor: pointer; margin: 6px; }
+        .approve { background: #16a34a; color: #fff; }
+        .decline { background: #dc2626; color: #fff; }
+        #msg { margin-top: 12px; font-size: 14px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div>Mock Gateway · checkout <span class="badge" th:text="${expired} ? 'EXPIRED' : 'PENDING'">PENDING</span></div>
+    <div class="amount" th:text="${amount}">R$ 0,00</div>
+    <div th:text="${charge.description()}">Item</div>
+    <img th:src="${qrDataUri}" alt="QR code" width="220" height="220">
+    <div class="muted" th:text="${charge.checkoutUrl()}">url</div>
+    <div th:unless="${expired}">
+        <button class="approve" onclick="act('approve')">Approve</button>
+        <button class="decline" onclick="act('decline')">Decline</button>
+    </div>
+    <div id="msg"></div>
+</div>
+<script th:inline="javascript">
+    const ref = /*[[${charge.providerReference()}]]*/ 'mock_x';
+    async function act(action) {
+        const res = await fetch('/mock-gateway/charges/' + ref + '/' + action, { method: 'POST' });
+        document.getElementById('msg').textContent = res.status === 202
+            ? 'Done. The webhook will reach the API in a moment. You can close this page.'
+            : 'Could not ' + action + ' (HTTP ' + res.status + ').';
+    }
+</script>
+</body>
+</html>

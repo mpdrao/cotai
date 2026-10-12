@@ -1,0 +1,1000 @@
+openapi: 3.1.0
+info:
+  title: Cotai API
+  version: 0.1.0-draft
+  summary: Gift registry with quotas for weddings, baby showers, barbecues and other events.
+  description: |
+    DRAFT. Contract sketch for the Cotai monorepo (api/ Spring Boot, web/ Angular).
+
+    Conventions
+    - Money is always an integer amount of cents (BRL). Never floating point.
+    - Errors use RFC 9457 Problem Details (`application/problem+json`) with an extra `code` field.
+    - 400 = malformed or invalid input (Bean Validation). 409 = state conflict. 422 = well-formed
+      request that breaks a business rule. 404 is also returned when a resource exists but the caller
+      is not allowed to see it (no existence oracle).
+    - Timestamps are ISO-8601 UTC (`Instant`). `eventDate` is a local date in the zone configured by
+      `app.zone` (default America/Sao_Paulo).
+    - `/mock-gateway/**` and `/dev/**` exist only with the `dev` Spring profile.
+servers:
+  - url: http://localhost:8080
+    description: Local (dev profile)
+tags:
+  - name: Auth
+    description: Organizer registration and login (JWT).
+  - name: Event types
+    description: Event types and their 10 suggested items.
+  - name: Gift lists
+    description: Organizer area. Requires a bearer token.
+  - name: Public
+    description: Guest area. No login; reservations are managed with a one-time manage token.
+  - name: Webhooks
+    description: Called by the payment provider.
+  - name: Mock gateway
+    description: Fake payment provider (dev profile only). Renders the checkout page with a QR code.
+  - name: Dev support
+    description: Controllable clock and job triggers to reproduce time-based edge cases (dev profile only).
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      operationId: register
+      summary: Register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '201':
+          description: Organizer created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OrganizerResponse' }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '409':
+          description: EMAIL_ALREADY_REGISTERED
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      summary: Login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: JWT issued.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenResponse' }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '401':
+          description: INVALID_CREDENTIALS (same response for unknown email and wrong password).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /api/event-types:
+    get:
+      tags: [Event types]
+      operationId: listEventTypes
+      summary: List event types
+      security: []
+      responses:
+        '200':
+          description: All event types, ordered by name.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/EventType' }
+
+  /api/event-types/{eventTypeCode}/template-items:
+    get:
+      tags: [Event types]
+      operationId: listTemplateItems
+      summary: List template items
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/EventTypeCode'
+      responses:
+        '200':
+          description: Suggested items, ordered by position. Empty for OTHER.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TemplateItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/gift-lists:
+    post:
+      tags: [Gift lists]
+      operationId: createGiftList
+      summary: Create gift list
+      description: |
+        Creates a DRAFT list. The client sends the full item list (usually the template items after
+        the organizer edited them). Templates are copied, never referenced.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateGiftListRequest' }
+      responses:
+        '201':
+          description: Created.
+          headers:
+            Location:
+              schema: { type: string, example: /api/gift-lists/0f8b2c9e-6c1d-4a51-9a39-2d7f7e3b1c11 }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftList' }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422':
+          description: EVENT_DATE_IN_PAST
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+    get:
+      tags: [Gift lists]
+      operationId: listMyGiftLists
+      summary: List my gift lists
+      responses:
+        '200':
+          description: Lists owned by the caller.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/GiftListSummary' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/gift-lists/{giftListId}:
+    parameters:
+      - $ref: '#/components/parameters/GiftListId'
+    get:
+      tags: [Gift lists]
+      operationId: getGiftList
+      summary: Get gift list
+      responses:
+        '200':
+          description: Full list with items (including archived ones, flagged).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftList' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Gift lists]
+      operationId: updateGiftList
+      summary: Update gift list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateGiftListRequest' }
+      responses:
+        '200':
+          description: Updated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftList' }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: INVALID_STATE_TRANSITION (list is CLOSED)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /api/gift-lists/{giftListId}/publish:
+    parameters:
+      - $ref: '#/components/parameters/GiftListId'
+    post:
+      tags: [Gift lists]
+      operationId: publishGiftList
+      summary: Publish gift list
+      responses:
+        '200':
+          description: Status is now PUBLISHED and the slug is reachable publicly.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftList' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: INVALID_STATE_TRANSITION (not DRAFT)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '422':
+          description: LIST_HAS_NO_ITEMS or EVENT_DATE_IN_PAST
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /api/gift-lists/{giftListId}/close:
+    parameters:
+      - $ref: '#/components/parameters/GiftListId'
+    post:
+      tags: [Gift lists]
+      operationId: closeGiftList
+      summary: Close gift list
+      description: Stops new reservations. PENDING reservations can still be paid until they expire.
+      responses:
+        '200':
+          description: Status is now CLOSED.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftList' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: INVALID_STATE_TRANSITION (not PUBLISHED)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /api/gift-lists/{giftListId}/items:
+    parameters:
+      - $ref: '#/components/parameters/GiftListId'
+    post:
+      tags: [Gift lists]
+      operationId: addItem
+      summary: Add item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ItemInput' }
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Item' }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: INVALID_STATE_TRANSITION (list is CLOSED)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /api/gift-lists/{giftListId}/items/{itemId}:
+    parameters:
+      - $ref: '#/components/parameters/GiftListId'
+      - $ref: '#/components/parameters/ItemId'
+    put:
+      tags: [Gift lists]
+      operationId: updateItem
+      summary: Update item
+      description: |
+        Takes the same row lock used by reservations. A price change does not affect existing
+        reservations (they keep a price snapshot).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ItemInput' }
+      responses:
+        '200':
+          description: Updated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Item' }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: QUOTAS_BELOW_OCCUPIED (totalQuotas lower than CONFIRMED + active PENDING quotas)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+    delete:
+      tags: [Gift lists]
+      operationId: archiveItem
+      summary: Archive item
+      description: Soft delete (archived = true). Archived items disappear from the public list.
+      responses:
+        '204': { description: Archived. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: ITEM_HAS_ACTIVE_RESERVATIONS (any CONFIRMED or active PENDING reservation)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /api/gift-lists/{giftListId}/summary:
+    parameters:
+      - $ref: '#/components/parameters/GiftListId'
+    get:
+      tags: [Gift lists]
+      operationId: getGiftListSummary
+      summary: Get gift list summary
+      responses:
+        '200':
+          description: Totals per item and contributors.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftListSummaryReport' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/public/gift-lists/{slug}:
+    get:
+      tags: [Public]
+      operationId: getPublicGiftList
+      summary: Get public gift list
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string, pattern: '^[a-z0-9-]+-[a-z2-7]{4}$', example: churrasco-do-erick-7f3k }
+      responses:
+        '200':
+          description: PUBLISHED or CLOSED list. Archived items are omitted.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublicGiftList' }
+        '404':
+          description: Unknown slug or list still in DRAFT.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /api/public/items/{itemId}/reservations:
+    parameters:
+      - $ref: '#/components/parameters/ItemId'
+    post:
+      tags: [Public]
+      operationId: reserveQuotas
+      summary: Reserve quotas
+      security: []
+      description: |
+        Locks the item row (SELECT ... FOR UPDATE), computes available quotas from reservations, inserts
+        the reservation and its payment (status CREATED), commits, then asks the gateway for a charge
+        outside the lock. The checkout URL is also encoded in the QR code.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReserveRequest' }
+      responses:
+        '201':
+          description: Reservation created. `manageToken` is returned only here.
+          headers:
+            Location:
+              schema: { type: string, example: /api/public/reservations/5b0c3f61-2f5e-4d2b-8f37-1f6f0b8b2d90 }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReservationCreated' }
+        '200':
+          description: Replay of an earlier request with the same Idempotency-Key and the same body.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReservationCreated' }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: QUOTA_UNAVAILABLE (body has `availableQuotas`) or LIST_NOT_ACCEPTING_RESERVATIONS
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '422':
+          description: IDEMPOTENCY_KEY_MISMATCH (same key, different body)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '429':
+          description: TOO_MANY_PENDING_RESERVATIONS (more than 3 PENDING for the same e-mail in the same list)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '502':
+          description: PAYMENT_GATEWAY_UNAVAILABLE. The reservation was cancelled and the quotas released.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /api/public/reservations/{reservationId}:
+    parameters:
+      - $ref: '#/components/parameters/ReservationId'
+      - $ref: '#/components/parameters/ManageToken'
+    get:
+      tags: [Public]
+      operationId: getReservation
+      summary: Get reservation
+      security: []
+      description: Polled by the SPA every 3 s while the guest is on the payment screen.
+      responses:
+        '200':
+          description: Current state.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReservationView' }
+        '404':
+          description: Unknown id or wrong token (indistinguishable on purpose).
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+    delete:
+      tags: [Public]
+      operationId: cancelReservation
+      summary: Cancel reservation
+      security: []
+      responses:
+        '204': { description: Cancelled. Quotas are available again. }
+        '404':
+          description: Unknown id or wrong token.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '409':
+          description: INVALID_STATE_TRANSITION (only PENDING can be cancelled; paid reservations are not refundable here)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /api/webhooks/payments:
+    post:
+      tags: [Webhooks]
+      operationId: receivePaymentNotification
+      summary: Receive payment notification
+      security: []
+      description: |
+        The signature is an HMAC-SHA256 of the raw request bytes. The controller must read the body as a
+        String (or byte[]) before any JSON binding; re-serializing a DTO changes the bytes.
+        Any signed and parseable notification gets 204, including duplicates, late payments and unknown
+        references, so the provider stops retrying. The outcome is stored in payment_notification.
+      parameters:
+        - name: X-Signature
+          in: header
+          required: true
+          schema: { type: string, pattern: '^sha256=[0-9a-f]{64}$' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PaymentNotificationPayload' }
+      responses:
+        '204': { description: 'Accepted: APPLIED, DUPLICATE, LATE_PAYMENT or REJECTED.' }
+        '400':
+          description: Body is not valid JSON or misses required fields.
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '401':
+          description: INVALID_SIGNATURE
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
+
+  /mock-gateway/checkout/{providerReference}:
+    parameters:
+      - $ref: '#/components/parameters/ProviderReference'
+    get:
+      tags: [Mock gateway]
+      operationId: mockCheckoutPage
+      summary: Mock checkout page
+      security: []
+      description: HTML page with the amount, a QR code of this same URL and Approve / Decline buttons.
+      responses:
+        '200':
+          description: Checkout page.
+          content:
+            text/html:
+              schema: { type: string }
+        '404': { description: Unknown reference. }
+
+  /mock-gateway/charges/{providerReference}:
+    parameters:
+      - $ref: '#/components/parameters/ProviderReference'
+    get:
+      tags: [Mock gateway]
+      operationId: getMockCharge
+      summary: Get mock charge
+      security: []
+      responses:
+        '200':
+          description: Charge state as the fake provider sees it.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MockCharge' }
+        '404': { description: Unknown reference. }
+
+  /mock-gateway/charges/{providerReference}/approve:
+    parameters:
+      - $ref: '#/components/parameters/ProviderReference'
+    post:
+      tags: [Mock gateway]
+      operationId: approveMockCharge
+      summary: Approve mock charge
+      security: []
+      description: |
+        Marks the charge as paid and sends `payment.paid` to /api/webhooks/payments after
+        `mock-gateway.webhook-delay-ms` (default 1500). `mock-gateway.duplicate-deliveries` (default 1)
+        sends the same event N times to exercise idempotency.
+      responses:
+        '202': { description: Webhook scheduled. }
+        '404': { description: Unknown reference. }
+        '409': { description: Charge is not PENDING. }
+        '410': { description: CHARGE_EXPIRED (expiresAt <= dev clock now). }
+
+  /mock-gateway/charges/{providerReference}/decline:
+    parameters:
+      - $ref: '#/components/parameters/ProviderReference'
+    post:
+      tags: [Mock gateway]
+      operationId: declineMockCharge
+      summary: Decline mock charge
+      security: []
+      responses:
+        '202': { description: payment.declined webhook scheduled. }
+        '404': { description: Unknown reference. }
+        '409': { description: Charge is not PENDING. }
+        '410': { description: CHARGE_EXPIRED }
+
+  /dev/clock:
+    get:
+      tags: [Dev support]
+      operationId: getDevClock
+      summary: Get dev clock
+      security: []
+      responses:
+        '200':
+          description: Current application clock.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevClock' }
+  /dev/clock/advance:
+    post:
+      tags: [Dev support]
+      operationId: advanceDevClock
+      summary: Advance dev clock
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [minutes]
+              properties:
+                minutes: { type: integer, minimum: 1, maximum: 100000 }
+      responses:
+        '200':
+          description: Clock moved forward.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevClock' }
+  /dev/clock/reset:
+    post:
+      tags: [Dev support]
+      operationId: resetDevClock
+      summary: Reset dev clock
+      security: []
+      responses:
+        '200':
+          description: Clock back to system time.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevClock' }
+  /dev/jobs/expire-reservations:
+    post:
+      tags: [Dev support]
+      operationId: runExpiryJob
+      summary: Run expiry job
+      security: []
+      responses:
+        '200':
+          description: Job executed synchronously.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  expiredReservations: { type: integer }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    EventTypeCode:
+      name: eventTypeCode
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/EventTypeCode' }
+    GiftListId:
+      name: giftListId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ItemId:
+      name: itemId
+      in: path
+      required: true
+      schema: { type: integer, format: int64, minimum: 1 }
+    ReservationId:
+      name: reservationId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ManageToken:
+      name: X-Manage-Token
+      in: header
+      required: true
+      description: Returned once at reservation time. Sent as a header, never in the query string (query strings end up in logs).
+      schema: { type: string, minLength: 43, maxLength: 43 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Client-generated UUID. Same key + same body = replay (200). Same key + different body = 422.
+      schema: { type: string, format: uuid }
+    ProviderReference:
+      name: providerReference
+      in: path
+      required: true
+      schema: { type: string, pattern: '^mock_[a-z0-9]{20}$', example: mock_8h2k1x9q0w3e5r7t6y4u }
+
+  responses:
+    ValidationFailed:
+      description: VALIDATION_FAILED. `errors` lists each invalid field.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unauthorized:
+      description: Missing, expired or invalid bearer token.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      description: NOT_FOUND (also used when the resource belongs to another organizer).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+  schemas:
+    Cents:
+      type: integer
+      format: int64
+      minimum: 1
+      maximum: 100000000
+      description: Amount in BRL cents. 9000 = R$ 90,00.
+
+    EventTypeCode:
+      type: string
+      enum: [WEDDING, BABY_SHOWER, BARBECUE, OTHER]
+
+    GiftListStatus:
+      type: string
+      enum: [DRAFT, PUBLISHED, CLOSED]
+
+    ReservationStatus:
+      type: string
+      enum: [PENDING, CONFIRMED, CANCELLED, EXPIRED]
+
+    PaymentStatus:
+      type: string
+      enum: [CREATED, PENDING, PAID, DECLINED, EXPIRED, FAILED, REFUND_REQUIRED]
+
+    ErrorCode:
+      type: string
+      enum:
+        - VALIDATION_FAILED
+        - EMAIL_ALREADY_REGISTERED
+        - INVALID_CREDENTIALS
+        - NOT_FOUND
+        - EVENT_DATE_IN_PAST
+        - LIST_HAS_NO_ITEMS
+        - LIST_NOT_ACCEPTING_RESERVATIONS
+        - QUOTA_UNAVAILABLE
+        - QUOTAS_BELOW_OCCUPIED
+        - ITEM_HAS_ACTIVE_RESERVATIONS
+        - INVALID_STATE_TRANSITION
+        - IDEMPOTENCY_KEY_MISMATCH
+        - TOO_MANY_PENDING_RESERVATIONS
+        - PAYMENT_GATEWAY_UNAVAILABLE
+        - INVALID_SIGNATURE
+        - CHARGE_EXPIRED
+
+    Problem:
+      type: object
+      required: [type, title, status, code]
+      properties:
+        type: { type: string, format: uri, example: 'https://Cotai.dev/problems/quota-unavailable' }
+        title: { type: string, example: Quota unavailable }
+        status: { type: integer, example: 409 }
+        detail: { type: string, example: 'Only 0 of 2 quotas are still available for item 41.' }
+        instance: { type: string, example: /api/public/items/41/reservations }
+        code: { $ref: '#/components/schemas/ErrorCode' }
+        availableQuotas: { type: integer, minimum: 0, description: Only for QUOTA_UNAVAILABLE. }
+        errors:
+          type: array
+          description: Only for VALIDATION_FAILED.
+          items:
+            type: object
+            required: [field, message]
+            properties:
+              field: { type: string, example: quantity }
+              message: { type: string, example: must be greater than or equal to 1 }
+
+    RegisterRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 80 }
+        email: { type: string, format: email, maxLength: 254 }
+        password: { type: string, minLength: 8, maxLength: 72, description: BCrypt limit is 72 bytes. }
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+
+    OrganizerResponse:
+      type: object
+      required: [id, name, email]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, format: email }
+
+    TokenResponse:
+      type: object
+      required: [accessToken, tokenType, expiresIn]
+      properties:
+        accessToken: { type: string }
+        tokenType: { type: string, const: Bearer }
+        expiresIn: { type: integer, description: Seconds., example: 3600 }
+
+    EventType:
+      type: object
+      required: [code, name, defaultReservationTtlMinutes]
+      properties:
+        code: { $ref: '#/components/schemas/EventTypeCode' }
+        name: { type: string, example: Churrasco }
+        defaultReservationTtlMinutes: { type: integer, example: 30 }
+
+    TemplateItem:
+      type: object
+      required: [position, name, unit, unitPriceCents, suggestedQuotas]
+      properties:
+        position: { type: integer, minimum: 1, maximum: 10 }
+        name: { type: string, example: Picanha }
+        unit: { type: string, example: kg }
+        unitPriceCents: { $ref: '#/components/schemas/Cents' }
+        suggestedQuotas: { type: integer, minimum: 1, example: 4 }
+
+    ItemInput:
+      type: object
+      required: [name, unit, unitPriceCents, totalQuotas]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        unit: { type: string, minLength: 1, maxLength: 30, example: saco de 5 kg }
+        unitPriceCents: { $ref: '#/components/schemas/Cents' }
+        totalQuotas: { type: integer, minimum: 1, maximum: 1000 }
+
+    Item:
+      type: object
+      required: [id, name, unit, unitPriceCents, totalQuotas, totalCents, archived]
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        unit: { type: string }
+        unitPriceCents: { $ref: '#/components/schemas/Cents' }
+        totalQuotas: { type: integer }
+        totalCents: { type: integer, format: int64, description: 'Derived: unitPriceCents * totalQuotas.' }
+        archived: { type: boolean }
+
+    CreateGiftListRequest:
+      type: object
+      required: [eventTypeCode, title, eventDate, items]
+      properties:
+        eventTypeCode: { $ref: '#/components/schemas/EventTypeCode' }
+        title: { type: string, minLength: 3, maxLength: 80, example: Churrasco do Erick }
+        eventDate: { type: string, format: date }
+        reservationTtlMinutes:
+          type: integer
+          minimum: 10
+          maximum: 1440
+          description: Defaults to the event type value. The charge expires at the same instant as the reservation.
+        items:
+          type: array
+          minItems: 0
+          maxItems: 100
+          items: { $ref: '#/components/schemas/ItemInput' }
+
+    UpdateGiftListRequest:
+      type: object
+      minProperties: 1
+      properties:
+        title: { type: string, minLength: 3, maxLength: 80 }
+        eventDate: { type: string, format: date }
+        reservationTtlMinutes: { type: integer, minimum: 10, maximum: 1440, description: Applies to new reservations only. }
+
+    GiftList:
+      type: object
+      required: [id, title, slug, eventTypeCode, eventDate, status, reservationTtlMinutes, items, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        slug: { type: string, example: churrasco-do-erick-7f3k }
+        eventTypeCode: { $ref: '#/components/schemas/EventTypeCode' }
+        eventDate: { type: string, format: date }
+        status: { $ref: '#/components/schemas/GiftListStatus' }
+        reservationTtlMinutes: { type: integer }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Item' }
+        createdAt: { type: string, format: date-time }
+
+    GiftListSummary:
+      type: object
+      required: [id, title, slug, status, eventDate]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        slug: { type: string }
+        status: { $ref: '#/components/schemas/GiftListStatus' }
+        eventDate: { type: string, format: date }
+
+    GiftListSummaryReport:
+      type: object
+      required: [giftListId, targetCents, confirmedCents, pendingCents, items, contributors]
+      properties:
+        giftListId: { type: string, format: uuid }
+        targetCents: { type: integer, format: int64, description: Sum of totalCents of non-archived items. }
+        confirmedCents: { type: integer, format: int64 }
+        pendingCents: { type: integer, format: int64, description: PENDING reservations whose expiresAt is still in the future. }
+        refundRequiredCents: { type: integer, format: int64, description: Late or post-cancel payments the organizer must refund. }
+        items:
+          type: array
+          items:
+            type: object
+            required: [itemId, name, totalQuotas, confirmedQuotas, pendingQuotas, availableQuotas]
+            properties:
+              itemId: { type: integer, format: int64 }
+              name: { type: string }
+              totalQuotas: { type: integer }
+              confirmedQuotas: { type: integer }
+              pendingQuotas: { type: integer }
+              availableQuotas: { type: integer }
+        contributors:
+          type: array
+          items:
+            type: object
+            required: [guestName, itemName, quantity, amountCents, confirmedAt]
+            properties:
+              guestName: { type: string }
+              itemName: { type: string }
+              quantity: { type: integer }
+              amountCents: { type: integer, format: int64 }
+              confirmedAt: { type: string, format: date-time }
+
+    PublicGiftList:
+      type: object
+      required: [title, eventTypeCode, eventDate, status, acceptsReservations, items]
+      properties:
+        title: { type: string }
+        eventTypeCode: { $ref: '#/components/schemas/EventTypeCode' }
+        eventDate: { type: string, format: date }
+        status: { $ref: '#/components/schemas/GiftListStatus' }
+        acceptsReservations: { type: boolean, description: 'status = PUBLISHED and eventDate >= today (app.zone).' }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/PublicItem' }
+
+    PublicItem:
+      type: object
+      required: [id, name, unit, unitPriceCents, totalQuotas, availableQuotas]
+      properties:
+        id: { type: integer, format: int64 }
+        name: { type: string }
+        unit: { type: string }
+        unitPriceCents: { $ref: '#/components/schemas/Cents' }
+        totalQuotas: { type: integer }
+        availableQuotas: { type: integer, minimum: 0, description: Snapshot at read time; may be stale by the time the guest submits. }
+
+    ReserveRequest:
+      type: object
+      required: [guestName, guestEmail, quantity]
+      properties:
+        guestName: { type: string, minLength: 2, maxLength: 80 }
+        guestEmail: { type: string, format: email, maxLength: 254 }
+        quantity: { type: integer, minimum: 1, maximum: 1000 }
+
+    PaymentInfo:
+      type: object
+      required: [paymentId, status, amountCents, expiresAt]
+      properties:
+        paymentId: { type: string, format: uuid }
+        status: { $ref: '#/components/schemas/PaymentStatus' }
+        amountCents: { $ref: '#/components/schemas/Cents' }
+        providerReference: { type: [string, 'null'], description: Null while status = CREATED. }
+        checkoutUrl:
+          type: [string, 'null']
+          format: uri
+          description: Built from app.public-base-url. Use the LAN IP, not localhost, if a phone will scan the QR code.
+          example: http://192.168.0.10:8080/mock-gateway/checkout/mock_8h2k1x9q0w3e5r7t6y4u
+        qrCodePayload: { type: [string, 'null'], description: Text encoded in the QR code. Equals checkoutUrl in the mock. }
+        expiresAt: { type: string, format: date-time, description: Always equal to the reservation expiresAt. }
+
+    ReservationCreated:
+      type: object
+      required: [reservationId, manageToken, status, quantity, unitPriceCents, amountCents, expiresAt, payment]
+      properties:
+        reservationId: { type: string, format: uuid }
+        manageToken: { type: string, description: 'Shown once. Stored as SHA-256 hash. Replays return it again only to the same Idempotency-Key.' }
+        status: { $ref: '#/components/schemas/ReservationStatus' }
+        quantity: { type: integer }
+        unitPriceCents: { $ref: '#/components/schemas/Cents' }
+        amountCents: { $ref: '#/components/schemas/Cents' }
+        expiresAt: { type: string, format: date-time }
+        payment: { $ref: '#/components/schemas/PaymentInfo' }
+
+    ReservationView:
+      type: object
+      required: [reservationId, itemName, status, quantity, amountCents, expiresAt, payment]
+      properties:
+        reservationId: { type: string, format: uuid }
+        itemName: { type: string }
+        status: { $ref: '#/components/schemas/ReservationStatus' }
+        quantity: { type: integer }
+        amountCents: { $ref: '#/components/schemas/Cents' }
+        expiresAt: { type: string, format: date-time }
+        payment: { $ref: '#/components/schemas/PaymentInfo' }
+
+    PaymentNotificationPayload:
+      type: object
+      required: [eventId, type, providerReference, amountCents, occurredAt]
+      properties:
+        eventId: { type: string, description: Unique per event. Duplicates are ignored., example: evt_01J9ZK3Q7M }
+        type: { type: string, enum: [payment.paid, payment.declined] }
+        providerReference: { type: string }
+        amountCents: { $ref: '#/components/schemas/Cents' }
+        occurredAt: { type: string, format: date-time }
+
+    MockCharge:
+      type: object
+      required: [providerReference, status, amountCents, expiresAt, checkoutUrl]
+      properties:
+        providerReference: { type: string }
+        status: { type: string, enum: [PENDING, PAID, DECLINED] }
+        amountCents: { $ref: '#/components/schemas/Cents' }
+        expiresAt: { type: string, format: date-time }
+        checkoutUrl: { type: string, format: uri }
+
+    DevClock:
+      type: object
+      required: [now, offsetMinutes]
+      properties:
+        now: { type: string, format: date-time }
+        offsetMinutes: { type: integer }

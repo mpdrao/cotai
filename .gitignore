@@ -1,0 +1,27 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+*.swp
+
+# Node / Angular
+web/node/
+web/node_modules/
+web/dist/
+web/.angular/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+*.log

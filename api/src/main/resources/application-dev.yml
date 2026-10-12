@@ -1,0 +1,9 @@
+mock-gateway:
+  # Simulates the provider's delay before it calls our webhook.
+  webhook-delay-ms: 1500
+  # Sends the same event N times to demonstrate idempotency live (EC08).
+  duplicate-deliveries: 1
+
+logging:
+  level:
+    dev.cotai: DEBUG
