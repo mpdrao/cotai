@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
 
 import java.net.URI;
 import java.util.List;
@@ -30,13 +31,10 @@ import java.util.UUID;
 /** Organizer area. Requires a bearer token ({@code /api/gift-lists/**}). */
 @RestController
 @RequestMapping("/api/gift-lists")
+@RequiredArgsConstructor
 public class GiftListController {
 
     private final GiftListService service;
-
-    public GiftListController(GiftListService service) {
-        this.service = service;
-    }
 
     @PostMapping
     public ResponseEntity<GiftListResponse> create(@AuthenticationPrincipal Jwt jwt,

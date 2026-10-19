@@ -16,6 +16,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -29,6 +33,9 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "gift_list")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GiftList {
 
     public static final int MAX_ITEMS = 100;
@@ -66,10 +73,9 @@ public class GiftList {
 
     @OneToMany(mappedBy = "giftList", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private List<Item> items = new ArrayList<>();
-
-    protected GiftList() {
-    }
 
     public GiftList(Organizer owner, EventType eventType, String title, String slug, LocalDate eventDate,
                     int reservationTtlMinutes, Instant createdAt) {
@@ -142,42 +148,6 @@ public class GiftList {
 
     public boolean isOwnedBy(UUID organizerId) {
         return owner.getId().equals(organizerId);
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public Organizer getOwner() {
-        return owner;
-    }
-
-    public EventType getEventType() {
-        return eventType;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getSlug() {
-        return slug;
-    }
-
-    public LocalDate getEventDate() {
-        return eventDate;
-    }
-
-    public GiftListStatus getStatus() {
-        return status;
-    }
-
-    public int getReservationTtlMinutes() {
-        return reservationTtlMinutes;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
     }
 
     public List<Item> getItems() {
