@@ -6,6 +6,7 @@ import dev.cotai.payment.PaymentGateway.Charge;
 import dev.cotai.payment.PaymentGateway.ChargeRequest;
 import dev.cotai.reservation.ReservationDtos.PaymentInfo;
 import dev.cotai.reservation.ReservationService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.UUID;
 
 /** UC11 (open charge) and UC15-UC17 (process payment notification). */
 @Service
+@RequiredArgsConstructor
 public class PaymentService {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
@@ -33,18 +35,6 @@ public class PaymentService {
     private final TransactionTemplate tx;
     private final JsonMapper jsonMapper;
     private final Clock clock;
-
-    public PaymentService(PaymentGateway gateway, PaymentRepository payments,
-                          PaymentNotificationRepository notifications, ReservationService reservations,
-                          TransactionTemplate tx, JsonMapper jsonMapper, Clock clock) {
-        this.gateway = gateway;
-        this.payments = payments;
-        this.notifications = notifications;
-        this.reservations = reservations;
-        this.tx = tx;
-        this.jsonMapper = jsonMapper;
-        this.clock = clock;
-    }
 
     /**
      * Asks the gateway for a charge. Runs AFTER the reservation transaction committed, so no row lock

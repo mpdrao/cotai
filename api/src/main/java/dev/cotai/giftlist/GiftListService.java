@@ -16,6 +16,7 @@ import dev.cotai.giftlist.GiftListDtos.ItemTotals;
 import dev.cotai.giftlist.GiftListDtos.PublicGiftList;
 import dev.cotai.giftlist.GiftListDtos.PublicItem;
 import dev.cotai.giftlist.GiftListDtos.UpdateGiftListRequest;
+import lombok.RequiredArgsConstructor;
 import dev.cotai.organizer.OrganizerRepository;
 import dev.cotai.payment.PaymentRepository;
 import dev.cotai.reservation.Reservation;
@@ -36,6 +37,7 @@ import java.util.UUID;
 /** Organizer use cases (UC02-UC07) and the public gift list view (UC08). */
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class GiftListService {
 
     private final GiftListRepository giftLists;
@@ -47,21 +49,6 @@ public class GiftListService {
     private final SlugGenerator slugGenerator;
     private final AppProperties props;
     private final Clock clock;
-
-    public GiftListService(GiftListRepository giftLists, ItemRepository items, EventTypeRepository eventTypes,
-                           OrganizerRepository organizers, ReservationRepository reservations,
-                           PaymentRepository payments, SlugGenerator slugGenerator, AppProperties props,
-                           Clock clock) {
-        this.giftLists = giftLists;
-        this.items = items;
-        this.eventTypes = eventTypes;
-        this.organizers = organizers;
-        this.reservations = reservations;
-        this.payments = payments;
-        this.slugGenerator = slugGenerator;
-        this.props = props;
-        this.clock = clock;
-    }
 
     /** UC02 + UC03. Template items are copied, never referenced. */
     public GiftListResponse create(UUID ownerId, CreateGiftListRequest req) {

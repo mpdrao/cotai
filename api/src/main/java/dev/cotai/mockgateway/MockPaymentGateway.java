@@ -4,6 +4,7 @@ import dev.cotai.common.AppProperties;
 import dev.cotai.common.Crypto;
 import dev.cotai.payment.PaymentGateway;
 import dev.cotai.payment.PaymentProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Profile("dev")
 @Component
+@RequiredArgsConstructor
 public class MockPaymentGateway implements PaymentGateway {
 
     public enum ChargeStatus { PENDING, PAID, DECLINED }
@@ -58,14 +60,6 @@ public class MockPaymentGateway implements PaymentGateway {
     private final PaymentProperties paymentProperties;
     private final WebhookDispatcher dispatcher;
     private final Clock clock;
-
-    public MockPaymentGateway(AppProperties appProperties, PaymentProperties paymentProperties,
-                              WebhookDispatcher dispatcher, Clock clock) {
-        this.appProperties = appProperties;
-        this.paymentProperties = paymentProperties;
-        this.dispatcher = dispatcher;
-        this.clock = clock;
-    }
 
     @Override
     public String providerName() {
