@@ -1,5 +1,6 @@
 package dev.cotai.payment;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,13 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/webhooks")
+@RequiredArgsConstructor
 public class PaymentWebhookController {
 
     private final PaymentService paymentService;
-
-    public PaymentWebhookController(PaymentService paymentService) {
-        this.paymentService = paymentService;
-    }
 
     @PostMapping("/payments")
     public ResponseEntity<Void> receive(@RequestBody byte[] rawBody,

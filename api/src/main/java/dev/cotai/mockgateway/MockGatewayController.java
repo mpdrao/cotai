@@ -8,6 +8,7 @@ import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
 import dev.cotai.mockgateway.MockPaymentGateway.ChargeStatus;
 import dev.cotai.mockgateway.MockPaymentGateway.MockCharge;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import java.util.Base64;
 @Profile("dev")
 @Controller
 @RequestMapping("/mock-gateway")
+@RequiredArgsConstructor
 public class MockGatewayController {
 
     public record MockChargeResponse(String providerReference, ChargeStatus status, long amountCents,
@@ -34,10 +36,6 @@ public class MockGatewayController {
     }
 
     private final MockPaymentGateway gateway;
-
-    public MockGatewayController(MockPaymentGateway gateway) {
-        this.gateway = gateway;
-    }
 
     @GetMapping("/checkout/{providerReference}")
     public String checkout(@PathVariable String providerReference, Model model) {

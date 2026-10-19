@@ -4,6 +4,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 import java.util.Locale;
@@ -11,6 +15,9 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "organizer")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Organizer {
 
     @Id
@@ -29,9 +36,6 @@ public class Organizer {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    protected Organizer() {
-    }
-
     public Organizer(String name, String email, String passwordHash, Instant createdAt) {
         this.id = UUID.randomUUID();
         this.name = name;
@@ -44,23 +48,4 @@ public class Organizer {
         return email.trim().toLowerCase(Locale.ROOT);
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
 }

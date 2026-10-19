@@ -11,6 +11,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Map;
 
@@ -21,6 +25,9 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "item")
+@Setter
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Item {
 
     @Id
@@ -45,9 +52,6 @@ public class Item {
 
     @Column(nullable = false)
     private boolean archived;
-
-    protected Item() {
-    }
 
     Item(GiftList giftList, String name, String unit, long unitPriceCents, int totalQuotas) {
         this.giftList = giftList;
@@ -81,31 +85,4 @@ public class Item {
         this.archived = true;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public GiftList getGiftList() {
-        return giftList;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public long getUnitPriceCents() {
-        return unitPriceCents;
-    }
-
-    public int getTotalQuotas() {
-        return totalQuotas;
-    }
-
-    public boolean isArchived() {
-        return archived;
-    }
 }
