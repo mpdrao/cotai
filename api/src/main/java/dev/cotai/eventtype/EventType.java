@@ -7,6 +7,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +18,9 @@ import java.util.List;
 /** Event type (WEDDING, BABY_SHOWER, BARBECUE, OTHER) with up to 10 suggested items. Seeded by Flyway V2. */
 @Entity
 @Table(name = "event_type")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EventType {
 
     @Id
@@ -28,22 +35,9 @@ public class EventType {
 
     @OneToMany(mappedBy = "eventType", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("position ASC")
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private List<TemplateItem> templateItems = new ArrayList<>();
-
-    protected EventType() {
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getDefaultReservationTtlMinutes() {
-        return defaultReservationTtlMinutes;
-    }
 
     public List<TemplateItem> getTemplateItems() {
         return List.copyOf(templateItems);

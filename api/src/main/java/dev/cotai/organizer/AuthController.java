@@ -7,6 +7,7 @@ import dev.cotai.organizer.AuthDtos.OrganizerResponse;
 import dev.cotai.organizer.AuthDtos.RegisterRequest;
 import dev.cotai.organizer.AuthDtos.TokenResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,20 +22,13 @@ import java.time.Clock;
 /** UC01 Sign up / Log in. */
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final OrganizerRepository organizers;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final Clock clock;
-
-    public AuthController(OrganizerRepository organizers, PasswordEncoder passwordEncoder,
-                          JwtService jwtService, Clock clock) {
-        this.organizers = organizers;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-        this.clock = clock;
-    }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)

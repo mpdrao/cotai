@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -23,6 +24,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/dev")
 @Validated
+@RequiredArgsConstructor
 public class DevController {
 
     public record DevClock(Instant now, long offsetMinutes) {
@@ -42,11 +44,6 @@ public class DevController {
 
     private final MutableClock clock;
     private final ReservationService reservations;
-
-    public DevController(MutableClock clock, ReservationService reservations) {
-        this.clock = clock;
-        this.reservations = reservations;
-    }
 
     @GetMapping("/clock")
     public DevClock get() {

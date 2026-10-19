@@ -10,6 +10,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -21,6 +25,9 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "reservation")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Reservation {
 
     @Id
@@ -70,9 +77,6 @@ public class Reservation {
     @Column(name = "closed_at")
     private Instant closedAt;
 
-    protected Reservation() {
-    }
-
     public Reservation(UUID id, Item item, String guestName, String guestEmail, int quantity,
                        String manageTokenHash, UUID idempotencyKey, String requestHash,
                        Instant createdAt, Instant expiresAt) {
@@ -99,59 +103,4 @@ public class Reservation {
         return status;
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public Item getItem() {
-        return item;
-    }
-
-    public String getGuestName() {
-        return guestName;
-    }
-
-    public String getGuestEmail() {
-        return guestEmail;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public long getUnitPriceCents() {
-        return unitPriceCents;
-    }
-
-    public long getAmountCents() {
-        return amountCents;
-    }
-
-    public ReservationStatus getStatus() {
-        return status;
-    }
-
-    public String getManageTokenHash() {
-        return manageTokenHash;
-    }
-
-    public UUID getIdempotencyKey() {
-        return idempotencyKey;
-    }
-
-    public String getRequestHash() {
-        return requestHash;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getExpiresAt() {
-        return expiresAt;
-    }
-
-    public Instant getClosedAt() {
-        return closedAt;
-    }
 }

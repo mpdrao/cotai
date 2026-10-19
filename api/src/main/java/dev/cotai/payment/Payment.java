@@ -9,6 +9,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import dev.cotai.reservation.Reservation;
 
 import java.time.Instant;
@@ -21,6 +25,9 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "payment")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Payment {
 
     @Id
@@ -55,9 +62,6 @@ public class Payment {
     @Column(name = "paid_at")
     private Instant paidAt;
 
-    protected Payment() {
-    }
-
     public Payment(Reservation reservation, String provider) {
         this.id = UUID.randomUUID();
         this.reservation = reservation;
@@ -67,43 +71,4 @@ public class Payment {
         this.status = PaymentStatus.CREATED;
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public Reservation getReservation() {
-        return reservation;
-    }
-
-    public String getProvider() {
-        return provider;
-    }
-
-    public String getProviderReference() {
-        return providerReference;
-    }
-
-    public long getAmountCents() {
-        return amountCents;
-    }
-
-    public PaymentStatus getStatus() {
-        return status;
-    }
-
-    public String getCheckoutUrl() {
-        return checkoutUrl;
-    }
-
-    public String getQrCodePayload() {
-        return qrCodePayload;
-    }
-
-    public Instant getExpiresAt() {
-        return expiresAt;
-    }
-
-    public Instant getPaidAt() {
-        return paidAt;
-    }
 }

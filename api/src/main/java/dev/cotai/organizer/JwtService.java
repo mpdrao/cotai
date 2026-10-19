@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -15,17 +16,12 @@ import java.util.UUID;
 
 /** Issues HS256 JWTs whose subject is the organizer id. */
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
     private final JwtEncoder encoder;
     private final AppProperties props;
     private final Clock clock;
-
-    public JwtService(JwtEncoder encoder, AppProperties props, Clock clock) {
-        this.encoder = encoder;
-        this.props = props;
-        this.clock = clock;
-    }
 
     public String issue(Organizer organizer) {
         Instant now = clock.instant();
