@@ -4,6 +4,7 @@ import dev.cotai.reservation.ReservationDtos.ReservationCreated;
 import dev.cotai.reservation.ReservationDtos.ReservationView;
 import dev.cotai.reservation.ReservationDtos.ReserveOutcome;
 import dev.cotai.reservation.ReservationDtos.ReserveRequest;
+import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,15 +23,11 @@ import java.util.UUID;
 /** Guest area. No login: reservations are managed with the {@code X-Manage-Token} header. */
 @RestController
 @RequestMapping("/api/public")
+@RequiredArgsConstructor
 public class PublicReservationController {
 
     private final ReservationFlow flow;
     private final ReservationService reservations;
-
-    public PublicReservationController(ReservationFlow flow, ReservationService reservations) {
-        this.flow = flow;
-        this.reservations = reservations;
-    }
 
     @PostMapping("/items/{itemId}/reservations")
     public ResponseEntity<ReservationCreated> reserve(@PathVariable Long itemId,

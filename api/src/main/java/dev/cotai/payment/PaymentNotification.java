@@ -11,12 +11,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 
 /** Audit trail of every signed webhook received, including duplicates and rejected ones. */
 @Entity
 @Table(name = "payment_notification")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentNotification {
 
     @Id
@@ -44,9 +51,6 @@ public class PaymentNotification {
     @Column(name = "received_at", nullable = false)
     private Instant receivedAt;
 
-    protected PaymentNotification() {
-    }
-
     public PaymentNotification(Payment payment, String providerEventId, String eventType, String rawPayload,
                                NotificationOutcome outcome, Instant receivedAt) {
         this.payment = payment;
@@ -63,31 +67,4 @@ public class PaymentNotification {
         this.outcome = outcome;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Payment getPayment() {
-        return payment;
-    }
-
-    public String getProviderEventId() {
-        return providerEventId;
-    }
-
-    public String getEventType() {
-        return eventType;
-    }
-
-    public String getRawPayload() {
-        return rawPayload;
-    }
-
-    public NotificationOutcome getOutcome() {
-        return outcome;
-    }
-
-    public Instant getReceivedAt() {
-        return receivedAt;
-    }
 }

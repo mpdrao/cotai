@@ -16,6 +16,7 @@ import dev.cotai.reservation.ReservationDtos.PaymentInfo;
 import dev.cotai.reservation.ReservationDtos.ReservationCreated;
 import dev.cotai.reservation.ReservationDtos.ReservationView;
 import dev.cotai.reservation.ReservationDtos.ReserveRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ import java.util.UUID;
  * UPDATEs for every state transition, and no external call while a lock is held.
  */
 @Service
+@RequiredArgsConstructor
 public class ReservationService {
 
     private final ItemRepository items;
@@ -40,18 +42,6 @@ public class ReservationService {
     private final AppProperties appProperties;
     private final PaymentProperties paymentProperties;
     private final Clock clock;
-
-    public ReservationService(ItemRepository items, ReservationRepository reservations, PaymentRepository payments,
-                              PaymentGateway gateway, AppProperties appProperties,
-                              PaymentProperties paymentProperties, Clock clock) {
-        this.items = items;
-        this.reservations = reservations;
-        this.payments = payments;
-        this.gateway = gateway;
-        this.appProperties = appProperties;
-        this.paymentProperties = paymentProperties;
-        this.clock = clock;
-    }
 
     /** UC09 + UC10: reserve quotas under the item row lock. The charge is opened afterwards (UC11). */
     @Transactional
