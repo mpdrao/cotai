@@ -787,7 +787,7 @@ São 10 sugestões por tipo, gravadas na migration `V2__event_type_seed.sql`, pa
 
 Cada sugestão aceita uma foto de banco de imagens (`template_item.image_url`, migration `V3__item_photos.sql`), que é copiada para o item quando a lista é criada. As fotos ainda não foram adicionadas: a coluna está vazia e as sugestões aparecem sem foto. Para adicionar, coloque os arquivos em `frontend/public/suggestions/` com nomes no formato `barbecue-1.jpg` (código do tipo em minúsculas, `_` vira `-`, e a posição) e crie uma migration que preencha `image_url` com `/suggestions/<arquivo>`. A API só aceita `imageUrl` nesse formato (`^/suggestions/[a-z0-9-]+\.jpg$`).
 
-O organizador também pode enviar a própria foto de cada item (JPEG, PNG ou WebP, até 5 MB, tipo detectado pelos bytes). Ela fica na tabela `item_photo`, substitui a foto anterior e é servida publicamente em `/api/item-photos/{photoId}`, com id aleatório que muda a cada envio, para os convidados verem na lista pública.
+O organizador também pode enviar a própria foto de cada item (JPEG, PNG ou WebP, até 5 MB, tipo detectado pelos bytes). Ela fica na tabela `item_photo`, substitui a foto anterior e é servida publicamente em `/api/item-photos/{photoId}`, com id aleatório que muda a cada envio, para os convidados verem na lista pública. Antes de enviar, o navegador reduz a foto para no máximo 1600 px no lado maior e a converte para JPEG (`shrink-photo.ts`), para a lista pública não baixar 5 MB por item; se o navegador não conseguir decodificar a imagem, envia o arquivo original. Itens arquivados não aceitam troca de foto (404).
 
 ## Endpoints
 
@@ -807,7 +807,7 @@ O organizador também pode enviar a própria foto de cada item (JPEG, PNG ou Web
 | PUT/api/gift-lists/{giftListId}/items/{itemId} | bearer | 200 · 400 · 401 · 404 · 409 |
 | DELETE/api/gift-lists/{giftListId}/items/{itemId} | bearer | 204 · 401 · 404 · 409 |
 | PUT/api/gift-lists/{giftListId}/items/{itemId}/photo | bearer | 200 · 400 · 401 · 404 · 409 · 413 · 415 |
-| DELETE/api/gift-lists/{giftListId}/items/{itemId}/photo | bearer | 200 · 401 · 404 |
+| DELETE/api/gift-lists/{giftListId}/items/{itemId}/photo | bearer | 200 · 401 · 404 · 409 |
 | GET/api/gift-lists/{giftListId}/summary | bearer | 200 · 401 · 404 |
 | GET/api/item-photos/{photoId} | public | 200 · 404 |
 | GET/api/public/gift-lists/{slug} | public | 200 · 404 |

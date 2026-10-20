@@ -332,7 +332,7 @@ paths:
       summary: Upload item photo
       description: |
         Replaces the current photo (stock or uploaded). JPEG, PNG or WebP up to 5 MB, detected from the
-        file bytes. Each upload gets a new public URL, so it can be cached forever.
+        file bytes. Each upload gets a new public URL, so it can be cached forever. Archived items answer 404.
       requestBody:
         required: true
         content:
@@ -366,6 +366,7 @@ paths:
               schema: { $ref: '#/components/schemas/Item' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '409': { description: INVALID_STATE_TRANSITION (list is CLOSED) }
 
   /api/item-photos/{photoId}:
     get:
