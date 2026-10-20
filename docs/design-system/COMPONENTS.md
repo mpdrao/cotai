@@ -2,7 +2,7 @@
 
 ## Reutilização
 
-Componentes Angular standalone iniciais em `web/src/app/shared/cotai-ui/`:
+Componentes Angular standalone iniciais em `frontend/src/app/shared/cotai-ui/`:
 
 | Nome | Seletor | Uso |
 |---|---|---|
