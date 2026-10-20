@@ -17,6 +17,11 @@ spring:
     enabled: true
   jackson:
     default-property-inclusion: non_null
+  servlet:
+    multipart:
+      # Item photos (PhotoFormat.MAX_BYTES). The request limit leaves room for the multipart envelope.
+      max-file-size: 5MB
+      max-request-size: 6MB
 
 server:
   port: 8080

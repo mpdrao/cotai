@@ -9,6 +9,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -61,10 +63,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             HttpMessageNotReadableException.class,
             MissingRequestHeaderException.class,
-            MethodArgumentTypeMismatchException.class
+            MethodArgumentTypeMismatchException.class,
+            MissingServletRequestPartException.class
     })
     ProblemDetail handleMalformed(Exception ex, HttpServletRequest request) {
         return problem(ErrorCode.VALIDATION_FAILED, ex.getMessage(), request);
+    }
+
+    /** Upload above spring.servlet.multipart limits, rejected before reaching the controller. */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    ProblemDetail handleTooLarge(MaxUploadSizeExceededException ex, HttpServletRequest request) {
+        return problem(ErrorCode.PHOTO_TOO_LARGE, "Photo is larger than 5 MB.", request);
     }
 
     /** Unknown route or static file (e.g. "/" when the SPA is not bundled): 404, not 500. */
