@@ -259,40 +259,42 @@ import {
     </div>
   `,
   styles: `
-    .page { display: grid; gap: 1.25rem; }
-    .head { display: grid; gap: 0.5rem; justify-items: start; }
+    .page { display: grid; gap: 2rem; max-width: 60rem; margin-inline: auto; }
+    .head { display: grid; gap: .75rem; justify-items: start; padding: 1.5rem; border-radius: var(--cotai-radius-lg); background: var(--cotai-surface-sage); }
     .meta, .muted { margin: 0; color: var(--cotai-muted); }
     .small { margin: 0; font-size: 0.875rem; }
     h2 { margin: 0 0 0.5rem; font-size: 1.125rem; }
     h3 { margin: 0; font-size: 1.0625rem; font-weight: 600; overflow-wrap: anywhere; }
     cotai-card .muted { margin-bottom: 1rem; }
     .section-title { margin: 0; font-size: 1.25rem; color: var(--cotai-primary); }
-    .block { display: grid; gap: 0.75rem; }
+    .block { display: grid; gap: 1.5rem; margin-top: 1rem; }
     .share-url {
       margin: 0 0 1rem; padding: 0.75rem 1rem; border-radius: var(--cotai-radius-sm);
       background: var(--cotai-background); font-size: 0.875rem; overflow-wrap: anywhere;
     }
     .actions { display: grid; gap: 0.5rem; }
     .close-area { display: grid; gap: 0.75rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--cotai-border); }
-    .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin: 0; }
+    .tiles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.75rem; margin: 0; }
     .tiles div {
-      padding: 0.75rem 1rem; border: 1px solid var(--cotai-border); border-radius: var(--cotai-radius-card);
-      background: var(--cotai-surface); min-width: 0;
+      padding: 1rem; border-left: 2px solid var(--cotai-border); min-width: 0;
     }
-    .tiles dt { font-size: 0.8125rem; color: var(--cotai-muted); }
-    .tiles dd { margin: 0; font-size: 1.125rem; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .tiles dt { font-size: 0.875rem; color: var(--cotai-muted); }
+    .tiles dd { margin: .5rem 0 0; font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
     .tiles .refund { background: var(--cotai-warning-bg); }
     .contributors { display: grid; gap: 0.75rem; margin: 0.75rem 0 0; padding: 0; list-style: none; }
-    .contributors li { display: flex; justify-content: space-between; gap: 1rem; }
+    .contributors li { display: grid; gap: .5rem; padding-block: .75rem; border-bottom: 1px solid var(--cotai-border); }
     .who, .paid { display: grid; min-width: 0; }
-    .paid { text-align: right; flex-shrink: 0; }
+    .paid { text-align: left; overflow-wrap: anywhere; }
     .item { display: grid; gap: 1rem; }
     .item-info { display: grid; gap: 0.375rem; min-width: 0; }
     .item-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .item-edit, .confirm { display: grid; gap: 0.75rem; }
-    .details { display: grid; gap: 1rem; }
+    .details { display: grid; gap: 1.5rem; }
     .state-title { font-size: 1.25rem; }
     @media (min-width: 40rem) {
+      .head { padding: 2rem; }
+      .contributors li { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
+      .paid { text-align: right; }
       .actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .tiles { grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
       .details { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
