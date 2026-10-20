@@ -12,7 +12,9 @@ import { CotaiButtonComponent, CotaiCardComponent, CotaiStatusBadgeComponent } f
     @if (view(); as r) {
       <div class="layout">
         <header class="head">
+          <p class="cotai-eyebrow">Sua contribuição</p>
           <h1>Acompanhar minha reserva</h1>
+          <p class="reservation-amount">{{ r.amountCents / 100 | currency: 'BRL' }}</p>
           <div aria-live="polite">
             <cotai-status-badge [status]="copy()!.badge" />
             <p class="status-detail">{{ copy()!.detail }}</p>
@@ -63,8 +65,9 @@ import { CotaiButtonComponent, CotaiCardComponent, CotaiStatusBadgeComponent } f
     }
   `,
   styles: `
-    .layout { display: grid; gap: 1rem; }
-    .head { display: grid; gap: 0.75rem; }
+    .layout { display: grid; gap: 1.5rem; max-width: 56rem; margin-inline: auto; }
+    .head { display: grid; gap: 1rem; padding-bottom: 1rem; }
+    .reservation-amount { margin: 0; font-size: clamp(2rem, 1.5rem + 2vw, 3rem); font-weight: 600; letter-spacing: -.035em; }
     h1 { margin: 0; font-size: clamp(1.5rem, 1.1rem + 2vw, 2.25rem); font-weight: 800; line-height: 1.15; color: var(--cotai-primary); }
     h2 { margin: 0 0 0.5rem; font-size: 1.125rem; }
     .status-detail { margin: 0.5rem 0 0; }
@@ -73,15 +76,17 @@ import { CotaiButtonComponent, CotaiCardComponent, CotaiStatusBadgeComponent } f
     .qr { display: block; margin: 1rem auto; padding: 0.5rem; background: var(--cotai-surface); border-radius: var(--cotai-radius-sm); max-width: 100%; height: auto; }
     .pay-actions { display: grid; gap: 0.5rem; margin-top: 1rem; }
     .cta {
+      transition: background var(--cotai-motion);
       display: flex; align-items: center; justify-content: center;
       min-height: var(--cotai-tap-target); padding: 0.7rem 1.25rem;
       border-radius: var(--cotai-radius-pill); background: var(--cotai-primary); color: var(--cotai-surface);
       font-weight: 600; text-decoration: none;
     }
-    .details { display: grid; gap: 0.5rem; margin: 0 0 0.75rem; }
-    .details div { display: flex; justify-content: space-between; gap: 1rem; }
+    .cta:hover { background: var(--cotai-primary-hover); }
+    .details { display: grid; gap: 1rem; margin: 0 0 0.75rem; }
+    .details div { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1fr); gap: 1rem; }
     .details dt { color: var(--cotai-muted); }
-    .details dd { margin: 0; font-weight: 600; text-align: right; }
+    .details dd { overflow-wrap: anywhere; margin: 0; font-weight: 600; text-align: right; }
     .state-title { font-size: 1.25rem; }
     @media (min-width: 48rem) {
       .layout { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: start; }
