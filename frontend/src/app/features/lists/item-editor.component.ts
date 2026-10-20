@@ -36,10 +36,14 @@ import { ItemDraft, ItemErrors } from './item-draft';
     </div>
   `,
   styles: `
-    .fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.75rem; }
+    .fields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
     .name { grid-column: 1 / -1; }
     .fields > label:nth-child(2) { grid-column: 1 / -1; }
-    @media (min-width: 48rem) {
+    @media (min-width: 40rem) {
+      .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (min-width: 64rem) {
+      .cotai-label { display: flex; align-items: end; min-height: 2.75rem; }
       .fields { grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.8fr); align-items: start; }
       .name, .fields > label:nth-child(2) { grid-column: auto; }
     }
