@@ -4,7 +4,7 @@ info:
   version: 0.1.0-draft
   summary: Gift registry with quotas for weddings, baby showers, barbecues and other events.
   description: |
-    DRAFT. Contract sketch for the Cotai monorepo (api/ Spring Boot, web/ Angular).
+    DRAFT. Contract sketch for the Cotai monorepo (backend/ Spring Boot, frontend/ Angular).
 
     Conventions
     - Money is always an integer amount of cents (BRL). Never floating point.

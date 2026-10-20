@@ -24,12 +24,12 @@
     </properties>
 
     <modules>
-        <module>api</module>
+        <module>backend</module>
     </modules>
 
     <profiles>
         <!--
-          Builds the Angular SPA (web/) and bundles it into the API jar under /static.
+          Builds the Angular SPA (frontend/) and bundles it into the API jar under /static.
           Active by default; skip it with -DskipWeb for a backend-only build.
         -->
         <profile>
@@ -40,7 +40,7 @@
                 </property>
             </activation>
             <modules>
-                <module>web</module>
+                <module>frontend</module>
             </modules>
         </profile>
     </profiles>
