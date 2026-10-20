@@ -835,7 +835,17 @@ A interface segue o design system **Cota Ae!** (`docs/design-system/`, regras pa
 | Marca | `web/public/brand/` | Logos e ícone em SVG, interpretativos; a referência aprovada é `docs/design-system/references/identidade-aprovada.png` |
 | Textos de status e erro | `web/src/app/core/copy/ui-copy.ts` | Traduz `code` do Problem Detail e o status da reserva para o texto de `UI_COPY.md` |
 
-Rotas existentes: `/` (início), `/l/:slug` (lista pública), `/r/:reservationId` (minha reserva) e `/dashboard` (placeholder). As telas do organizador (`/login`, `/register`, `/lists/new`, `/lists/:id`) ainda não existem no Angular, embora o `SpaForwardController` já encaminhe essas rotas.
+| Rota | Tela | Acesso |
+| --- | --- | --- |
+| `/` | Início | público |
+| `/l/:slug` | Lista pública: escolher cotas e reservar | público |
+| `/r/:reservationId` | Minha reserva: QR, link de pagamento e status | quem tem o `manageToken` no navegador |
+| `/login`, `/register` | Entrar e criar conta (UC01) | público |
+| `/dashboard` | Minhas listas | organizador |
+| `/lists/new` | Criar lista a partir do tipo de evento, com as sugestões editáveis (UC02, UC03) | organizador |
+| `/lists/:id` | Publicar, compartilhar o link, editar, adicionar e remover itens, editar dados, acompanhar a arrecadação e encerrar (UC04 a UC07) | organizador |
+
+A sessão do organizador guarda o JWT no `localStorage` até expirar (`app.jwt.ttl-seconds`). O `authInterceptor` envia o token só para `/api/gift-lists/**` e, num 401, volta para `/login`. O `authGuard` protege as rotas do organizador.
 
 No QUOTA_UNAVAILABLE (EC28), a lista pública fecha o formulário, mostra "Essa cota acabou de ser reservada. Atualizamos os números." e recarrega a disponibilidade.
 

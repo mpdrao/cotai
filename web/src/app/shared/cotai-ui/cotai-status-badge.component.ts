@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-export type CotaiStatus = 'pending' | 'confirmed' | 'cancelled' | 'expired' | 'refund';
+export type CotaiStatus = 'pending' | 'confirmed' | 'cancelled' | 'expired' | 'refund' | 'draft' | 'published' | 'closed';
 
 @Component({
   selector: 'cotai-status-badge',
@@ -17,6 +17,9 @@ export class CotaiStatusBadgeComponent {
       cancelled: 'Cancelado',
       expired: 'Expirado',
       refund: 'Estorno necessário',
+      draft: 'Rascunho',
+      published: 'Publicada',
+      closed: 'Encerrada',
     }[this.status];
   }
 }

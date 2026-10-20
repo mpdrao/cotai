@@ -105,7 +105,6 @@ Variáveis de ambiente (valores padrão servem **apenas** para desenvolvimento):
 Esta é a base inicial: o backend implementa os casos de uso do design (auth, listas, itens, reservas, pagamento simulado, webhook, expiração, resumo). Falta:
 
 - [ ] Testes de integração de concorrência e webhook do design (`ReservationConcurrencyIT`, `IdempotencyRaceIT`, `ConfirmVsExpireRaceIT`, `CancelVsPaidRaceIT`, `PaymentWebhookIT`, `GatewayFailureIT`)
-- [ ] Telas do organizador (login, criar lista a partir do tipo de evento, itens, resumo)
 - [ ] Gerar os tipos do Angular a partir do `openapi.yaml`
 - [ ] Collections Postman/Insomnia (`docs/api/collections/`)
 - [ ] Rate limit por IP e verificação de e-mail (fora do escopo do design atual)

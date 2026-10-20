@@ -4,7 +4,11 @@
       <a routerLink="/" class="brand" aria-label="Cota Ae! — início">
         <img src="brand/logo-primary.svg" alt="Cota Ae!" width="116" height="42" />
       </a>
-      <a routerLink="/dashboard" class="organizer-link">Área do organizador</a>
+      @if (auth.isLoggedIn()) {
+        <a routerLink="/dashboard" class="organizer-link">Minhas listas</a>
+      } @else {
+        <a routerLink="/login" class="organizer-link">Entrar</a>
+      }
     </div>
   </header>
   <main class="cotai-container content">
