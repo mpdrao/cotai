@@ -1,0 +1,57 @@
+:host { display: block; }
+.hero { display: grid; gap: 2.5rem; padding-block: 1rem 3rem; }
+h1 { margin: 1rem 0 1.5rem; max-width: 14ch; font-size: clamp(2.125rem, 1.4rem + 3.5vw, 2.625rem); font-weight: 700; line-height: 1.08; letter-spacing: -.045em; color: var(--cotai-primary); }
+.hero .cotai-lead { margin: 0; max-width: 49ch; }
+.actions { display: grid; gap: .5rem; margin-top: 2rem; }
+.actions a { gap: 1rem; }
+.how-link { display: inline-flex; justify-content: center; align-items: center; gap: .75rem; min-height: var(--cotai-tap-target); font-size: .875rem; font-weight: 600; text-decoration: none; }
+.how-link:hover { text-decoration: underline; text-underline-offset: .25rem; }
+.events { display: flex; flex-wrap: wrap; gap: .5rem 1rem; padding: 0; margin: 1.5rem 0 0; list-style: none; font-size: .875rem; color: var(--cotai-muted); }
+.events li { display: flex; align-items: center; gap: .5rem; }
+.events li::before { content: ''; width: .25rem; height: .25rem; border-radius: 50%; background: var(--cotai-muted); }
+.demo { position: relative; isolation: isolate; margin: 0; padding: 1.25rem .5rem; min-width: 0; }
+.demo::before { content: ''; position: absolute; z-index: -1; inset: 0; background: var(--cotai-surface-peach); border-radius: 40% 54% 35% 46%; }
+.demo cotai-card { --cotai-card-padding: 1.25rem; }
+.demo-label { margin: 0; width: fit-content; padding: .25rem .75rem; border-radius: var(--cotai-radius-pill); background: var(--cotai-surface-sage); font-size: .875rem; font-weight: 500; }
+.demo-title { margin: 1.25rem 0 .5rem; font-size: 1.375rem; font-weight: 700; letter-spacing: -.025em; line-height: 1.25; }
+.demo-intro { margin: 0; font-size: .875rem; color: var(--cotai-muted); }
+.demo-items { list-style: none; padding: 0; margin: 1.5rem 0; }
+.demo-items li { display: flex; align-items: center; gap: .75rem; padding-block: 1rem; border-bottom: 1px solid var(--cotai-border); }
+.demo-items li:first-child { border-top: 1px solid var(--cotai-border); }
+.demo-name, .demo-price { margin: 0; font-size: .875rem; font-weight: 600; }
+.demo-name { margin-bottom: .25rem; }
+.demo-price span { color: var(--cotai-muted); font-weight: 400; }
+.demo-quantity { display: none; }
+.demo-progress > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; margin-bottom: .75rem; font-size: .875rem; }
+.demo-progress p { margin: .75rem 0 0; color: var(--cotai-muted); font-size: .875rem; }
+.demo-note { display: none; }
+.steps { padding: 2rem 1.25rem; background: var(--cotai-surface-sage); border-radius: var(--cotai-radius-lg); scroll-margin-top: 1.5rem; }
+.steps h2 { margin: .5rem 0 2rem; font-size: clamp(1.5rem, 1rem + 1.5vw, 2rem); letter-spacing: -.025em; }
+.step-list { display: grid; gap: 2rem; margin: 0; padding: 0; list-style: none; }
+.step-list li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1rem; }
+.step-number { color: var(--cotai-primary); font-size: 1.75rem; line-height: 1.2; font-weight: 500; }
+.steps h3 { margin: 0 0 .5rem; font-size: 1.0625rem; }
+.steps p:not(.cotai-eyebrow) { margin: 0; color: var(--cotai-muted); font-size: .9375rem; }
+@media (min-width: 40rem) {
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem; }
+  .demo::before { transform: rotate(-3deg); }
+  .demo { width: min(100%, 30rem); justify-self: center; padding: 2rem 1rem; }
+  .demo cotai-card { --cotai-card-padding: 2rem; }
+  .demo-quantity { display: block; margin-left: auto; color: var(--cotai-muted); font-size: .875rem; white-space: nowrap; }
+  .steps { padding: 2.5rem; }
+}
+@media (min-width: 48rem) {
+  .step-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; }
+  .step-list li { display: block; position: relative; }
+  .step-number { display: block; margin-bottom: 1.5rem; }
+  .step-list li:not(:last-child)::after { content: ''; position: absolute; top: 1rem; left: 3rem; right: 0; height: 1px; background: var(--cotai-input-border); }
+}
+@media (min-width: 64rem) {
+  .hero { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: center; gap: 4rem; padding-block: 1.5rem 5rem; }
+  h1 { font-size: clamp(3rem, 4.5vw, 4rem); }
+  .hero .cotai-lead { max-width: 46ch; }
+  .demo { padding: 1.5rem .75rem 2.5rem; }
+  .demo-note { display: flex; align-items: center; gap: 1rem; position: absolute; bottom: 0; right: 0; padding: 1rem 1.25rem; border-radius: var(--cotai-radius-card); background: var(--cotai-surface-sage); box-shadow: var(--cotai-shadow-card); font-size: .875rem; font-weight: 500; }
+  .demo-note span { font-size: 1.5rem; }
+  .steps { padding: 3rem; }
+}
