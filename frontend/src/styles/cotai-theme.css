@@ -29,9 +29,6 @@
   --cotai-shadow-base: none;
   --cotai-shadow-card: 0 4px 16px rgba(22,55,42,.045);
   --cotai-shadow-raised: 0 20px 48px -16px rgba(22,55,42,.24), 0 4px 12px rgba(22,55,42,.05);
-  --cotai-shadow-hover: 0 12px 28px -14px rgba(22,55,42,.28), 0 2px 6px rgba(22,55,42,.05);
-  --cotai-gradient-warm: linear-gradient(135deg, var(--cotai-surface-peach) 0%, var(--cotai-background) 55%, var(--cotai-surface-sage) 100%);
-  --cotai-surface-glass: color-mix(in srgb, var(--cotai-surface) 90%, transparent);
   --cotai-focus-ring: 0 0 0 4px color-mix(in srgb, var(--cotai-secondary) 30%, transparent);
   --cotai-motion: 180ms ease;
   --cotai-space-1: .25rem;
