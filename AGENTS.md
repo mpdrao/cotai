@@ -76,4 +76,5 @@ Se algum requisito visual exigir alteração de padrão, **pergunte antes de exe
 Leia esta seção **sempre** antes de commitar, fazer push ou abrir/editar um PR.
 
 - Mensagem de commit: **só a linha de título** (ex.: `chore: reorganiza pastas`). Sem corpo, sem descrição extra.
+- PR: **só o título**, com a descrição **vazia**. Nada de resumo, verificação ou checklist no corpo.
 - **Nunca** adicione `Co-Authored-By`, "Generated with Claude Code" ou qualquer outra atribuição a agentes/IA em commits, descrições de PR ou comentários.
