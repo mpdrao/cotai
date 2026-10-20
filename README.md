@@ -17,15 +17,14 @@ O organizador parte de 10 itens sugeridos por tipo de evento, ajusta nome, unida
 | Frontend | Angular 22 (standalone components, signals) |
 | Contrato | OpenAPI 3.1 · erros em RFC 9457 (Problem Details) |
 | Testes | JUnit 5 · Testcontainers (PostgreSQL real, não H2) |
-| Build | Maven multi-módulo (`backend/` + `frontend/`), um único JAR em produção |
+| Build | Maven em `backend/` (builda o Angular de `frontend/` junto), um único JAR em produção |
 
 ## Estrutura
 
 ```
 cotai/
-├── pom.xml                  # parent: módulos backend e frontend
-├── docker-compose.yml       # postgres:17
-├── backend/                 # Spring Boot (artifact cotai-api)
+├── AGENTS.md                # regras para agentes de código (.claude/CLAUDE.md aponta pra cá)
+├── backend/                 # Spring Boot: pom.xml, mvnw, docker-compose.yml (postgres:17)
 │   └── src/main/java/dev/cotai/
 │       ├── organizer/       # Organizer, AuthController, JwtService
 │       ├── eventtype/       # EventType, TemplateItem, EventTypeController
@@ -53,12 +52,12 @@ Pré-requisitos: **Java 21**, **Node 24.15+** (para o Angular 22) e **Docker**.
 
 ```bash
 # 1. Banco
-docker compose up -d
+cd backend && docker compose up -d
 
 # 2. API (perfil dev: gateway simulado + relógio controlável) em http://localhost:8080
-./mvnw -DskipWeb -pl backend spring-boot:run
+./mvnw -DskipWeb spring-boot:run
 
-# 3. Frontend com proxy para a API em http://localhost:4200
+# 3. Frontend com proxy para a API em http://localhost:4200 (outro terminal, a partir da raiz)
 cd frontend && npm install && npm start
 ```
 
@@ -76,10 +75,11 @@ Para reproduzir expirações sem esperar 30 minutos: `POST /dev/clock/advance {"
 ## Build e testes
 
 ```bash
-./mvnw -DskipWeb -pl backend test      # testes unitários
-./mvnw -DskipWeb -pl backend verify    # + integração (*IT) com Testcontainers (requer Docker)
-./mvnw clean package               # JAR único com o Angular em /static
-java -Dspring.profiles.active=dev -jar backend/target/cotai.jar
+cd backend
+./mvnw -DskipWeb test      # testes unitários
+./mvnw -DskipWeb verify    # + integração (*IT) com Testcontainers (requer Docker)
+./mvnw clean package       # JAR único com o Angular de ../frontend em /static
+java -Dspring.profiles.active=dev -jar target/cotai.jar
 ```
 
 ## Configuração
