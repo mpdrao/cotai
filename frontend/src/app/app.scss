@@ -16,7 +16,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  min-height: 4rem;
+  min-height: 4.5rem;
 }
 
 .brand {
@@ -54,6 +54,9 @@
   }
 
   .content {
-    padding-block: 2.5rem 4rem;
+    padding-block: 3rem 5rem;
   }
 }
+
+.organizer-link { transition: background var(--cotai-motion); }
+.organizer-link:hover { background: var(--cotai-surface-sage); }

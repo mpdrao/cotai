@@ -13,6 +13,14 @@ Componentes Angular standalone iniciais em `frontend/src/app/shared/cotai-ui/`:
 
 Eles **não são acoplados a rotas** e não substituem a lógica já existente. São ponto de partida coerente com a identidade aprovada; adapte APIs para o projeto quando necessário.
 
+### Superfícies e profundidade
+
+O tema existente centraliza os níveis: base creme sem sombra (`--cotai-shadow-base`), superfície branca ou tonalizada (`--cotai-surface-sage`, `--cotai-surface-peach`) e destaque (`--cotai-shadow-raised`). `--cotai-shadow-card` é a sombra suave para uso localizado.
+
+`cotai-card` recebe `elevation="flat"` (padrão), `"soft"` ou `"raised"`. Use `raised` para o painel ilustrativo do hero; cards comuns ficam em `flat`. `tinted` aplica a superfície suave de verde sem borda contrastante. Os raios são 12 px nos campos, 20 px em cards e 28 px nos destaques. Os tokens `--cotai-card-padding`, `--cotai-card-border` e `--cotai-card-radius` permitem ajustes locais no host sem atravessar o encapsulamento Angular.
+
+Cards estáticos não se movem no hover. Links e botões têm transição de 180 ms, foco visível verde e respeitam movimento reduzido. A lista selecionada para reserva usa borda e sombra suave, com foco no início do formulário ao abrir e retorno ao botão ao voltar.
+
 ### Exemplo Angular
 
 ```ts

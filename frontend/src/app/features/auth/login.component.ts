@@ -10,36 +10,35 @@ import { CotaiButtonComponent, CotaiCardComponent } from '../../shared/cotai-ui'
   imports: [FormsModule, RouterLink, CotaiButtonComponent, CotaiCardComponent],
   template: `
     <div class="auth">
-      <h1 class="cotai-page-title">Entrar</h1>
-      <p class="cotai-lead">Acesse suas listas para editar itens, compartilhar o link e acompanhar as cotas.</p>
-      <cotai-card>
-        <form class="form" (ngSubmit)="submit()" #form="ngForm">
-          <label class="cotai-field">
-            <span class="cotai-label">E-mail</span>
-            <input class="cotai-input" id="login-email" name="email" type="email" inputmode="email" autocomplete="email"
-                   required [(ngModel)]="email" />
-          </label>
-          <label class="cotai-field">
-            <span class="cotai-label">Senha</span>
-            <input class="cotai-input" id="login-password" name="password" type="password" autocomplete="current-password"
-                   required [(ngModel)]="password" />
-          </label>
-          @if (error()) {
-            <p class="cotai-alert cotai-alert--error" role="alert">{{ error() }}</p>
-          }
-          <cotai-button type="submit" [fullWidth]="true" [loading]="loading()" [disabled]="!!form.invalid">Entrar</cotai-button>
-        </form>
-      </cotai-card>
-      <p class="switch">Ainda não tem conta? <a routerLink="/register" [queryParams]="{ redirect: redirect }">Criar conta</a></p>
+      <header class="intro">
+        <p class="cotai-eyebrow">Junta pra fazer acontecer.</p>
+        <h1 class="cotai-page-title">Entrar</h1>
+        <p class="cotai-lead">Acesse suas listas para editar itens, compartilhar o link e acompanhar as cotas.</p>
+      </header>
+      <div class="auth-content">
+        <cotai-card elevation="soft">
+          <form class="form" (ngSubmit)="submit()" #form="ngForm">
+            <label class="cotai-field">
+              <span class="cotai-label">E-mail</span>
+              <input class="cotai-input" id="login-email" name="email" type="email" inputmode="email" autocomplete="email"
+                     required [(ngModel)]="email" />
+            </label>
+            <label class="cotai-field">
+              <span class="cotai-label">Senha</span>
+              <input class="cotai-input" id="login-password" name="password" type="password" autocomplete="current-password"
+                     required [(ngModel)]="password" />
+            </label>
+            @if (error()) {
+              <p class="cotai-alert cotai-alert--error" role="alert">{{ error() }}</p>
+            }
+            <cotai-button type="submit" [fullWidth]="true" [loading]="loading()" [disabled]="!!form.invalid">Entrar</cotai-button>
+          </form>
+        </cotai-card>
+        <p class="switch">Ainda não tem conta? <a routerLink="/register" [queryParams]="{ redirect: redirect }">Criar conta</a></p>
+      </div>
     </div>
   `,
-  styles: `
-    .auth { display: grid; gap: 1rem; max-width: 28rem; margin-inline: auto; }
-    .cotai-lead { margin: 0; }
-    .form { display: grid; gap: 1rem; }
-    .switch { margin: 0; text-align: center; }
-    .switch a { display: inline-flex; align-items: center; min-height: var(--cotai-tap-target); font-weight: 600; }
-  `,
+  styleUrl: './auth.component.scss',
 })
 export class LoginComponent {
   private readonly auth = inject(AuthService);
