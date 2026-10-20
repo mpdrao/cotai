@@ -3,3 +3,6 @@
 .cotai-status--confirmed { color:#22553B; background:var(--cotai-success-bg, #E4F3E8); }
 .cotai-status--cancelled, .cotai-status--expired { color:#8B3530; background:var(--cotai-danger-bg, #FCE9E6); }
 .cotai-status--refund { color:#754515; background:var(--cotai-warning-bg, #FFF1DE); }
+.cotai-status--draft { color: var(--cotai-muted, #53645B); background: var(--cotai-surface, #fff); border: 1px solid var(--cotai-border, #ECE8DE); }
+.cotai-status--published { color:#22553B; background:var(--cotai-success-bg, #E4F3E8); }
+.cotai-status--closed { color: var(--cotai-muted, #53645B); background: var(--cotai-border, #ECE8DE); }
