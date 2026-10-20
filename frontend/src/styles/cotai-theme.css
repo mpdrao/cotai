@@ -16,11 +16,33 @@
   --cotai-danger-ink: #8B3530;
   --cotai-font: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --cotai-radius-sm: .75rem;
-  --cotai-radius-card: 1rem;
-  --cotai-radius-lg: 1.5rem;
+  --cotai-radius-card: 1.25rem;
+  --cotai-radius-lg: 1.75rem;
   --cotai-radius-pill: 999px;
   --cotai-tap-target: 2.75rem;
-  --cotai-shadow-card: 0 8px 32px rgba(46,93,70,.065);
+  /* Base → surface → emphasis. Tints derive only from the approved palette. */
+  --cotai-surface-sage: color-mix(in srgb, var(--cotai-secondary) 12%, var(--cotai-background));
+  --cotai-surface-peach: color-mix(in srgb, var(--cotai-peach) 25%, var(--cotai-background));
+  --cotai-input-border: color-mix(in srgb, var(--cotai-muted) 80%, var(--cotai-surface));
+  --cotai-primary-hover: #214734;
+  --cotai-progress-track: #E5ECE4;
+  --cotai-shadow-base: none;
+  --cotai-shadow-card: 0 4px 16px rgba(22,55,42,.045);
+  --cotai-shadow-raised: 0 20px 48px -16px rgba(22,55,42,.24), 0 4px 12px rgba(22,55,42,.05);
+  --cotai-shadow-hover: 0 12px 28px -14px rgba(22,55,42,.28), 0 2px 6px rgba(22,55,42,.05);
+  --cotai-gradient-warm: linear-gradient(135deg, var(--cotai-surface-peach) 0%, var(--cotai-background) 55%, var(--cotai-surface-sage) 100%);
+  --cotai-surface-glass: color-mix(in srgb, var(--cotai-surface) 90%, transparent);
+  --cotai-focus-ring: 0 0 0 4px color-mix(in srgb, var(--cotai-secondary) 30%, transparent);
+  --cotai-motion: 180ms ease;
+  --cotai-space-1: .25rem;
+  --cotai-space-2: .5rem;
+  --cotai-space-3: .75rem;
+  --cotai-space-4: 1rem;
+  --cotai-space-6: 1.5rem;
+  --cotai-space-8: 2rem;
+  --cotai-space-12: 3rem;
+  --cotai-space-16: 4rem;
+  --cotai-space-20: 5rem;
   --cotai-container: 71.25rem;
 }
 
@@ -36,23 +58,26 @@
 .cotai-app :is(img, svg, video) { max-width: 100%; }
 .cotai-app :is(button, input, textarea, select) { font: inherit; }
 .cotai-app :is(button, input, select) { min-height: var(--cotai-tap-target); }
-.cotai-app :focus-visible { outline: 3px solid var(--cotai-terracotta); outline-offset: 3px; }
+.cotai-app :focus-visible { outline: 3px solid var(--cotai-primary); outline-offset: 3px; }
 .cotai-app :is(p, h1, h2, h3, h4) { overflow-wrap: break-word; }
 .cotai-app a { color: var(--cotai-primary); }
 .cotai-app .cotai-container { width: min(calc(100% - 2rem), var(--cotai-container)); margin-inline: auto; }
-.cotai-app .cotai-heading { font-weight: 800; line-height: 1.13; letter-spacing: -.035em; font-size: clamp(1.75rem, 1.25rem + 2.5vw, 3rem); }
 .cotai-app .cotai-lead { font-size: 1rem; color: var(--cotai-muted); }
 .cotai-app .cotai-grid { display: grid; grid-template-columns: minmax(0,1fr); gap: 1rem; }
 .cotai-app .cotai-panel { background: var(--cotai-surface); border: 1px solid var(--cotai-border); border-radius: var(--cotai-radius-card); padding: 1rem; box-shadow: var(--cotai-shadow-card); min-width: 0; }
 .cotai-app .cotai-pill { border-radius: var(--cotai-radius-pill); }
-.cotai-app .cotai-input { width: 100%; border: 1px solid #98A69A; border-radius: var(--cotai-radius-sm); background: white; color: var(--cotai-ink); padding: .75rem 1rem; }
+.cotai-app .cotai-input { min-width: 0; width: 100%; border: 1px solid var(--cotai-input-border); border-radius: var(--cotai-radius-sm); background: var(--cotai-surface); color: var(--cotai-ink); padding: .75rem 1rem; }
 .cotai-app .cotai-visually-hidden { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
 /* Formulários, alertas e links com cara de botão (telas do organizador e do convidado). */
 .cotai-app .cotai-page-title { margin: 0; font-size: clamp(1.5rem, 1.1rem + 2vw, 2.25rem); font-weight: 800; line-height: 1.15; color: var(--cotai-primary); overflow-wrap: anywhere; }
-.cotai-app .cotai-field { display: grid; gap: .375rem; min-width: 0; }
+.cotai-app .cotai-field { display: grid; align-content: start; gap: .5rem; min-width: 0; }
 .cotai-app .cotai-label { font-size: .875rem; font-weight: 600; }
-.cotai-app .cotai-hint { margin: 0; font-size: .8125rem; color: var(--cotai-muted); }
-.cotai-app .cotai-field-error { margin: 0; font-size: .8125rem; color: var(--cotai-danger-ink); }
+.cotai-app .cotai-hint { margin: 0; font-size: .875rem; color: var(--cotai-muted); }
+.cotai-app .cotai-field-error { margin: 0; font-size: .875rem; color: var(--cotai-danger-ink); }
+.cotai-app .cotai-input { transition: border-color var(--cotai-motion), box-shadow var(--cotai-motion); }
+.cotai-app .cotai-input:hover { border-color: var(--cotai-primary); }
+.cotai-app .cotai-input:focus-visible { outline-width: 2px; outline-offset: 0; box-shadow: var(--cotai-focus-ring); }
+.cotai-app .cotai-input::placeholder { color: var(--cotai-muted); opacity: .75; }
 .cotai-app .cotai-input[aria-invalid="true"] { border-color: var(--cotai-danger-ink); }
 .cotai-app .cotai-alert { margin: 0; padding: .75rem 1rem; border-radius: var(--cotai-radius-sm); }
 .cotai-app .cotai-alert--error { background: var(--cotai-danger-bg); color: var(--cotai-danger-ink); }
@@ -61,6 +86,14 @@
 .cotai-app .cotai-link-button { display: inline-flex; align-items: center; justify-content: center; min-height: var(--cotai-tap-target); padding: .7rem 1.25rem; border: 2px solid var(--cotai-primary); border-radius: var(--cotai-radius-pill); font-weight: 600; text-decoration: none; text-align: center; background: var(--cotai-surface); color: var(--cotai-primary); }
 .cotai-app .cotai-link-button--primary { background: var(--cotai-primary); color: var(--cotai-surface); }
 .cotai-app .cotai-back { display: inline-flex; align-items: center; min-height: var(--cotai-tap-target); font-weight: 600; text-decoration: none; }
+.cotai-app .cotai-eyebrow { margin: 0; font-size: .875rem; font-weight: 600; color: var(--cotai-muted); }
+.cotai-app .cotai-state { padding: 2rem 0; max-width: 38rem; }
+.cotai-app .cotai-state h2 { margin: 0 0 .5rem; }
+.cotai-app .cotai-state p { margin: 0 0 1.5rem; color: var(--cotai-muted); }
+.cotai-app :is(.cotai-link-button, .cotai-back) { transition: background var(--cotai-motion), transform var(--cotai-motion); }
+.cotai-app .cotai-link-button:hover { background: var(--cotai-surface-sage); transform: translateY(-1px); }
+.cotai-app .cotai-link-button--primary:hover { background: var(--cotai-primary-hover); }
+.cotai-app .cotai-back:hover { text-decoration: underline; }
 @media (min-width: 40rem) {
   .cotai-app .cotai-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.25rem; }
   .cotai-app .cotai-panel { padding: 1.25rem; }

@@ -1,8 +1,8 @@
-.cotai-status { display:inline-flex; align-items:center; min-height: 1.85rem; padding:.25rem .75rem; border-radius:999px; font:600 .8125rem/1.4 var(--cotai-font, 'Poppins', sans-serif); white-space:normal; }
-.cotai-status--pending { color:#754515; background:var(--cotai-warning-bg, #FFF1DE); }
-.cotai-status--confirmed { color:#22553B; background:var(--cotai-success-bg, #E4F3E8); }
-.cotai-status--cancelled, .cotai-status--expired { color:#8B3530; background:var(--cotai-danger-bg, #FCE9E6); }
-.cotai-status--refund { color:#754515; background:var(--cotai-warning-bg, #FFF1DE); }
+.cotai-status { display:inline-flex; align-items:center; min-height: 1.85rem; padding:.25rem .75rem; border-radius:999px; font:600 .875rem/1.4 var(--cotai-font, 'Poppins', sans-serif); white-space:normal; }
+.cotai-status--pending { color:var(--cotai-warning-ink); background:var(--cotai-warning-bg, #FFF1DE); }
+.cotai-status--confirmed { color:var(--cotai-primary); background:var(--cotai-success-bg, #E4F3E8); }
+.cotai-status--cancelled, .cotai-status--expired { color:var(--cotai-danger-ink); background:var(--cotai-danger-bg, #FCE9E6); }
+.cotai-status--refund { color:var(--cotai-warning-ink); background:var(--cotai-warning-bg, #FFF1DE); }
 .cotai-status--draft { color: var(--cotai-muted, #53645B); background: var(--cotai-surface, #fff); border: 1px solid var(--cotai-border, #ECE8DE); }
-.cotai-status--published { color:#22553B; background:var(--cotai-success-bg, #E4F3E8); }
+.cotai-status--published { color:var(--cotai-primary); background:var(--cotai-success-bg, #E4F3E8); }
 .cotai-status--closed { color: var(--cotai-muted, #53645B); background: var(--cotai-border, #ECE8DE); }
