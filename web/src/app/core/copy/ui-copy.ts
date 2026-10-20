@@ -10,14 +10,28 @@ const ERROR_COPY: Record<string, string> = {
   PAYMENT_GATEWAY_UNAVAILABLE: 'Não foi possível abrir o pagamento agora. Sua reserva foi cancelada; tente novamente.',
   VALIDATION_FAILED: 'Confira os dados informados e tente de novo.',
   INVALID_STATE_TRANSITION: 'Essa reserva não pode mais ser alterada.',
+  EMAIL_ALREADY_REGISTERED: 'Já existe uma conta com esse e-mail. Tente entrar.',
+  INVALID_CREDENTIALS: 'E-mail ou senha incorretos.',
+  EVENT_DATE_IN_PAST: 'A data do evento já passou. Escolha hoje ou uma data futura.',
+  LIST_HAS_NO_ITEMS: 'Adicione pelo menos um item antes de publicar.',
+  QUOTAS_BELOW_OCCUPIED: 'Esse item já tem mais cotas reservadas do que o novo total.',
+  ITEM_HAS_ACTIVE_RESERVATIONS: 'Esse item tem reservas ativas e não pode ser removido.',
+  NOT_FOUND: 'Não encontramos o que você procurou.',
+};
+
+/** Organizer screens: the same codes, with wording about the list instead of a reservation. */
+export const ORGANIZER_COPY: Record<string, string> = {
+  INVALID_STATE_TRANSITION: 'Essa lista não pode mais ser alterada nesse estado.',
+  VALIDATION_FAILED: 'Confira os campos destacados e tente de novo.',
 };
 
 export function errorCode(error: unknown): string | undefined {
   return error instanceof HttpErrorResponse ? error.error?.code : undefined;
 }
 
-export function errorMessage(error: unknown): string {
-  return ERROR_COPY[errorCode(error) ?? ''] ?? 'Não foi possível carregar. Tente novamente.';
+export function errorMessage(error: unknown, overrides: Record<string, string> = {}): string {
+  const code = errorCode(error) ?? '';
+  return overrides[code] ?? ERROR_COPY[code] ?? 'Não foi possível carregar. Tente novamente.';
 }
 
 export interface StatusCopy {

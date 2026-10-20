@@ -47,6 +47,20 @@
 .cotai-app .cotai-pill { border-radius: var(--cotai-radius-pill); }
 .cotai-app .cotai-input { width: 100%; border: 1px solid #98A69A; border-radius: var(--cotai-radius-sm); background: white; color: var(--cotai-ink); padding: .75rem 1rem; }
 .cotai-app .cotai-visually-hidden { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+/* Formulários, alertas e links com cara de botão (telas do organizador e do convidado). */
+.cotai-app .cotai-page-title { margin: 0; font-size: clamp(1.5rem, 1.1rem + 2vw, 2.25rem); font-weight: 800; line-height: 1.15; color: var(--cotai-primary); overflow-wrap: anywhere; }
+.cotai-app .cotai-field { display: grid; gap: .375rem; min-width: 0; }
+.cotai-app .cotai-label { font-size: .875rem; font-weight: 600; }
+.cotai-app .cotai-hint { margin: 0; font-size: .8125rem; color: var(--cotai-muted); }
+.cotai-app .cotai-field-error { margin: 0; font-size: .8125rem; color: var(--cotai-danger-ink); }
+.cotai-app .cotai-input[aria-invalid="true"] { border-color: var(--cotai-danger-ink); }
+.cotai-app .cotai-alert { margin: 0; padding: .75rem 1rem; border-radius: var(--cotai-radius-sm); }
+.cotai-app .cotai-alert--error { background: var(--cotai-danger-bg); color: var(--cotai-danger-ink); }
+.cotai-app .cotai-alert--warning { background: var(--cotai-warning-bg); color: var(--cotai-warning-ink); }
+.cotai-app .cotai-alert--success { background: var(--cotai-success-bg); color: var(--cotai-ink); }
+.cotai-app .cotai-link-button { display: inline-flex; align-items: center; justify-content: center; min-height: var(--cotai-tap-target); padding: .7rem 1.25rem; border: 2px solid var(--cotai-primary); border-radius: var(--cotai-radius-pill); font-weight: 600; text-decoration: none; text-align: center; background: var(--cotai-surface); color: var(--cotai-primary); }
+.cotai-app .cotai-link-button--primary { background: var(--cotai-primary); color: var(--cotai-surface); }
+.cotai-app .cotai-back { display: inline-flex; align-items: center; min-height: var(--cotai-tap-target); font-weight: 600; text-decoration: none; }
 @media (min-width: 40rem) {
   .cotai-app .cotai-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.25rem; }
   .cotai-app .cotai-panel { padding: 1.25rem; }

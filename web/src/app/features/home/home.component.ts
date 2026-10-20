@@ -13,7 +13,7 @@ import { CotaiCardComponent } from '../../shared/cotai-ui';
         Cada pessoa reserva as cotas que quiser e paga por QR code ou link.
       </p>
       <div class="actions">
-        <a routerLink="/dashboard" class="cta cta--primary">Criar minha lista</a>
+        <a routerLink="/lists/new" class="cta cta--primary">Criar minha lista</a>
         <a href="#como-funciona" class="cta cta--secondary">Ver como funciona</a>
       </div>
       <ul class="events" aria-label="Tipos de evento">

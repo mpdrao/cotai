@@ -52,7 +52,8 @@ Toda tela nova ou alterada continua seguindo este padrão; não crie estilos par
 - **Marca:** logos em `web/public/brand/` (servidos em `/brand/...`). O nome na interface é sempre **Cota Ae!**.
 - **Locale:** `pt-BR` já está configurado em `app.config.ts`; use `currency: 'BRL'` e `date` para valores e prazos.
 - **Páginas servidas pela API** (ex.: `api/src/main/resources/templates/mock-checkout.html`): repetem os mesmos tokens num `<style>` próprio, porque não carregam o CSS do Angular. Deixe claro que o pagamento é simulado.
-- **Referência pronta:** `features/home`, `features/gift-list/gift-list-detail` e `features/reservation/reservation-detail` já seguem o padrão; copie a estrutura deles para telas novas, como as do organizador (`/login`, `/register`, `/lists/new`, `/lists/:id`).
+- **Referência pronta:** convidado em `features/gift-list` e `features/reservation`; organizador em `features/auth`, `features/dashboard` e `features/lists` (o editor de item `item-editor.component.ts` e a validação em `item-draft.ts` são reaproveitáveis). Classes de formulário e alerta (`cotai-field`, `cotai-label`, `cotai-alert--*`, `cotai-link-button`, `cotai-page-title`) ficam em `cotai-theme.css`.
+- **Rotas do organizador** usam `authGuard`; chamadas a `/api/gift-lists/**` recebem o token pelo `authInterceptor`. Não monte o header `Authorization` à mão.
 - **Sem scripts de ativação ou geração.** Mudanças de visual são feitas direto no código.
 - **Documentação:** se uma mudança alterar comportamento descrito em `docs/design/design-spec.md`, atualize o arquivo, inclusive a seção "Divergências conhecidas".
 
