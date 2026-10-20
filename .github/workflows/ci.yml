@@ -17,7 +17,8 @@ jobs:
           java-version: 21
           cache: maven
       # Docker is available on ubuntu-latest, so *IT classes run against a real PostgreSQL.
-      - run: ./mvnw -B -DskipWeb -pl backend verify
+      - run: ./mvnw -B -DskipWeb verify
+        working-directory: backend
 
   web:
     name: Frontend (Angular build + tests)

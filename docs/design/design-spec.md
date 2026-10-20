@@ -38,14 +38,13 @@ Este documento descreve o código da branch `develop`. Onde o código ainda não
 
 ## Monorepo
 
-Um repositório, um JAR. O POM pai builda `backend/` e `frontend/`; em produção o build do Angular vai para `static/` dentro do JAR, então não existe CORS em produção.
+Um repositório, um JAR. O Maven fica em `backend/` e, por padrão, builda também o Angular de `../frontend` (`-DskipWeb` pula); em produção o build do Angular vai para `static/` dentro do JAR, então não existe CORS em produção.
 
 ```
 cotai/
-├── pom.xml                              # parent: module backend (+ frontend unless -DskipWeb)
-├── docker-compose.yml                   # postgres:17
 ├── README.md
 ├── AGENTS.md                            # rules for coding agents (UI: Cota Ae! design system)
+├── .claude/CLAUDE.md                    # imports AGENTS.md
 ├── .github/workflows/ci.yml             # backend verify (Testcontainers) + frontend build/test
 ├── docs/
 │   ├── api/
@@ -56,7 +55,10 @@ cotai/
 │   ├── modelagem/                       # Astah model (.asta)
 │   └── design-system/                   # Cota Ae!: brand, mobile-first, components, copy, a11y, QA
 ├── backend/
-│   ├── pom.xml                          # Lombok, Spring Security JWT, Flyway, Thymeleaf, ZXing
+│   ├── pom.xml                          # Lombok, Spring Security JWT, Flyway, Thymeleaf, ZXing;
+│   │                                    #   profile bundle-web: npm ci + ng build of ../frontend -> /static
+│   ├── mvnw, .mvn/                      # Maven wrapper
+│   ├── docker-compose.yml               # postgres:17
 │   └── src/
 │       ├── main/java/dev/cotai/
 │       │   ├── organizer/               # Organizer, AuthController, JwtService
@@ -84,7 +86,6 @@ cotai/
 │           # PENDING: ReservationConcurrencyIT (50 threads, 10 quotas), IdempotencyRaceIT,
 │           #   ConfirmVsExpireRaceIT, CancelVsPaidRaceIT, PaymentWebhookIT, GatewayFailureIT
 └── frontend/
-    ├── pom.xml                          # frontend-maven-plugin: npm ci + ng build -> /static in the jar
     ├── package.json                     # Angular 22.2, Vitest
     ├── proxy.conf.json                  # /api, /mock-gateway -> localhost:8080
     ├── public/brand/                    # Cota Ae! logos (interpretive SVGs)
