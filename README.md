@@ -17,19 +17,15 @@ O organizador parte de 10 itens sugeridos por tipo de evento, ajusta nome, unida
 | Frontend | Angular 22 (standalone components, signals) |
 | Contrato | OpenAPI 3.1 · erros em RFC 9457 (Problem Details) |
 | Testes | JUnit 5 · Testcontainers (PostgreSQL real, não H2) |
-| Build | Maven multi-módulo (`api/` + `web/`), um único JAR em produção |
+| Build | Maven multi-módulo (`backend/` + `frontend/`), um único JAR em produção |
 
 ## Estrutura
 
 ```
 cotai/
-├── pom.xml                  # parent: módulos api e web
+├── pom.xml                  # parent: módulos backend e frontend
 ├── docker-compose.yml       # postgres:17
-├── docs/
-│   ├── api/openapi.yaml     # contrato da API
-│   ├── api/scripts/         # race-last-quota.sh (concorrência real)
-│   └── design/design-spec.md
-├── api/                     # Spring Boot
+├── backend/                 # Spring Boot (artifact cotai-api)
 │   └── src/main/java/dev/cotai/
 │       ├── organizer/       # Organizer, AuthController, JwtService
 │       ├── eventtype/       # EventType, TemplateItem, EventTypeController
@@ -39,7 +35,16 @@ cotai/
 │       ├── mockgateway/     # @Profile("dev"): MockPaymentGateway, checkout com QR
 │       ├── devsupport/      # @Profile("dev"): MutableClock, DevController
 │       └── common/          # erros, segurança, Clock, helpers de hash
-└── web/                     # Angular (build empacotado em /static no JAR)
+├── frontend/                # Angular (build empacotado em /static no JAR)
+│   └── src/app/
+│       ├── core/            # auth, models, services (ApiService, OrganizerService), copy, money
+│       ├── features/        # uma pasta por tela: home, gift-list, reservation, auth, dashboard, lists
+│       └── shared/cotai-ui/ # componentes do design system
+└── docs/
+    ├── api/                 # openapi.yaml + scripts/race-last-quota.sh
+    ├── design/              # design-spec.md
+    ├── design-system/       # marca, mobile-first, componentes, textos, a11y
+    └── modelagem/           # modelo Astah (.asta)
 ```
 
 ## Como rodar (desenvolvimento)
@@ -51,10 +56,10 @@ Pré-requisitos: **Java 21**, **Node 24.15+** (para o Angular 22) e **Docker**.
 docker compose up -d
 
 # 2. API (perfil dev: gateway simulado + relógio controlável) em http://localhost:8080
-./mvnw -DskipWeb -pl api spring-boot:run
+./mvnw -DskipWeb -pl backend spring-boot:run
 
 # 3. Frontend com proxy para a API em http://localhost:4200
-cd web && npm install && npm start
+cd frontend && npm install && npm start
 ```
 
 Para o QR code funcionar no celular, aponte `PUBLIC_BASE_URL` para o IP da sua rede local (ex.: `http://192.168.0.10:8080`); com `localhost` a página não abre no aparelho.
@@ -71,10 +76,10 @@ Para reproduzir expirações sem esperar 30 minutos: `POST /dev/clock/advance {"
 ## Build e testes
 
 ```bash
-./mvnw -DskipWeb -pl api test      # testes unitários
-./mvnw -DskipWeb -pl api verify    # + integração (*IT) com Testcontainers (requer Docker)
+./mvnw -DskipWeb -pl backend test      # testes unitários
+./mvnw -DskipWeb -pl backend verify    # + integração (*IT) com Testcontainers (requer Docker)
 ./mvnw clean package               # JAR único com o Angular em /static
-java -Dspring.profiles.active=dev -jar api/target/cotai.jar
+java -Dspring.profiles.active=dev -jar backend/target/cotai.jar
 ```
 
 ## Configuração

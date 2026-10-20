@@ -20,6 +20,6 @@
     "terracotta": "#D96B5B"
   },
   "logoSvgStatus": "interpretive-not-approved-vectorization",
-  "activation": "web/src/styles.scss (@use styles/cotai-theme) + .cotai-app wrapper in web/src/app/app.html",
+  "activation": "frontend/src/styles.scss (@use styles/cotai-theme) + .cotai-app wrapper in frontend/src/app/app.html",
   "note": "Requires source project integration and visual review for existing screens."
 }

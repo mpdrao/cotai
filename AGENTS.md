@@ -6,8 +6,8 @@
 
 1. Produto e nome público: **Cota Ae!** (com espaço e exclamação), slogan **"Junta pra fazer acontecer."**
 2. Referência primária: `docs/design-system/references/identidade-aprovada.png`.
-3. Tokens de estilo: `web/src/styles/_design-tokens.scss` e `web/src/styles/cotai-theme.css`.
-4. Componentes reutilizáveis: `web/src/app/shared/cotai-ui/`.
+3. Tokens de estilo: `frontend/src/styles/_design-tokens.scss` e `frontend/src/styles/cotai-theme.css`.
+4. Componentes reutilizáveis: `frontend/src/app/shared/cotai-ui/`.
 5. O quadro aprovado contém lettering desenhado à mão. Os SVGs deste kit são interpretativos, NÃO definitivos; não alegue que estão vetorizados com fidelidade perfeita.
 6. Preserve o conceito: fácil organizar e contribuir com **cotas** em churrascos, aniversários, bodas, casamentos, chás de bebê e outros eventos. Evite branding exclusivamente romântico, nupcial ou infantil.
 
@@ -45,13 +45,13 @@
 
 Toda tela nova ou alterada continua seguindo este padrão; não crie estilos paralelos.
 
-- **Tema ativo:** `web/src/styles.scss` faz `@use 'styles/cotai-theme';` e `web/src/app/app.html` envolve tudo em `<div class="cotai-app">`. Não mude isso nem adicione outro CSS global.
-- **Componentes:** use os de `web/src/app/shared/cotai-ui/` (`cotai-button`, `cotai-card`, `cotai-status-badge`, `cotai-progress`). Precisou de um componente novo? Crie ali, standalone, com estilos via `var(--cotai-...)`.
-- **Cores:** só `var(--cotai-...)`. Faltou uma cor? Adicione o token em `web/src/styles/cotai-theme.css`, nunca um hex dentro do componente.
-- **Textos:** status e erros da API passam por `web/src/app/core/copy/ui-copy.ts`, com o texto de `docs/design-system/UI_COPY.md`. Não mostre `code`, `detail` cru, token ou chave de idempotência.
-- **Marca:** logos em `web/public/brand/` (servidos em `/brand/...`). O nome na interface é sempre **Cota Ae!**.
+- **Tema ativo:** `frontend/src/styles.scss` faz `@use 'styles/cotai-theme';` e `frontend/src/app/app.html` envolve tudo em `<div class="cotai-app">`. Não mude isso nem adicione outro CSS global.
+- **Componentes:** use os de `frontend/src/app/shared/cotai-ui/` (`cotai-button`, `cotai-card`, `cotai-status-badge`, `cotai-progress`). Precisou de um componente novo? Crie ali, standalone, com estilos via `var(--cotai-...)`.
+- **Cores:** só `var(--cotai-...)`. Faltou uma cor? Adicione o token em `frontend/src/styles/cotai-theme.css`, nunca um hex dentro do componente.
+- **Textos:** status e erros da API passam por `frontend/src/app/core/copy/ui-copy.ts`, com o texto de `docs/design-system/UI_COPY.md`. Não mostre `code`, `detail` cru, token ou chave de idempotência.
+- **Marca:** logos em `frontend/public/brand/` (servidos em `/brand/...`). O nome na interface é sempre **Cota Ae!**.
 - **Locale:** `pt-BR` já está configurado em `app.config.ts`; use `currency: 'BRL'` e `date` para valores e prazos.
-- **Páginas servidas pela API** (ex.: `api/src/main/resources/templates/mock-checkout.html`): repetem os mesmos tokens num `<style>` próprio, porque não carregam o CSS do Angular. Deixe claro que o pagamento é simulado.
+- **Páginas servidas pela API** (ex.: `backend/src/main/resources/templates/mock-checkout.html`): repetem os mesmos tokens num `<style>` próprio, porque não carregam o CSS do Angular. Deixe claro que o pagamento é simulado.
 - **Referência pronta:** convidado em `features/gift-list` e `features/reservation`; organizador em `features/auth`, `features/dashboard` e `features/lists` (o editor de item `item-editor.component.ts` e a validação em `item-draft.ts` são reaproveitáveis). Classes de formulário e alerta (`cotai-field`, `cotai-label`, `cotai-alert--*`, `cotai-link-button`, `cotai-page-title`) ficam em `cotai-theme.css`.
 - **Rotas do organizador** usam `authGuard`; chamadas a `/api/gift-lists/**` recebem o token pelo `authInterceptor`. Não monte o header `Authorization` à mão.
 - **Sem scripts de ativação ou geração.** Mudanças de visual são feitas direto no código.
@@ -70,3 +70,10 @@ Toda tela nova ou alterada continua seguindo este padrão; não crie estilos par
 - [ ] Mudanças visualmente verificadas (screenshots ou testes quando disponíveis).
 
 Se algum requisito visual exigir alteração de padrão, **pergunte antes de executar**.
+
+## Git: commits, push e PRs
+
+Leia esta seção **sempre** antes de commitar, fazer push ou abrir/editar um PR.
+
+- Mensagem de commit: **só a linha de título** (ex.: `chore: reorganiza pastas`). Sem corpo, sem descrição extra.
+- **Nunca** adicione `Co-Authored-By`, "Generated with Claude Code" ou qualquer outra atribuição a agentes/IA em commits, descrições de PR ou comentários.
