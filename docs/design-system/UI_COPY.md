@@ -22,6 +22,12 @@ Use português do Brasil, frase curta, sem exagerar em termos financeiros ou pro
 - `EXPIRED`: **Tempo esgotado** — Faça uma nova reserva se ainda houver cotas.
 - `REFUND_REQUIRED` (pagamento): **Pagamento fora do prazo** — O valor precisa de análise para estorno; não reabrir a reserva.
 
+## Progresso da arrecadação
+
+- Mostre a porcentagem exata confirmada da meta (ex.: **37% da meta confirmada**). Nunca arredonde para 100% antes de bater a meta; com qualquer valor pago abaixo de 1%, mostre 1%.
+- Abaixo da barra, uma frase de incentivo que muda a cada faixa de 10% (0–9, 10–19, …, 90–99, 100), com três variações por faixa. A variação é fixa por lista para não trocar a cada visita.
+- Os textos ficam em `frontend/src/app/core/copy/progress-copy.ts`. Exemplos: "{p}% já foi, faltam {r}%." · "Reta final: faltam {r}%." · "Meta batida! Junta pra fazer acontecer: aconteceu."
+
 ## Mensagens de erro
 
 - `QUOTA_UNAVAILABLE`: **Essa cota acabou de ser reservada.** Atualizamos os números.

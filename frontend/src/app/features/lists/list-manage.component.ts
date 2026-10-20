@@ -3,6 +3,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { collectionProgress } from '../../core/copy/progress-copy';
 import { ORGANIZER_COPY, errorCode, errorMessage } from '../../core/copy/ui-copy';
 import { GiftList, GiftListSummaryReport, Item } from '../../core/models/organizer.model';
 import { OrganizerService } from '../../core/services/organizer.service';
@@ -101,7 +102,13 @@ import {
         @if (summary(); as s) {
           <section class="block" aria-labelledby="summary-title">
             <h2 id="summary-title" class="section-title">Arrecadação</h2>
-            <cotai-progress [value]="s.targetCents ? (s.confirmedCents / s.targetCents) * 100 : 0" label="Valor confirmado da meta" />
+            @if (progress(); as p) {
+              <div class="goal-progress">
+                <p class="goal-percent"><strong>{{ p.percent }}%</strong> da meta confirmada</p>
+                <cotai-progress [value]="s.targetCents ? (s.confirmedCents / s.targetCents) * 100 : 0" label="Valor confirmado da meta" />
+                <p class="goal-message" aria-live="polite">{{ p.message }}</p>
+              </div>
+            }
             <dl class="tiles">
               <div><dt>Confirmado</dt><dd>{{ s.confirmedCents / 100 | currency: 'BRL' }}</dd></div>
               <div><dt>Aguardando pagamento</dt><dd>{{ s.pendingCents / 100 | currency: 'BRL' }}</dd></div>
@@ -277,6 +284,13 @@ import {
     cotai-card .muted { margin-bottom: 1rem; }
     .section-title { margin: 0; font-size: 1.25rem; color: var(--cotai-primary); }
     .block { display: grid; gap: 1.5rem; margin-top: 1rem; }
+    .goal-progress { display: grid; gap: 0.5rem; }
+    .goal-percent { margin: 0; color: var(--cotai-muted); }
+    .goal-percent strong {
+      margin-right: 0.25rem; font-size: 2rem; font-weight: 800; line-height: 1.1;
+      color: var(--cotai-primary); font-variant-numeric: tabular-nums;
+    }
+    .goal-message { margin: 0; font-weight: 600; }
     .share-url {
       margin: 0 0 1rem; padding: 0.75rem 1rem; border-radius: var(--cotai-radius-sm);
       background: var(--cotai-background); font-size: 0.875rem; overflow-wrap: anywhere;
@@ -358,6 +372,10 @@ export class ListManageComponent {
   protected readonly badge = computed(() => (this.list()?.status.toLowerCase() ?? 'draft') as CotaiStatus);
   protected readonly activeItems = computed(() => this.list()?.items.filter((i) => !i.archived) ?? []);
   protected readonly publicUrl = computed(() => `${location.origin}/l/${this.list()?.slug ?? ''}`);
+  protected readonly progress = computed(() => {
+    const s = this.summary();
+    return s ? collectionProgress(s.confirmedCents, s.targetCents, this.id) : null;
+  });
   protected readonly recentContributors = computed(() => [...(this.summary()?.contributors ?? [])].reverse().slice(0, 10));
 
   constructor() {
