@@ -28,6 +28,9 @@ Use português do Brasil, frase curta, sem exagerar em termos financeiros ou pro
 - `LIST_NOT_ACCEPTING_RESERVATIONS`: **Esta lista não está mais recebendo reservas.**
 - `TOO_MANY_PENDING_RESERVATIONS`: **Você já tem reservas aguardando pagamento nessa lista.**
 - `PAYMENT_GATEWAY_UNAVAILABLE`: **Não foi possível abrir o pagamento agora.** Sua reserva foi cancelada; tente novamente.
+- `PHOTO_INVALID`: **Use uma foto JPG, PNG ou WebP.**
+- `PHOTO_TOO_LARGE`: **A foto pode ter até 5 MB.**
+- Foto não enviada ao criar a lista: **Lista criada, mas 1 foto não foi enviada.** Adicione de novo no item.
 - Erro genérico de rede: **Não foi possível carregar.** Tentar novamente.
 
 Não exponha `manageToken`, chaves de idempotência nem detalhes internos da API na interface pública.
