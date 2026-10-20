@@ -7,12 +7,38 @@ export interface ItemDraft {
   unit: string;
   price: string;
   totalQuotas: number | null;
+  /** Stock photo of the suggestion, sent on create. */
+  imageUrl?: string;
+  /** Photo picked before the item exists; uploaded right after it is created. */
+  photo?: File;
+  /** Object URL previewing {@link photo}. */
+  preview?: string;
 }
 
-export type ItemErrors = Partial<Record<keyof ItemDraft, string>>;
+export type ItemErrors = Partial<Record<'name' | 'unit' | 'price' | 'totalQuotas', string>>;
 
-export function draftFrom(item: { name: string; unit: string; unitPriceCents: number; totalQuotas: number }): ItemDraft {
-  return { name: item.name, unit: item.unit, price: centsToInput(item.unitPriceCents), totalQuotas: item.totalQuotas };
+export function draftFrom(item: {
+  name: string;
+  unit: string;
+  unitPriceCents: number;
+  totalQuotas: number;
+  imageUrl?: string;
+}): ItemDraft {
+  const draft: ItemDraft = { name: item.name, unit: item.unit, price: centsToInput(item.unitPriceCents), totalQuotas: item.totalQuotas };
+  if (item.imageUrl) draft.imageUrl = item.imageUrl;
+  return draft;
+}
+
+/** What the photo slot shows: the picked file, else the current photo. */
+export function draftPhotoSrc(d: ItemDraft): string | undefined {
+  return d.preview ?? d.imageUrl;
+}
+
+export function setDraftPhoto(d: ItemDraft, file: File | null): void {
+  if (d.preview) URL.revokeObjectURL(d.preview);
+  d.photo = file ?? undefined;
+  d.preview = file ? URL.createObjectURL(file) : undefined;
+  if (!file) d.imageUrl = undefined;
 }
 
 export function emptyDraft(): ItemDraft {
@@ -35,7 +61,10 @@ export function validateDraft(d: ItemDraft): ItemErrors {
 }
 
 export function toItemInput(d: ItemDraft): ItemInput {
-  return { name: d.name.trim(), unit: d.unit.trim(), unitPriceCents: parseReais(d.price)!, totalQuotas: d.totalQuotas! };
+  const input: ItemInput = { name: d.name.trim(), unit: d.unit.trim(), unitPriceCents: parseReais(d.price)!, totalQuotas: d.totalQuotas! };
+  // Only stock photos travel in the item; a picked file replaces them and is uploaded separately.
+  if (!d.photo && d.imageUrl?.startsWith('/suggestions/')) input.imageUrl = d.imageUrl;
+  return input;
 }
 
 export function draftTotalCents(d: ItemDraft): number {

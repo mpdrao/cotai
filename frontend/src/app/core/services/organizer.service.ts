@@ -58,6 +58,16 @@ export class OrganizerService {
     return this.http.put<Item>(`/api/gift-lists/${id}/items/${itemId}`, item);
   }
 
+  uploadPhoto(id: string, itemId: number, file: File): Observable<Item> {
+    const body = new FormData();
+    body.append('file', file);
+    return this.http.put<Item>(`/api/gift-lists/${id}/items/${itemId}/photo`, body);
+  }
+
+  removePhoto(id: string, itemId: number): Observable<Item> {
+    return this.http.delete<Item>(`/api/gift-lists/${id}/items/${itemId}/photo`);
+  }
+
   archiveItem(id: string, itemId: number): Observable<void> {
     return this.http.delete<void>(`/api/gift-lists/${id}/items/${itemId}`);
   }

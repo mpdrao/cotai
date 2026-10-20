@@ -17,6 +17,8 @@ const ERROR_COPY: Record<string, string> = {
   QUOTAS_BELOW_OCCUPIED: 'Esse item já tem mais cotas reservadas do que o novo total.',
   ITEM_HAS_ACTIVE_RESERVATIONS: 'Esse item tem reservas ativas e não pode ser removido.',
   NOT_FOUND: 'Não encontramos o que você procurou.',
+  PHOTO_INVALID: 'Use uma foto JPG, PNG ou WebP.',
+  PHOTO_TOO_LARGE: 'A foto pode ter até 5 MB.',
 };
 
 /** Organizer screens: the same codes, with wording about the list instead of a reservation. */
