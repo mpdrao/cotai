@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 250" role="img" aria-labelledby="title desc">
+  <title id="title">Cota Ae! em fundo verde</title><desc id="desc">Marca interpretativa Cota Ae! sobre fundo verde.</desc>
+  <rect width="600" height="250" rx="30" fill="#2E5D46"/>
+  <g font-family="'Trebuchet MS', 'Arial Rounded MT Bold', system-ui, sans-serif" font-weight="900" font-style="italic" letter-spacing="-5">
+    <text x="52" y="171" fill="#FFF7EF" font-size="136">Cota</text>
+    <text x="331" y="171" fill="#F4B198" font-size="129">Ae!</text>
+  </g>
+  <path d="M118 202Q221 180 306 204" fill="none" stroke="#FFF7EF" stroke-width="12" stroke-linecap="round"/>
+  <path d="M505 61L511 40M534 79L551 64M537 109L557 110" stroke="#F4B198" stroke-width="8" stroke-linecap="round"/>
+</svg>

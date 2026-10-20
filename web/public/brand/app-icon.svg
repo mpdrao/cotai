@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+<title id="title">Cota Ae!</title><desc id="desc">Ícone Cota Ae! interpretativo: C com ponto de exclamação.</desc>
+<rect width="128" height="128" rx="29" fill="#2E5D46"/>
+<path d="M80 44C70 32 43 31 30 53C18 76 30 98 52 100C64 101 75 95 81 87" fill="none" stroke="#FFF7EF" stroke-width="17" stroke-linecap="round"/>
+<path d="M96 43L93 75" stroke="#F4B198" stroke-width="12" stroke-linecap="round"/>
+<circle cx="92" cy="93" r="7" fill="#F4B198"/>
+</svg>
