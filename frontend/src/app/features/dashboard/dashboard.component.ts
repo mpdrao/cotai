@@ -14,10 +14,11 @@ import { CotaiButtonComponent, CotaiCardComponent, CotaiStatus, CotaiStatusBadge
     <div class="page">
       <header class="head">
         <div>
-          <h1 class="cotai-page-title">Minhas listas</h1>
           @if (auth.organizerName()) {
-            <p class="cotai-lead">Olá, {{ auth.organizerName() }}.</p>
+            <p class="greeting">Olá, {{ auth.organizerName() }}.</p>
           }
+          <h1 class="cotai-page-title">Minhas listas</h1>
+          <p class="cotai-lead">Seus próximos encontros começam aqui.</p>
         </div>
         <div class="head-actions">
           <a routerLink="/lists/new" class="cotai-link-button cotai-link-button--primary">Criar minha lista</a>
@@ -26,14 +27,24 @@ import { CotaiButtonComponent, CotaiCardComponent, CotaiStatus, CotaiStatusBadge
       </header>
 
       @if (error()) {
-        <p class="cotai-alert cotai-alert--error" role="alert">{{ error() }}</p>
+        <div class="cotai-state">
+          <h2>Vamos tentar de novo?</h2>
+          <p class="cotai-alert cotai-alert--error" role="alert">{{ error() }}</p>
+          <cotai-button variant="secondary" (pressed)="load()">Tentar novamente</cotai-button>
+        </div>
       } @else if (lists() === null) {
-        <p role="status">Carregando…</p>
+        <div class="cotai-state" role="status">
+          <h2>Buscando suas listas…</h2>
+          <p>Já vamos mostrar seus encontros por aqui.</p>
+        </div>
       } @else if (lists()!.length === 0) {
         <cotai-card tinted>
-          <h2>Nenhuma lista ainda</h2>
-          <p>Escolha o tipo de evento, ajuste as sugestões de itens e compartilhe o link com a galera.</p>
-          <a routerLink="/lists/new" class="cotai-link-button cotai-link-button--primary">Criar minha lista</a>
+          <div class="cotai-state">
+            <p class="cotai-eyebrow">Tudo começa com uma ideia</p>
+            <h2>Qual vai ser o próximo encontro?</h2>
+            <p>Escolha o tipo de evento, ajuste as sugestões de itens e compartilhe o link com a galera.</p>
+            <a routerLink="/lists/new" class="cotai-link-button cotai-link-button--primary">Criar minha lista</a>
+          </div>
         </cotai-card>
       } @else {
         <ul class="cotai-grid cotai-grid--three lists">
@@ -42,10 +53,10 @@ import { CotaiButtonComponent, CotaiCardComponent, CotaiStatus, CotaiStatusBadge
               <a class="list-link" [routerLink]="['/lists', list.id]">
                 <cotai-card>
                   <div class="card-body">
-                    <cotai-status-badge [status]="badge(list.status)" />
                     <h2>{{ list.title }}</h2>
                     <p class="meta">{{ list.eventDate | date: 'longDate' }}</p>
-                    <span class="open">Gerenciar lista</span>
+                    <cotai-status-badge [status]="badge(list.status)" />
+                    <span class="open">Gerenciar lista <span aria-hidden="true">↗</span></span>
                   </div>
                 </cotai-card>
               </a>
@@ -56,18 +67,20 @@ import { CotaiButtonComponent, CotaiCardComponent, CotaiStatus, CotaiStatusBadge
     </div>
   `,
   styles: `
-    .page { display: grid; gap: 1.5rem; }
-    .head { display: grid; gap: 1rem; }
+    .page { display: grid; gap: 2.5rem; }
+    .head { display: grid; gap: 1.5rem; padding-block: .5rem 2rem; border-bottom: 1px solid var(--cotai-border); }
+    .greeting { margin: 0 0 .75rem; color: var(--cotai-muted); overflow-wrap: anywhere; }
     .head-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
     .cotai-lead { margin: 0.25rem 0 0; }
-    h2 { margin: 0; font-size: 1.125rem; overflow-wrap: anywhere; }
+    h2 { margin: 0; font-size: 1.375rem; line-height: 1.3; overflow-wrap: anywhere; }
     cotai-card p { margin: 0.5rem 0 1rem; color: var(--cotai-muted); }
     .lists { margin: 0; padding: 0; list-style: none; }
-    .list-link { display: block; height: 100%; color: inherit; text-decoration: none; border-radius: var(--cotai-radius-card); }
+    .list-link { display: block; height: 100%; color: inherit; text-decoration: none; border-radius: var(--cotai-radius-card); transition: transform var(--cotai-motion), box-shadow var(--cotai-motion); }
     .list-link cotai-card { height: 100%; }
-    .card-body { display: grid; gap: 0.5rem; justify-items: start; }
+    .list-link:hover { transform: translateY(-2px); box-shadow: var(--cotai-shadow-card); --cotai-card-border: var(--cotai-input-border); }
+    .card-body { display: flex; flex-direction: column; align-items: start; gap: .75rem; height: 100%; }
     .meta { margin: 0; color: var(--cotai-muted); }
-    .open { font-weight: 600; color: var(--cotai-primary); }
+    .open { display: flex; justify-content: space-between; width: 100%; margin-top: auto; padding-top: 1.5rem; font-weight: 600; color: var(--cotai-primary); }
     @media (min-width: 40rem) {
       .head { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
     }
@@ -82,6 +95,12 @@ export class DashboardComponent {
   protected readonly error = signal('');
 
   constructor() {
+    this.load();
+  }
+
+  protected load(): void {
+    this.error.set('');
+    this.lists.set(null);
     this.organizer.myLists().subscribe({
       next: (l) => this.lists.set(l),
       error: (e) => this.error.set(errorMessage(e)),
