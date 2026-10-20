@@ -843,7 +843,7 @@ A interface segue o design system **Cota Ae!** (`docs/design-system/`, regras pa
 | `/r/:reservationId` | Minha reserva: QR, link de pagamento e status | quem tem o `manageToken` no navegador |
 | `/login`, `/register` | Entrar e criar conta (UC01) | público |
 | `/dashboard` | Minhas listas | organizador |
-| `/lists/new` | Criar lista a partir do tipo de evento, com as sugestões editáveis (UC02, UC03) | organizador |
+| `/lists/new` | Criar lista a partir do tipo de evento, com ideias de nome por tipo e as sugestões editáveis (UC02, UC03) | organizador |
 | `/lists/:id` | Publicar, compartilhar o link, editar, adicionar e remover itens, editar dados, acompanhar a arrecadação e encerrar (UC04 a UC07) | organizador |
 
 A sessão do organizador guarda o JWT no `localStorage` até expirar (`app.jwt.ttl-seconds`). O `authInterceptor` envia o token só para `/api/gift-lists/**` e, num 401, volta para `/login`. O `authGuard` protege as rotas do organizador.
