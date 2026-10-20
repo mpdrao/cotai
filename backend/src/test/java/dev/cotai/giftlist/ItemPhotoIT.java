@@ -1,5 +1,6 @@
 package dev.cotai.giftlist;
 
+import com.jayway.jsonpath.JsonPath;
 import dev.cotai.TestcontainersConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,11 +13,11 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -26,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/** Stock photo on create, upload, public read, replacement and removal of item photos. */
+/** Stock photo on create, upload, public read, replacement, removal and the rules on who and when. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestcontainersConfiguration.class)
@@ -44,15 +45,7 @@ class ItemPhotoIT {
 
     @BeforeEach
     void createListWithStockPhoto() throws Exception {
-        String email = "photo-" + UUID.randomUUID() + "@example.com";
-        mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"Ana\",\"email\":\"" + email + "\",\"password\":\"segredo123\"}"))
-                .andExpect(status().is2xxSuccessful());
-        String token = field(mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"" + email + "\",\"password\":\"segredo123\"}"))
-                .andReturn().getResponse().getContentAsString(), "accessToken");
-        bearer = "Bearer " + token;
-
+        bearer = organizer();
         String body = mvc.perform(post("/api/gift-lists").header("Authorization", bearer)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -63,21 +56,20 @@ class ItemPhotoIT {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.items[0].imageUrl").value("/suggestions/barbecue-1.jpg"))
                 .andReturn().getResponse().getContentAsString();
-        listId = field(body, "id");
-        itemId = body.replaceAll("(?s).*\"items\":\\[\\{\"id\":(\\d+).*", "$1");
+        listId = JsonPath.read(body, "$.id");
+        itemId = String.valueOf((Integer) JsonPath.read(body, "$.items[0].id"));
     }
 
     @Test
     void uploadReplacesStockPhotoAndIsPublic() throws Exception {
-        String url = field(upload(PNG).andExpect(status().isOk()).andReturn().getResponse().getContentAsString(),
-                "imageUrl");
+        String url = imageUrl(upload(PNG).andExpect(status().isOk()));
 
         mvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/png"))
                 .andExpect(content().bytes(PNG));
 
-        String replaced = field(upload(PNG).andReturn().getResponse().getContentAsString(), "imageUrl");
+        String replaced = imageUrl(upload(PNG).andExpect(status().isOk()));
         mvc.perform(get(url)).andExpect(status().isNotFound());
         mvc.perform(get(replaced)).andExpect(status().isOk());
 
@@ -104,26 +96,72 @@ class ItemPhotoIT {
     }
 
     @Test
-    void anotherOrganizerCannotUpload() throws Exception {
+    void rejectsPhotosAboveTheLimit() throws Exception {
+        byte[] big = Arrays.copyOf(PNG, PhotoFormat.MAX_BYTES + 1);
+        upload(big)
+                .andExpect(status().is(413))
+                .andExpect(jsonPath("$.code").value("PHOTO_TOO_LARGE"));
+    }
+
+    @Test
+    void requiresAToken() throws Exception {
         mvc.perform(multipart(HttpMethod.PUT, photoPath()).file(new MockMultipartFile("file", PNG)))
                 .andExpect(status().isUnauthorized());
     }
 
-    private org.springframework.test.web.servlet.ResultActions upload(byte[] data) throws Exception {
+    @Test
+    void anotherOrganizerCannotChangeThePhoto() throws Exception {
+        String other = organizer();
+        mvc.perform(multipart(HttpMethod.PUT, photoPath())
+                        .file(new MockMultipartFile("file", "foto.png", "image/png", PNG))
+                        .header("Authorization", other))
+                .andExpect(status().isNotFound());
+        mvc.perform(delete(photoPath()).header("Authorization", other))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void closedListPhotosCannotChange() throws Exception {
+        mvc.perform(post("/api/gift-lists/" + listId + "/publish").header("Authorization", bearer))
+                .andExpect(status().is2xxSuccessful());
+        mvc.perform(post("/api/gift-lists/" + listId + "/close").header("Authorization", bearer))
+                .andExpect(status().is2xxSuccessful());
+
+        upload(PNG).andExpect(status().isConflict());
+        mvc.perform(delete(photoPath()).header("Authorization", bearer))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void archivedItemPhotoCannotChange() throws Exception {
+        mvc.perform(delete("/api/gift-lists/" + listId + "/items/" + itemId).header("Authorization", bearer))
+                .andExpect(status().isNoContent());
+
+        upload(PNG).andExpect(status().isNotFound());
+    }
+
+    private String organizer() throws Exception {
+        String email = "photo-" + UUID.randomUUID() + "@example.com";
+        mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Ana\",\"email\":\"" + email + "\",\"password\":\"segredo123\"}"))
+                .andExpect(status().is2xxSuccessful());
+        String body = mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + email + "\",\"password\":\"segredo123\"}"))
+                .andReturn().getResponse().getContentAsString();
+        return "Bearer " + JsonPath.read(body, "$.accessToken");
+    }
+
+    private ResultActions upload(byte[] data) throws Exception {
         return mvc.perform(multipart(HttpMethod.PUT, photoPath())
                 .file(new MockMultipartFile("file", "foto.png", "image/png", data))
                 .header("Authorization", bearer));
     }
 
-    private String photoPath() {
-        return "/api/gift-lists/" + listId + "/items/" + itemId + "/photo";
+    private static String imageUrl(ResultActions result) throws Exception {
+        return JsonPath.read(result.andReturn().getResponse().getContentAsString(), "$.imageUrl");
     }
 
-    private static String field(String json, String name) {
-        Matcher m = Pattern.compile("\"" + name + "\":\"([^\"]+)\"").matcher(json);
-        if (!m.find()) {
-            throw new AssertionError(name + " not found in " + json);
-        }
-        return m.group(1);
+    private String photoPath() {
+        return "/api/gift-lists/" + listId + "/items/" + itemId + "/photo";
     }
 }
