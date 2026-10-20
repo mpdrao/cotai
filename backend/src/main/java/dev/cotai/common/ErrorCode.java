@@ -23,7 +23,9 @@ public enum ErrorCode {
     TOO_MANY_PENDING_RESERVATIONS(HttpStatus.TOO_MANY_REQUESTS, "Too many pending reservations"),
     PAYMENT_GATEWAY_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "Payment gateway unavailable"),
     INVALID_SIGNATURE(HttpStatus.UNAUTHORIZED, "Invalid signature"),
-    CHARGE_EXPIRED(HttpStatus.GONE, "Charge expired");
+    CHARGE_EXPIRED(HttpStatus.GONE, "Charge expired"),
+    PHOTO_INVALID(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Photo format not supported"),
+    PHOTO_TOO_LARGE(HttpStatus.CONTENT_TOO_LARGE, "Photo too large");
 
     private final HttpStatus status;
     private final String title;

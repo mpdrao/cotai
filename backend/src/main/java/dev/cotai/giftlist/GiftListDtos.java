@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
@@ -22,7 +23,10 @@ public final class GiftListDtos {
             @NotBlank @Size(max = 80) String name,
             @NotBlank @Size(max = 30) String unit,
             @Min(1) @Max(100_000_000) long unitPriceCents,
-            @Min(1) @Max(1000) int totalQuotas) {
+            @Min(1) @Max(1000) int totalQuotas,
+            // Only a stock photo of the suggestions can be set here; uploads go through the photo endpoint.
+            // Ignored on update, so the current photo is kept.
+            @Pattern(regexp = "^/suggestions/[a-z0-9-]+\\.jpg$") String imageUrl) {
     }
 
     public record CreateGiftListRequest(
@@ -40,10 +44,10 @@ public final class GiftListDtos {
     }
 
     public record ItemResponse(Long id, String name, String unit, long unitPriceCents, int totalQuotas,
-                               long totalCents, boolean archived) {
+                               long totalCents, boolean archived, String imageUrl) {
         static ItemResponse of(Item i) {
             return new ItemResponse(i.getId(), i.getName(), i.getUnit(), i.getUnitPriceCents(),
-                    i.getTotalQuotas(), i.totalCents(), i.isArchived());
+                    i.getTotalQuotas(), i.totalCents(), i.isArchived(), i.getImageUrl());
         }
     }
 
@@ -77,7 +81,7 @@ public final class GiftListDtos {
     }
 
     public record PublicItem(Long id, String name, String unit, long unitPriceCents, int totalQuotas,
-                             int availableQuotas) {
+                             int availableQuotas, String imageUrl) {
     }
 
     public record PublicGiftList(String title, String eventTypeCode, LocalDate eventDate, GiftListStatus status,

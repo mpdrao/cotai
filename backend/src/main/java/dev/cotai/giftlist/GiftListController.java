@@ -10,6 +10,7 @@ import dev.cotai.giftlist.GiftListDtos.UpdateGiftListRequest;
 import dev.cotai.organizer.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -21,9 +22,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
@@ -88,6 +93,19 @@ public class GiftListController {
                                             @PathVariable Long itemId) {
         service.archiveItem(JwtService.organizerId(jwt), giftListId, itemId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(path = "/{giftListId}/items/{itemId}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ItemResponse uploadPhoto(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID giftListId,
+                                    @PathVariable Long itemId, @RequestPart("file") MultipartFile file)
+            throws IOException {
+        return service.uploadPhoto(JwtService.organizerId(jwt), giftListId, itemId, file.getBytes());
+    }
+
+    @DeleteMapping("/{giftListId}/items/{itemId}/photo")
+    public ItemResponse removePhoto(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID giftListId,
+                                    @PathVariable Long itemId) {
+        return service.removePhoto(JwtService.organizerId(jwt), giftListId, itemId);
     }
 
     @GetMapping("/{giftListId}/summary")

@@ -42,6 +42,7 @@ public class GiftListService {
 
     private final GiftListRepository giftLists;
     private final ItemRepository items;
+    private final ItemPhotoRepository photos;
     private final EventTypeRepository eventTypes;
     private final OrganizerRepository organizers;
     private final ReservationRepository reservations;
@@ -63,7 +64,8 @@ public class GiftListService {
         GiftList list = new GiftList(organizers.getReferenceById(ownerId), eventType, req.title().trim(),
                 uniqueSlug(req.title()), req.eventDate(), ttl, clock.instant());
         for (ItemInput in : req.items()) {
-            list.addItem(in.name().trim(), in.unit().trim(), in.unitPriceCents(), in.totalQuotas());
+            list.addItem(in.name().trim(), in.unit().trim(), in.unitPriceCents(), in.totalQuotas())
+                    .setImageUrl(in.imageUrl());
         }
         return GiftListResponse.of(giftLists.save(list));
     }
@@ -99,6 +101,7 @@ public class GiftListService {
     public ItemResponse addItem(UUID ownerId, UUID id, ItemInput in) {
         GiftList list = owned(ownerId, id);
         Item item = list.addItem(in.name().trim(), in.unit().trim(), in.unitPriceCents(), in.totalQuotas());
+        item.setImageUrl(in.imageUrl());
         giftLists.flush();
         return ItemResponse.of(item);
     }
@@ -123,6 +126,27 @@ public class GiftListService {
                     "Item has CONFIRMED or active PENDING reservations.");
         }
         item.archive();
+    }
+
+    /** Replaces the item photo (stock or uploaded) with the uploaded one. */
+    public ItemResponse uploadPhoto(UUID ownerId, UUID id, Long itemId, byte[] data) {
+        String contentType = PhotoFormat.contentTypeOf(data);
+        GiftList list = owned(ownerId, id);
+        list.ensureNotClosed();
+        Item item = lockedItemOf(list, itemId);
+        photos.deleteByItemId(itemId);
+        ItemPhoto photo = photos.save(new ItemPhoto(itemId, contentType, data, clock.instant()));
+        item.setImageUrl(photo.url());
+        return ItemResponse.of(item);
+    }
+
+    public ItemResponse removePhoto(UUID ownerId, UUID id, Long itemId) {
+        GiftList list = owned(ownerId, id);
+        list.ensureNotClosed();
+        Item item = lockedItemOf(list, itemId);
+        photos.deleteByItemId(itemId);
+        item.setImageUrl(null);
+        return ItemResponse.of(item);
     }
 
     /** UC06. */
@@ -179,7 +203,8 @@ public class GiftListService {
         List<PublicItem> publicItems = list.getItems().stream()
                 .filter(i -> !i.isArchived())
                 .map(i -> new PublicItem(i.getId(), i.getName(), i.getUnit(), i.getUnitPriceCents(),
-                        i.getTotalQuotas(), Math.max(i.getTotalQuotas() - occupied.getOrDefault(i.getId(), 0), 0)))
+                        i.getTotalQuotas(), Math.max(i.getTotalQuotas() - occupied.getOrDefault(i.getId(), 0), 0),
+                        i.getImageUrl()))
                 .toList();
         return new PublicGiftList(list.getTitle(), list.getEventType().getCode(), list.getEventDate(),
                 list.getStatus(), list.acceptsReservations(today()), publicItems);

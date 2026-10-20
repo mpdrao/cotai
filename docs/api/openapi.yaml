@@ -322,6 +322,67 @@ paths:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
 
+  /api/gift-lists/{giftListId}/items/{itemId}/photo:
+    parameters:
+      - $ref: '#/components/parameters/GiftListId'
+      - $ref: '#/components/parameters/ItemId'
+    put:
+      tags: [Gift lists]
+      operationId: uploadItemPhoto
+      summary: Upload item photo
+      description: |
+        Replaces the current photo (stock or uploaded). JPEG, PNG or WebP up to 5 MB, detected from the
+        file bytes. Each upload gets a new public URL, so it can be cached forever.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '200':
+          description: Uploaded.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Item' }
+        '400': { $ref: '#/components/responses/ValidationFailed' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { description: INVALID_STATE_TRANSITION (list is CLOSED) }
+        '413': { description: PHOTO_TOO_LARGE }
+        '415': { description: PHOTO_INVALID (not a JPEG, PNG or WebP image) }
+    delete:
+      tags: [Gift lists]
+      operationId: removeItemPhoto
+      summary: Remove item photo
+      responses:
+        '200':
+          description: Removed; the item has no photo.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Item' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/item-photos/{photoId}:
+    get:
+      tags: [Public]
+      operationId: getItemPhoto
+      summary: Item photo
+      description: Public, so guests see photos on the shared list. Cache-Control is immutable.
+      parameters:
+        - { name: photoId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Image bytes.
+          content:
+            image/*:
+              schema: { type: string, format: binary }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /api/gift-lists/{giftListId}/summary:
     parameters:
       - $ref: '#/components/parameters/GiftListId'
@@ -722,6 +783,8 @@ components:
         - PAYMENT_GATEWAY_UNAVAILABLE
         - INVALID_SIGNATURE
         - CHARGE_EXPIRED
+        - PHOTO_INVALID
+        - PHOTO_TOO_LARGE
 
     Problem:
       type: object
@@ -792,6 +855,7 @@ components:
         unit: { type: string, example: kg }
         unitPriceCents: { $ref: '#/components/schemas/Cents' }
         suggestedQuotas: { type: integer, minimum: 1, example: 4 }
+        imageUrl: { type: string, example: /suggestions/barbecue-1.jpg }
 
     ItemInput:
       type: object
@@ -801,6 +865,10 @@ components:
         unit: { type: string, minLength: 1, maxLength: 30, example: saco de 5 kg }
         unitPriceCents: { $ref: '#/components/schemas/Cents' }
         totalQuotas: { type: integer, minimum: 1, maximum: 1000 }
+        imageUrl:
+          type: string
+          pattern: '^/suggestions/[a-z0-9-]+\.jpg$'
+          description: Stock photo from the template item. Ignored on update; uploads use the photo endpoint.
 
     Item:
       type: object
@@ -813,6 +881,7 @@ components:
         totalQuotas: { type: integer }
         totalCents: { type: integer, format: int64, description: 'Derived: unitPriceCents * totalQuotas.' }
         archived: { type: boolean }
+        imageUrl: { type: string, description: 'Stock photo (/suggestions/...) or uploaded photo (/api/item-photos/{photoId}). Absent when the item has no photo.' }
 
     CreateGiftListRequest:
       type: object
@@ -922,6 +991,7 @@ components:
         unitPriceCents: { $ref: '#/components/schemas/Cents' }
         totalQuotas: { type: integer }
         availableQuotas: { type: integer, minimum: 0, description: Snapshot at read time; may be stale by the time the guest submits. }
+        imageUrl: { type: string, description: 'Stock photo (/suggestions/...) or uploaded photo (/api/item-photos/{photoId}). Absent when the item has no photo.' }
 
     ReserveRequest:
       type: object
