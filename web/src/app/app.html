@@ -1,6 +1,13 @@
-<header class="topbar">
-  <a routerLink="/" class="brand">cotai</a>
-</header>
-<main class="container">
-  <router-outlet />
-</main>
+<div class="cotai-app shell">
+  <header class="topbar">
+    <div class="cotai-container topbar-inner">
+      <a routerLink="/" class="brand" aria-label="Cota Ae! — início">
+        <img src="brand/logo-primary.svg" alt="Cota Ae!" width="116" height="42" />
+      </a>
+      <a routerLink="/dashboard" class="organizer-link">Área do organizador</a>
+    </div>
+  </header>
+  <main class="cotai-container content">
+    <router-outlet />
+  </main>
+</div>

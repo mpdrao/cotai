@@ -1,0 +1,60 @@
+/* Cota Ae! · Design system v1.0 · MOBILE FIRST */
+:root {
+  --cotai-primary: #2E5D46;
+  --cotai-secondary: #6BA77A;
+  --cotai-background: #FFF7EF;
+  --cotai-peach: #F4B198;
+  --cotai-terracotta: #D96B5B;
+  --cotai-ink: #16372A;
+  --cotai-surface: #FFFFFF;
+  --cotai-muted: #53645B;
+  --cotai-border: #ECE8DE;
+  --cotai-success-bg: #E4F3E8;
+  --cotai-warning-bg: #FFF1DE;
+  --cotai-danger-bg: #FCE9E6;
+  --cotai-warning-ink: #754515;
+  --cotai-danger-ink: #8B3530;
+  --cotai-font: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --cotai-radius-sm: .75rem;
+  --cotai-radius-card: 1rem;
+  --cotai-radius-lg: 1.5rem;
+  --cotai-radius-pill: 999px;
+  --cotai-tap-target: 2.75rem;
+  --cotai-shadow-card: 0 8px 32px rgba(46,93,70,.065);
+  --cotai-container: 71.25rem;
+}
+
+/* Escopo opt-in para evitar alterar telas antigas sem avaliação. */
+.cotai-app {
+  color: var(--cotai-ink);
+  font-family: var(--cotai-font);
+  background: var(--cotai-background);
+  line-height: 1.55;
+  min-width: 0;
+}
+.cotai-app, .cotai-app *, .cotai-app *::before, .cotai-app *::after { box-sizing: border-box; }
+.cotai-app :is(img, svg, video) { max-width: 100%; }
+.cotai-app :is(button, input, textarea, select) { font: inherit; }
+.cotai-app :is(button, input, select) { min-height: var(--cotai-tap-target); }
+.cotai-app :focus-visible { outline: 3px solid var(--cotai-terracotta); outline-offset: 3px; }
+.cotai-app :is(p, h1, h2, h3, h4) { overflow-wrap: break-word; }
+.cotai-app a { color: var(--cotai-primary); }
+.cotai-app .cotai-container { width: min(calc(100% - 2rem), var(--cotai-container)); margin-inline: auto; }
+.cotai-app .cotai-heading { font-weight: 800; line-height: 1.13; letter-spacing: -.035em; font-size: clamp(1.75rem, 1.25rem + 2.5vw, 3rem); }
+.cotai-app .cotai-lead { font-size: 1rem; color: var(--cotai-muted); }
+.cotai-app .cotai-grid { display: grid; grid-template-columns: minmax(0,1fr); gap: 1rem; }
+.cotai-app .cotai-panel { background: var(--cotai-surface); border: 1px solid var(--cotai-border); border-radius: var(--cotai-radius-card); padding: 1rem; box-shadow: var(--cotai-shadow-card); min-width: 0; }
+.cotai-app .cotai-pill { border-radius: var(--cotai-radius-pill); }
+.cotai-app .cotai-input { width: 100%; border: 1px solid #98A69A; border-radius: var(--cotai-radius-sm); background: white; color: var(--cotai-ink); padding: .75rem 1rem; }
+.cotai-app .cotai-visually-hidden { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+@media (min-width: 40rem) {
+  .cotai-app .cotai-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.25rem; }
+  .cotai-app .cotai-panel { padding: 1.25rem; }
+}
+@media (min-width: 64rem) {
+  .cotai-app .cotai-grid--three { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .cotai-app .cotai-panel { padding: 1.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cotai-app *, .cotai-app *::before, .cotai-app *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

@@ -1,9 +1,11 @@
-# Cotai
+# Cota Ae!
 
 Lista de presentes **com cotas** para qualquer evento (casamento, chá de bebê, churrasco…).
 
 O organizador parte de 10 itens sugeridos por tipo de evento, ajusta nome, unidade, preço e número de cotas e publica um link. O convidado reserva cotas e paga por **QR code / link** num gateway simulado; um **webhook assinado** confirma a reserva automaticamente.
 
+> A interface segue o design system Cota Ae! ([`docs/design-system/`](docs/design-system/), regras para agentes em [`AGENTS.md`](AGENTS.md)), mobile-first.
+>
 > Projeto de partida gerado a partir do design em [`docs/design/design-spec.md`](docs/design/design-spec.md) (diagramas de arquitetura, casos de uso, classes, estados, concorrência e edge cases) e do contrato [`docs/api/openapi.yaml`](docs/api/openapi.yaml).
 
 ## Stack

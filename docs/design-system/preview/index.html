@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cota Ae! — Preview da identidade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --green:#2E5D46; --sage:#6BA77A; --cream:#FFF7EF; --peach:#F4B198; --terra:#D96B5B; --ink:#16372A; }
+    *, *::before, *::after { box-sizing:border-box; }
+    html {scroll-behavior:smooth;} body { margin:0; background:var(--cream); color:var(--ink); font:400 16px/1.6 'Poppins',system-ui,sans-serif; }
+    img {max-width:100%;display:block;} a {color:inherit;} button {font:inherit;cursor:pointer;}
+    a:focus-visible, button:focus-visible {outline:3px solid var(--terra);outline-offset:3px;}
+    .container {width:min(calc(100% - 2rem),1140px);margin:auto;}
+    header {background:#fffdf9d9; border-bottom:1px solid #e9e5dc;}
+    .nav {min-height:76px; display:flex;align-items:center;justify-content:space-between;gap:16px;}
+    .logo {width:146px;height:auto;}
+    .navlinks {display:none;align-items:center;gap:1.5rem;font-size:.85rem;font-weight:600;}
+    .pill {display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:44px;padding:.73rem 1.35rem;border-radius:999px;border:2px solid var(--green);background:var(--green);color:#fff;font-weight:600;text-decoration:none;}
+    .pill-outline {background:white;color:var(--green);}
+    .hero {display:grid;gap:1.25rem;padding-block:3rem 2.5rem;align-items:center;}
+    .eyebrow {display:inline-block;font-weight:700;font-size:.78rem;letter-spacing:.13em;color:var(--green);text-transform:uppercase;}
+    h1 {font-size:clamp(2rem, 1.3rem + 3vw, 3.75rem);line-height:1.11;letter-spacing:-.06em;margin:.75rem 0 1rem;}
+    h1 em {color:var(--terra);font-style:normal;} .hero p {max-width:540px;color:#435D4D;margin:0 0 1.5rem;}
+    .actions {display:grid;grid-template-columns:1fr;gap:.6rem;}
+    .hero-art {border-radius:24px;min-height:260px;background:linear-gradient(145deg, #d7e5d5 2%, #fce3d3 53%, #f9b595);display:grid;align-items:center;justify-items:center;position:relative;overflow:hidden;padding:1rem;}
+    .hero-art::before {content:'✳';position:absolute;left:-2rem;top:-6rem;font-size:18rem;color:#abd0b1;opacity:.75;}
+    .hero-art::after {content:'• • •';position:absolute;right:1rem;top:1rem;font-size:3rem;line-height:1;color:var(--terra);transform:rotate(18deg);}
+    .event-preview {width:min(100%,290px);background:#fff;border-radius:20px;box-shadow:0 18px 40px #16372a24;position:relative;overflow:hidden;transform:rotate(-3deg);}
+    .photo {height:120px;background:linear-gradient(30deg,#7c4429,#e39c55 65%,#2E5D46);display:flex;justify-content:center;align-items:center;font-size:3.5rem;}
+    .event-preview .inner {padding:1rem;}.event-preview h3 {font-size:1rem;margin:0;}.event-preview p {margin:.35rem 0;color:#65766c;font-size:.8rem;}
+    .progress {height:9px;background:#e8eee7;border-radius:999px;overflow:hidden;margin:.85rem 0 .3rem;}.progress span {display:block;width:72%;height:100%;background:var(--sage);border-radius:inherit;}
+    .sub {color:#51675b;font-size:.75rem;}
+    .section {padding:2rem 0 3rem;} .section h2 {font-size:clamp(1.5rem,1.15rem + 1.8vw,2.25rem);line-height:1.2;margin:0 0 .4rem;}
+    .section>p {color:#4d6054;max-width:650px;}
+    .grid {display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1.4rem;}
+    .card {background:#fff;border:1px solid #ece8de;border-radius:20px;padding:1.25rem;box-shadow:0 8px 32px #2e5d4610;min-width:0;}
+    .card .emoji {display:grid;place-items:center;font-size:2rem;width:60px;height:60px;background:#fff2e9;border-radius:16px;margin-bottom:1rem;}
+    .card h3 {margin:0 0 .2rem;font-size:1.1rem;}.card p {margin:0;color:#55695e;font-size:.9rem;}
+    .colors {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem;margin-top:1.4rem;}
+    .swatch {border-radius:14px;overflow:hidden;background:#fff;border:1px solid #ece8de;}.swatch .tile {height:72px;}.swatch small {display:block;padding:.6rem;font-size:.72rem;}
+    footer {padding:2rem 0;border-top:1px solid #e8e2d5;color:#5c6a61;font-size:.85rem;}
+    @media(min-width:40rem){ .actions {display:flex;flex-wrap:wrap;}.grid {grid-template-columns:repeat(2,minmax(0,1fr));}.colors{grid-template-columns:repeat(5,minmax(0,1fr));} }
+    @media(min-width:48rem){.navlinks{display:flex;}.hero{grid-template-columns:1fr .85fr;gap:3rem;padding-block:5rem 4rem;}.hero-art{min-height:360px;}}
+    @media(min-width:64rem){.grid{grid-template-columns:repeat(4,minmax(0,1fr));}}
+    @media(prefers-reduced-motion:reduce){ html {scroll-behavior:auto;} }
+  </style>
+</head>
+<body>
+  <header><nav class="nav container" aria-label="Principal">
+    <a href="#top" aria-label="Cota Ae! — início"><img class="logo" src="../../../web/public/brand/logo-primary.svg" alt="Cota Ae!" /></a>
+    <div class="navlinks"><a href="#exemplos">Eventos</a><a href="#cores">Identidade</a><a href="#exemplos" class="pill">Criar lista</a></div>
+    <a href="#exemplos" class="pill" style="font-size:.83rem" aria-label="Ver exemplos de eventos">Explorar</a>
+  </nav></header>
+  <main id="top">
+    <section class="hero container">
+      <div><span class="eyebrow">Design system • prévia mobile-first</span><h1>Junta pra fazer <em>acontecer.</em></h1><p>Um jeito simples de organizar seus momentos e juntar a galera. Todo mundo entra com a sua parte.</p>
+        <div class="actions"><a class="pill" href="#exemplos">Ver tipos de evento</a><a class="pill pill-outline" href="#cores">Conhecer as cores</a></div>
+      </div>
+      <div class="hero-art" aria-label="Ilustração de um card de evento">
+        <div class="event-preview"><div class="photo" aria-hidden="true">🔥🥩</div><div class="inner"><h3>Churrasco da Firma</h3><p>Todo mundo faz parte!</p><div class="progress"><span></span></div><div class="sub">72% das cotas preenchidas</div></div></div>
+      </div>
+    </section>
+    <section id="exemplos" class="section container"><span class="eyebrow">Um mesmo app, muitos momentos</span><h2>Qual é o próximo rolê?</h2><p>O visual muda nos detalhes de cada ocasião, mas os mesmos componentes funcionam em todos os eventos.</p>
+      <div class="grid"><article class="card"><div class="emoji" aria-hidden="true">🍖</div><h3>Churrasco</h3><p>A galera divide tudo sem complicação.</p></article>
+      <article class="card"><div class="emoji" aria-hidden="true">🎂</div><h3>Aniversário</h3><p>Mais um ano de boas histórias.</p></article>
+      <article class="card"><div class="emoji" aria-hidden="true">🥂</div><h3>Bodas</h3><p>Todo mundo participa da comemoração.</p></article>
+      <article class="card"><div class="emoji" aria-hidden="true">🎈</div><h3>Outros eventos</h3><p>Do chá de bebê ao encontro de amigos.</p></article></div>
+    </section>
+    <section id="cores" class="section container"><span class="eyebrow">Identidade</span><h2>Uma marca alegre e confiável</h2>
+      <div class="colors">
+        <div class="swatch"><div class="tile" style="background:#2E5D46"></div><small><strong>Verde</strong><br>#2E5D46</small></div>
+        <div class="swatch"><div class="tile" style="background:#6BA77A"></div><small><strong>Sálvia</strong><br>#6BA77A</small></div>
+        <div class="swatch"><div class="tile" style="background:#FFF7EF"></div><small><strong>Creme</strong><br>#FFF7EF</small></div>
+        <div class="swatch"><div class="tile" style="background:#F4B198"></div><small><strong>Pêssego</strong><br>#F4B198</small></div>
+        <div class="swatch"><div class="tile" style="background:#D96B5B"></div><small><strong>Terracota</strong><br>#D96B5B</small></div>
+      </div>
+    </section>
+  </main>
+  <footer><div class="container">Cota Ae! · Demonstração estática de design · Sem conexão com a API ou pagamentos</div></footer>
+</body>
+</html>
