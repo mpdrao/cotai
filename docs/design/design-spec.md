@@ -850,9 +850,11 @@ A sessão do organizador guarda o JWT no `localStorage` até expirar (`app.jwt.t
 
 No QUOTA_UNAVAILABLE (EC28), a lista pública fecha o formulário, mostra "Essa cota acabou de ser reservada. Atualizamos os números." e recarrega a disponibilidade.
 
+A home apresenta uma demonstração identificada como “Exemplo de lista”, com valores e progresso exclusivamente ilustrativos. O dashboard oferece “Tentar novamente” quando a busca de listas falha. Ao abrir o formulário de reserva, o foco vai ao seu título; ao voltar, retorna ao botão da cota escolhida. Os estados e valores transacionais continuam derivados da API.
+
 ## Divergências conhecidas
 
-O código ainda não cumpre estes pontos do design. São correções a fazer no código, não mudanças de design.
+A revisão de composição do frontend não altera os contratos nem resolve as limitações transacionais abaixo. O código ainda não cumpre estes pontos do design. São correções a fazer no código, não mudanças de design.
 
 | Ponto do design | Situação no código |
 | --- | --- |
