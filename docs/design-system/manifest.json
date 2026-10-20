@@ -1,0 +1,25 @@
+{
+  "name": "Cota Ae! Design System",
+  "version": "1.0.0",
+  "mobileFirst": true,
+  "breakpointsPx": [
+    320,
+    375,
+    430,
+    640,
+    768,
+    1024,
+    1280
+  ],
+  "approvedReference": "docs/design-system/references/identidade-aprovada.png",
+  "brandColors": {
+    "primary": "#2E5D46",
+    "secondary": "#6BA77A",
+    "background": "#FFF7EF",
+    "peach": "#F4B198",
+    "terracotta": "#D96B5B"
+  },
+  "logoSvgStatus": "interpretive-not-approved-vectorization",
+  "activation": "web/src/styles.scss (@use styles/cotai-theme) + .cotai-app wrapper in web/src/app/app.html",
+  "note": "Requires source project integration and visual review for existing screens."
+}

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 210" role="img" aria-labelledby="title desc">
+  <title id="title">Cota Ae!</title><desc id="desc">Marca Cota Ae! com lettering verde e terracota e um sublinhado verde. Versão interpretativa.</desc>
+  <g font-family="'Trebuchet MS', 'Arial Rounded MT Bold', system-ui, sans-serif" font-weight="900" font-style="italic" letter-spacing="-6">
+    <text x="14" y="147" fill="#2E5D46" font-size="144">Cota</text>
+    <text x="311" y="147" fill="#D96B5B" font-size="139">Ae!</text>
+  </g>
+  <path d="M95 180C171 158 240 170 300 179" fill="none" stroke="#2E5D46" stroke-width="14" stroke-linecap="round"/>
+  <path d="M483 29L493 9M519 42L539 27M529 72L551 70" stroke="#D96B5B" stroke-width="10" stroke-linecap="round"/>
+</svg>

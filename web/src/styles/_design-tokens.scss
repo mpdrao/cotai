@@ -1,0 +1,25 @@
+// Cota Ae! — tokens Sass, v1.0. Fonte: quadro de marca aprovado.
+// Use CSS custom properties (--cotai-...) para tema em tempo de execução.
+$color-primary: #2E5D46;
+$color-secondary: #6BA77A;
+$color-background: #FFF7EF;
+$color-peach: #F4B198;
+$color-terracotta: #D96B5B;
+$color-ink: #16372A; // acessibilidade (cor auxiliar proposta)
+$color-surface: #FFFFFF;
+$color-border: #ECE8DE;
+
+$font-family-base: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+$radius-sm: 0.75rem;
+$radius-md: 1rem;
+$radius-lg: 1.5rem;
+$radius-pill: 999px;
+$tap-target: 2.75rem; // 44 CSS px
+$space-unit: 0.25rem;
+
+$breakpoint-sm: 40rem; // 640px
+$breakpoint-md: 48rem; // 768px
+$breakpoint-lg: 64rem; // 1024px
+
+// Exemplo: @media (min-width: $breakpoint-md) { ... }

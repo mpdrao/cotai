@@ -1,14 +1,18 @@
-Monorepo · Spring Boot + Angular + REST · v0.2
+Monorepo · Spring Boot + Angular + REST · v0.3
 
-# Padrinhos
+# Cota Ae!
 
-Lista de presentes com cotas para qualquer evento. O organizador parte de 10 itens sugeridos por tipo de evento, ajusta nome, unidade, preço e cotas, e publica um link. O convidado reserva cotas e paga por QR code ou link num gateway simulado; um webhook assinado confirma a reserva. Todo o código, os diagramas, o OpenAPI e as collections estão em inglês; o texto explicativo está em português.
+Lista de presentes com cotas para qualquer evento. O organizador parte de 10 itens sugeridos por tipo de evento, ajusta nome, unidade, preço e cotas, e publica um link. O convidado reserva cotas e paga por QR code ou link num gateway simulado; um webhook assinado confirma a reserva. Todo o código, os diagramas e o OpenAPI estão em inglês; o texto explicativo e a interface estão em português.
 
-Java 21 Spring Boot 4 Spring Data JPA PostgreSQL 17 Flyway Testcontainers Angular 22 (a confirmar) OpenAPI 3.1
+Este documento descreve o código da branch `develop`. Onde o código ainda não cumpre o design, a diferença está em [Divergências conhecidas](#divergências-conhecidas).
 
-[00Decisões](#decisoes) [AMonorepo](#monorepo) [BArquitetura](#arquitetura) [CCasos de uso](#casos-de-uso) [DClasses](#classes) [EEstados](#estados) [FPagamento (QR)](#pagamento) [GConcorrência](#concorrencia) [HEdge cases](#edge-cases) [IItens padrão](#modelos) [JEndpoints](#endpoints) [KOpenAPI](#openapi) [LCollections](#collections)
+**Stack:** Java 21 · Spring Boot 4.1 · Spring Data JPA · Lombok · PostgreSQL 17 · Flyway · Testcontainers · Angular 22.2 · OpenAPI 3.1
 
-## O que mudou nesta versão decisões
+**Seções:** [Decisões](#decisões) · [Monorepo](#monorepo) · [Arquitetura](#arquitetura) · [Casos de uso](#casos-de-uso) · [Classes](#classes) · [Estados](#estados) · [Pagamento](#pagamento-por-qr-code-ou-link) · [Concorrência](#concorrência) · [Edge cases](#edge-cases) · [Itens padrão](#itens-padrão-por-tipo-de-evento) · [Endpoints](#endpoints) · [OpenAPI](#openapi) · [Collections](#collections) · [Front-end](#front-end-e-design-system) · [Divergências](#divergências-conhecidas)
+
+## Decisões
+
+### Decisões da v0.2
 
 - **Confirmação automática.** O pagamento entra por um webhook assinado. A confirmação manual pelo organizador saiu, porque não existe mais Pix fora do sistema.
 - **Prazo de 30 min por padrão.** Agora o pagamento é imediato. A cobrança expira no mesmo instante que a reserva; se expirasse depois, pagamentos atrasados seriam garantidos.
@@ -20,59 +24,80 @@ Java 21 Spring Boot 4 Spring Data JPA PostgreSQL 17 Flyway Testcontainers Angula
 - **`GiftList`, não `List`**, para não colidir com `java.util.List`. Códigos de evento: `WEDDING`, `BABY_SHOWER`, `BARBECUE`, `OTHER`.
 - **Testes de integração com Testcontainers (PostgreSQL),** não H2. O H2 não reproduz fielmente o `FOR UPDATE` nem os locks de linha do Postgres, então um teste de concorrência em H2 não prova nada.
 
-## Monorepo estrutura
+### O que mudou na v0.3 (alinhamento com o código)
+
+- **Nome público Cota Ae!** O repositório, o pacote Java (`dev.cotai`) e o JAR (`cotai.jar`) continuam `cotai`; endpoints, entidades e campos não mudam por causa da marca.
+- **`ReservationFlow`** orquestra "reservar e depois abrir a cobrança", sem transação própria. É o que garante o commit antes da chamada externa.
+- **Token de gerenciamento derivado:** `HMAC-SHA256(MANAGE_TOKEN_SECRET, Idempotency-Key)`. O banco guarda só o SHA-256 do token, e o replay (EC04, EC06) consegue devolver o mesmo token. Trocar o segredo invalida os tokens já emitidos.
+- **`ReserveOutcome(body, replay)`** diz ao controller se responde 201 ou 200.
+- **Pagamento CREATED → EXPIRED** pelo job, para o caso de a JVM cair entre o commit e o `createCharge()`.
+- **`publish()` também recusa data de evento no passado** (EVENT_DATE_IN_PAST).
+- **`payment.paid` de um pagamento já PAID com outro `eventId`** vira DUPLICATE (EC30).
+- **Sem classe `Money`:** dinheiro é sempre `long` em centavos.
+- **Front em `core/`, `features/` e `shared/`**, com o design system Cota Ae! (seção [Front-end e design system](#front-end-e-design-system)).
+
+## Monorepo
 
 Um repositório, um JAR. O POM pai builda `api/` e `web/`; em produção o build do Angular vai para `static/` dentro do JAR, então não existe CORS em produção.
 
 ```
-padrinhos/
-├── pom.xml                              # parent: modules api, web
+cotai/
+├── pom.xml                              # parent: module api (+ web unless -DskipWeb)
 ├── docker-compose.yml                   # postgres:17
 ├── README.md
-├── docs/api/
-│   ├── openapi.yaml                     # section K
-│   ├── collections/
-│   │   ├── padrinhos.postman_collection.json
-│   │   ├── padrinhos-local.postman_environment.json
-│   │   └── padrinhos.insomnia.json
-│   └── scripts/race-last-quota.sh       # real concurrency, parallel curl
+├── AGENTS.md                            # rules for coding agents (UI: Cota Ae! design system)
+├── .github/workflows/ci.yml             # api verify (Testcontainers) + web build/test
+├── analise_modelo_e_design/             # Astah model (.asta)
+├── docs/
+│   ├── api/
+│   │   ├── openapi.yaml                 # contract, source of truth
+│   │   ├── collections/                 # PENDING: Postman + Insomnia (section Collections)
+│   │   └── scripts/race-last-quota.sh   # real concurrency, parallel curl
+│   ├── design/design-spec.md            # this file
+│   └── design-system/                   # Cota Ae!: brand, mobile-first, components, copy, a11y, QA
 ├── api/
-│   ├── pom.xml
+│   ├── pom.xml                          # Lombok, Spring Security JWT, Flyway, Thymeleaf, ZXing
 │   └── src/
-│       ├── main/java/dev/padrinhos/
+│       ├── main/java/dev/cotai/
 │       │   ├── organizer/               # Organizer, AuthController, JwtService
 │       │   ├── eventtype/               # EventType, TemplateItem, EventTypeController
-│       │   ├── giftlist/                # GiftList, Item, GiftListService, GiftListController
-│       │   ├── reservation/             # Reservation, ReservationService, ReservationExpiryJob
+│       │   ├── giftlist/                # GiftList, Item, GiftListService, GiftListController,
+│       │   │                            #   PublicGiftListController, SlugGenerator
+│       │   ├── reservation/             # Reservation, ReservationFlow, ReservationService, ReservationExpiryJob
 │       │   ├── payment/                 # Payment, PaymentGateway, PaymentService, PaymentWebhookController
-│       │   ├── mockgateway/             # @Profile("dev"): MockPaymentGateway, MockGatewayController
+│       │   ├── mockgateway/             # @Profile("dev"): MockPaymentGateway, MockGatewayController, WebhookDispatcher
 │       │   ├── devsupport/              # @Profile("dev"): MutableClock, DevController
-│       │   └── common/                  # GlobalExceptionHandler, ErrorCode, Money
+│       │   └── common/                  # GlobalExceptionHandler, ErrorCode, BusinessException,
+│       │                                #   SecurityConfig, ClockConfig, AppProperties, Crypto, SpaForwardController
 │       ├── main/resources/
 │       │   ├── application.yml
-│       │   ├── application-dev.yml      # payment.webhook-secret, mock-gateway.*
+│       │   ├── application-dev.yml      # mock-gateway.*
 │       │   ├── templates/mock-checkout.html
 │       │   └── db/migration/
 │       │       ├── V1__schema.sql
 │       │       └── V2__event_type_seed.sql
-│       └── test/java/dev/padrinhos/
-│           ├── ReservationConcurrencyIT.java     # 50 threads, 10 quotas
-│           ├── IdempotencyRaceIT.java
-│           ├── ConfirmVsExpireRaceIT.java
-│           ├── CancelVsPaidRaceIT.java
-│           ├── PaymentWebhookIT.java             # signature, duplicate, late, mismatch
-│           └── GatewayFailureIT.java
+│       └── test/java/dev/cotai/
+│           ├── CotaiApiApplicationIT.java        # context + Flyway + schema validation
+│           ├── TestcontainersConfiguration.java
+│           ├── giftlist/SlugGeneratorTest.java
+│           └── reservation/MutableClockTest.java
+│           # PENDING: ReservationConcurrencyIT (50 threads, 10 quotas), IdempotencyRaceIT,
+│           #   ConfirmVsExpireRaceIT, CancelVsPaidRaceIT, PaymentWebhookIT, GatewayFailureIT
 └── web/
-    ├── pom.xml                          # frontend-maven-plugin: npm ci + ng build
-    ├── package.json
-    ├── proxy.conf.json                  # /api, /mock-gateway → localhost:8080
-    └── src/app/
-        ├── guest/                       # /l/:slug, /r/:reservationId
-        ├── organizer/                   # /dashboard, /lists/new, /lists/:id
-        └── api/                         # generated from docs/api/openapi.yaml
+    ├── pom.xml                          # frontend-maven-plugin: npm ci + ng build -> /static in the jar
+    ├── package.json                     # Angular 22.2, Vitest
+    ├── proxy.conf.json                  # /api, /mock-gateway -> localhost:8080
+    ├── public/brand/                    # Cota Ae! logos (interpretive SVGs)
+    └── src/
+        ├── styles.scss                  # @use styles/cotai-theme
+        ├── styles/                      # cotai-theme.css, _design-tokens.scss
+        └── app/
+            ├── core/                    # models, ApiService, copy/ui-copy.ts
+            ├── features/                # home, gift-list (/l/:slug), reservation (/r/:id), dashboard
+            └── shared/cotai-ui/         # cotai-button, cotai-card, cotai-status-badge, cotai-progress
 ```
 
-## Arquitetura componentes e fluxo
+## Arquitetura
 
 Os números nas setas seguem a ordem do fluxo de pagamento. O gateway simulado roda dentro do mesmo JAR, mas chama o webhook por HTTP, como um provedor real faria. Por isso a chamada passa pelo filtro de segurança e pela verificação de assinatura.
 
@@ -80,11 +105,11 @@ Os números nas setas seguem a ordem do fluxo de pagamento. O gateway simulado r
 flowchart TB
   subgraph BROWSER["Browser"]
     direction LR
-    SPA["web/ · Angular 22 SPA<br/>/l/:slug · /r/:reservationId<br/>/dashboard · /lists/new"]
+    SPA["web/ · Angular 22 SPA (Cota Ae! design system)<br/>/ · /l/:slug · /r/:reservationId · /dashboard"]
     CHK["Mock checkout page (server-rendered)<br/>GET /mock-gateway/checkout/{ref}<br/>QR code + Approve / Decline"]
   end
 
-  subgraph JAR["padrinhos.jar · Spring Boot 4 · Java 21 · serves the SPA build from /static"]
+  subgraph JAR["cotai.jar · Spring Boot 4 · Java 21 · serves the SPA build from /static"]
     direction TB
     SEC["SecurityFilterChain<br/>JWT required: /api/gift-lists/**<br/>permitAll: /api/auth/**, /api/event-types/**,<br/>/api/public/**, /api/webhooks/**, /mock-gateway/**, /dev/**"]
     subgraph FEATURES["Feature packages"]
@@ -92,7 +117,7 @@ flowchart TB
       ORG["organizer<br/>AuthController · JwtService"]
       EVT["eventtype<br/>EventTypeController"]
       GL["giftlist<br/>GiftListController · GiftListService"]
-      RES["reservation<br/>PublicReservationController<br/>ReservationService · ReservationExpiryJob"]
+      RES["reservation<br/>PublicReservationController · ReservationFlow<br/>ReservationService · ReservationExpiryJob"]
       PAY["payment<br/>PaymentWebhookController · PaymentService<br/>«interface» PaymentGateway"]
     end
     subgraph DEV["@Profile(dev) only"]
@@ -100,14 +125,14 @@ flowchart TB
       MOCK["mockgateway<br/>MockPaymentGateway implements PaymentGateway<br/>MockGatewayController · WebhookDispatcher"]
       CLK["devsupport<br/>MutableClock · DevController"]
     end
-    ERR["common<br/>GlobalExceptionHandler → ProblemDetail (RFC 9457)"]
+    ERR["common<br/>GlobalExceptionHandler → ProblemDetail (RFC 9457)<br/>SecurityConfig · ClockConfig · Crypto"]
   end
 
   DB[("PostgreSQL 17<br/>Flyway V1__schema · V2__event_type_seed")]
 
   SPA -- "1 · REST/JSON /api/**" --> SEC
   SEC --> ORG & EVT & GL & RES
-  RES -- "2 · openCharge() after commit" --> PAY
+  RES -- "2 · ReservationFlow: openCharge() after commit" --> PAY
   PAY -- "3 · createCharge()" --> MOCK
   SPA -. "4 · navigate to checkoutUrl / scan QR" .-> CHK
   CHK -- "5 · POST approve | decline" --> MOCK
@@ -122,12 +147,12 @@ flowchart TB
 
 1. Um fluxograma não é UML. No Astah, este diagrama vira **dois**: um **diagrama de componentes** e um **diagrama de implantação**.
 2. **Componentes:** um componente por pacote (`organizer`, `eventtype`, `giftlist`, `reservation`, `payment`, `mockgateway`, `devsupport`). `PaymentGateway` é uma interface **fornecida** (bola) por `mockgateway` e **requerida** (soquete) por `payment`. O Mermaid não tem notação de bola e soquete.
-3. **Implantação:** nó `Browser` «device»; nó `JVM 21` «executionEnvironment» com o artefato `padrinhos.jar`; nó `PostgreSQL 17` «database». Caminhos de comunicação: HTTP(S) entre Browser e JVM, JDBC entre JVM e PostgreSQL.
+3. **Implantação:** nó `Browser` «device»; nó `JVM 21` «executionEnvironment» com o artefato `cotai.jar`; nó `PostgreSQL 17` «database». Caminhos de comunicação: HTTP(S) entre Browser e JVM, JDBC entre JVM e PostgreSQL.
 4. O webhook em dev é um **loopback** (JVM → JVM via HTTP). Desenhe como um caminho de comunicação do nó para ele mesmo e anote "dev only; in production the provider is an external node".
 5. Marque `mockgateway` e `devsupport` com o estereótipo «profile dev». Em produção eles não existem, e outro adaptador implementaria `PaymentGateway`.
 6. A numeração 1–7 é ordem de mensagens, informação de diagrama de sequência. No Astah, tire a numeração das setas do diagrama de componentes; a ordem já está no diagrama da seção F.
 
-## Casos de uso atores, include, extend
+## Casos de uso
 
 O Mermaid não tem notação de caso de uso. Este diagrama é um fluxograma que reproduz a estrutura, ou seja, atores, fronteira e relações, para servir de referência ao redesenho no Astah. A tabela logo abaixo do diagrama é a fonte da verdade.
 
@@ -138,7 +163,7 @@ flowchart LR
   GW["«actor» «system»<br/>Payment Gateway"]
   TIME["«actor»<br/>Scheduler (time)"]
 
-  subgraph SYS["Padrinhos"]
+  subgraph SYS["Cota Ae!"]
     UC01(["UC01 Sign up / Log in"])
     UC02(["UC02 Create gift list from event type"])
     UC03(["UC03 Customize items<br/>name · unit · unit price · quotas"])
@@ -186,7 +211,7 @@ flowchart LR
 | UC01 | Sign up / Log in | Organizer | — | E-mail taken (EMAIL_ALREADY_REGISTERED); wrong credentials (INVALID_CREDENTIALS, same message for unknown e-mail) |
 | UC02 | Create gift list from event type | Organizer | Logged in | Event date in the past (EVENT_DATE_IN_PAST); more than 100 items (VALIDATION_FAILED) |
 | UC03 | Customize items | — (included) | Inside UC02 | Price ≤ 0 or quotas \< 1 (VALIDATION_FAILED) |
-| UC04 | Publish gift list | Organizer | List in DRAFT | No items (LIST_HAS_NO_ITEMS); not DRAFT (INVALID_STATE_TRANSITION) |
+| UC04 | Publish gift list | Organizer | List in DRAFT | No active items (LIST_HAS_NO_ITEMS); event date in the past (EVENT_DATE_IN_PAST); not DRAFT (INVALID_STATE_TRANSITION) |
 | UC05 | Edit / archive item | Organizer | List not CLOSED | Quotas below occupied (QUOTAS_BELOW_OCCUPIED); archive with active reservations (ITEM_HAS_ACTIVE_RESERVATIONS) |
 | UC06 | View collection summary | Organizer | Owner of the list | Other organizer's list → 404 |
 | UC07 | Close gift list | Organizer | List PUBLISHED | Not PUBLISHED (INVALID_STATE_TRANSITION) |
@@ -204,7 +229,7 @@ flowchart LR
 
 ### Para o Astah
 
-1. Atores como bonecos e casos de uso como elipses, dentro de uma fronteira de sistema chamada `Padrinhos`. O Mermaid só consegue desenhar retângulos e pílulas.
+1. Atores como bonecos e casos de uso como elipses, dentro de uma fronteira de sistema chamada `Cota Ae!`. O Mermaid só consegue desenhar retângulos e pílulas.
 2. Atores primários à esquerda (Organizer, Guest) e secundários à direita (Payment Gateway com «system», Scheduler).
 3. **Scheduler como ator é discutível.** Se o professor não aceitar o tempo como ator, remova-o e coloque uma nota em UC18: "triggered every 60 s by @Scheduled". Decida isso antes de entregar.
 4. **Direção das setas.** «include»: tracejada, saindo do caso base para o incluído (UC09 → UC10, UC09 → UC11, UC02 → UC03, UC15 → UC16). «extend»: tracejada, saindo da extensão para o caso base (UC17 → UC15). O diagrama acima já segue essa direção.
@@ -213,7 +238,7 @@ flowchart LR
 7. UC12 tem dois atores: o Guest inicia e o Payment Gateway participa. Associe os dois sem seta de navegação.
 8. Não existe generalização entre Guest e Organizer. Um organizador que reserva cotas age como Guest, sem login.
 
-## Classes domínio + aplicação
+## Classes
 
 ### Modelo de domínio (entidades JPA)
 
@@ -372,13 +397,13 @@ classDiagram
 | Item | inv: /availableQuotas >= 0 | SELECT … FOR UPDATE in reserve() and updateItem() |
 | Reservation | quantity >= 1; amountCents = quantity * unitPriceCents | CHECK |
 | Reservation | unitPriceCents is a snapshot of item.unitPriceCents at creation {readOnly} | No setter; column updatable = false |
-| Reservation | idempotencyKey {unique}; manageTokenHash = sha256(token) | UNIQUE |
+| Reservation | idempotencyKey {unique}; manageTokenHash = sha256(token); token = HMAC-SHA256(MANAGE_TOKEN_SECRET, idempotencyKey) | UNIQUE; o replay recalcula o mesmo token sem guardá-lo |
 | Payment | reservation {unique}; providerReference {unique}; amountCents = reservation.amountCents; expiresAt = reservation.expiresAt | UNIQUE; set in the same transaction |
 | PaymentNotification | providerEventId {unique} | INSERT … ON CONFLICT DO NOTHING |
 
 ### Camada de aplicação
 
-Controllers, services, repositories e o ponto de troca do gateway. DTOs e comandos ficam fora do diagrama, porque são records sem comportamento.
+Controllers, services, repositories e o ponto de troca do gateway. DTOs ficam fora do diagrama, porque são records sem comportamento. `ReserveOutcome(body, replay)` diz ao controller se responde 201 (criou) ou 200 (replay da mesma `Idempotency-Key`). `ReservationService` depende de `PaymentGateway` só para gravar `providerName()` no pagamento CREATED, que nasce na mesma transação da reserva.
 
 ```mermaid
 classDiagram
@@ -386,6 +411,7 @@ classDiagram
 
   class PaymentGateway {
     <<interface>>
+    +providerName() String
     +createCharge(ChargeRequest request) Charge
     +isSignatureValid(byte[] rawBody, String signatureHeader) boolean
   }
@@ -394,16 +420,24 @@ classDiagram
     <<component>>
     -Clock clock
     -WebhookDispatcher dispatcher
+    +providerName() String
     +createCharge(ChargeRequest request) Charge
     +isSignatureValid(byte[] rawBody, String signatureHeader) boolean
-    +approve(String providerReference) void
-    +decline(String providerReference) void
+    +approve(MockCharge charge) void
+    +decline(MockCharge charge) void
+  }
+
+  class ReservationFlow {
+    <<service>>
+    +reserve(Long itemId, ReserveRequest cmd, UUID idempotencyKey) ReserveOutcome
   }
 
   class ReservationService {
     <<service>>
     -Clock clock
-    +reserve(Long itemId, ReserveCommand cmd, UUID idempotencyKey) ReservationCreated
+    +reserve(Long itemId, ReserveRequest cmd, UUID idempotencyKey) ReserveOutcome
+    +replayByKey(UUID idempotencyKey, ReserveRequest cmd, Long itemId) ReservationCreated
+    +get(UUID reservationId, String manageToken) ReservationView
     +cancel(UUID reservationId, String manageToken) void
     +confirmPaid(UUID reservationId) boolean
     +cancelDeclined(UUID reservationId) boolean
@@ -420,12 +454,14 @@ classDiagram
     <<repository>>
     +lockById(Long id) Optional~Item~
     +occupiedQuotas(Long itemId, Instant now) int
+    +occupiedQuotasByItem(UUID giftListId, Instant now) List
   }
 
   class ReservationRepository {
     <<repository>>
     +findByIdempotencyKey(UUID key) Optional~Reservation~
     +countActivePendingByEmail(UUID giftListId, String email, Instant now) int
+    +hasActiveReservations(Long itemId, Instant now) boolean
     +markConfirmed(UUID id, Instant now) int
     +markCancelled(UUID id, Instant now) int
     +markExpiredOverdue(Instant now) int
@@ -435,11 +471,15 @@ classDiagram
     <<repository>>
     +findByProviderReference(String ref) Optional~Payment~
     +transition(UUID id, PaymentStatus from, PaymentStatus to) int
+    +markPending(UUID id, String ref, String url, String qr) int
+    +markPaid(UUID id, Instant now) int
+    +expireForExpiredReservations() int
+    +sumRefundRequired(UUID giftListId) long
   }
 
   class PaymentNotificationRepository {
     <<repository>>
-    +insertIfAbsent(String providerEventId, String rawPayload) int
+    +insertIfAbsent(String eventId, String eventType, String rawPayload, Instant receivedAt) int
   }
 
   class PublicReservationController {
@@ -460,14 +500,17 @@ classDiagram
   }
 
   PaymentGateway <|.. MockPaymentGateway
+  PublicReservationController --> ReservationFlow
   PublicReservationController --> ReservationService
-  PublicReservationController --> PaymentService
+  ReservationFlow --> ReservationService
+  ReservationFlow --> PaymentService
   PaymentWebhookController --> PaymentService
   ReservationExpiryJob --> ReservationService
   PaymentService --> PaymentGateway
   PaymentService --> ReservationService
   PaymentService --> PaymentRepository
   PaymentService --> PaymentNotificationRepository
+  ReservationService --> PaymentGateway
   ReservationService --> ItemRepository
   ReservationService --> ReservationRepository
   ReservationService --> PaymentRepository
@@ -483,9 +526,9 @@ classDiagram
 6. `PaymentNotification → Payment` é **0..1**, porque notificações com referência desconhecida também são gravadas. Não "corrija" para 1.
 7. Na camada de aplicação, as setas cheias representam campos `private final` injetados pelo construtor. Por isso são associações e não dependências «use». Se o professor preferir dependência, troque todas, sem misturar.
 8. Estereótipos «entity», «enumeration», «interface», «service», «repository», «controller» e «component» precisam ser criados como estereótipos personalizados no Astah. A realização de `PaymentGateway` é tracejada com triângulo vazado.
-9. `MutableClock`, `WebhookDispatcher` e os DTOs foram omitidos de propósito. Se o professor pedir completude, coloque-os num diagrama de pacotes separado.
+9. `MutableClock`, `WebhookDispatcher` e os DTOs foram omitidos de propósito. Se o professor pedir completude, coloque-os num diagrama de pacotes separado. `ReservationFlow` entra no diagrama porque é a fronteira entre a transação da reserva e a chamada externa.
 
-## Estados reservation + payment
+## Estados
 
 ### Reservation
 
@@ -511,6 +554,7 @@ stateDiagram-v2
   [*] --> CREATED : same transaction as the reservation
   CREATED --> PENDING : createCharge() OK / store ref, checkoutUrl, QR
   CREATED --> FAILED : createCharge() error or timeout (3 s)
+  CREATED --> EXPIRED : reservation expired before the charge was opened
   PENDING --> PAID : payment.paid [reservation PENDING and not expired]
   PENDING --> DECLINED : payment.declined
   PENDING --> EXPIRED : reservation expired
@@ -525,6 +569,7 @@ stateDiagram-v2
 - **Toda transição é um UPDATE condicional** com `WHERE status = <origem>`. Se afetar 0 linhas, outra transação já mudou o estado.
 - **EXPIRED tem duas origens**: o job, ou a leitura ou o webhook que encontra uma reserva vencida ainda marcada como PENDING. O GET já devolve o *effective status*.
 - **Nenhum estado final tem saída.** Não existe reabrir reserva. Um pagamento atrasado vira REFUND_REQUIRED no *pagamento*, não altera a reserva.
+- **O job expira reserva e pagamento na mesma transação.** CREATED → EXPIRED cobre o caso de a JVM cair entre o commit da reserva e o `createCharge()`.
 
 ### Para o Astah
 
@@ -532,7 +577,7 @@ stateDiagram-v2
 2. No pagamento, a decisão entre PAID e REFUND_REQUIRED após `payment.paid` é um **pseudoestado de escolha** (losango) com as duas guardas. No Mermaid ela virou duas setas paralelas.
 3. Desenhe as duas máquinas no mesmo diagrama, como regiões ortogonais de "ReservationLifecycle", ou separadas. Não junte os estados numa máquina só: são ciclos de vida de objetos diferentes.
 
-## Pagamento por QR code / link gateway simulado
+## Pagamento por QR code ou link
 
 A resposta da reserva traz o `checkoutUrl`. A SPA mostra o QR code dessa URL e um botão "Abrir link de pagamento". A página de checkout é do gateway simulado, renderizada pelo Spring, e não da SPA, para imitar um provedor externo de verdade.
 
@@ -542,6 +587,7 @@ sequenceDiagram
   actor G as Guest
   participant SPA as Angular SPA
   participant RC as PublicReservationController
+  participant FL as ReservationFlow
   participant RS as ReservationService
   participant PS as PaymentService
   participant MG as MockPaymentGateway
@@ -550,7 +596,8 @@ sequenceDiagram
 
   G->>SPA: choose item, quantity, name, e-mail
   SPA->>RC: POST /api/public/items/41/reservations<br/>Idempotency-Key: k1
-  RC->>RS: reserve(41, cmd, k1)
+  RC->>FL: reserve(41, body, k1)
+  FL->>RS: reserve(41, body, k1)
   critical Transaction 1 · holds the item row lock
     RS->>DB: SELECT ... FROM item WHERE id = 41 FOR UPDATE
     RS->>DB: SUM(quantity) of CONFIRMED + PENDING with expires_at > now
@@ -558,13 +605,14 @@ sequenceDiagram
     RS->>DB: INSERT payment (CREATED, expires_at = reservation.expires_at)
     RS->>DB: COMMIT
   end
-  RC->>PS: openCharge(reservationId)
+  FL->>PS: openCharge(reservationId)
   Note over PS,MG: Outside the lock. Never call an external service while holding a row lock.
   PS->>MG: createCharge(amount, expiresAt)
   MG-->>PS: providerReference, checkoutUrl
   PS->>DB: UPDATE payment SET status = 'PENDING', checkout_url, qr ... WHERE status = 'CREATED'
+  FL-->>RC: ReserveOutcome(body, replay = false)
   RC-->>SPA: 201 Created + manageToken + payment.checkoutUrl
-  SPA-->>G: QR code of checkoutUrl + "Open payment link" button
+  SPA-->>G: QR code of checkoutUrl + "Ir para pagamento" + "Copiar link"
 
   G->>MG: GET /mock-gateway/checkout/mock_8h2k (scan QR or click)
   MG-->>G: HTML page: amount, QR, Approve / Decline
@@ -590,26 +638,15 @@ sequenceDiagram
   SPA-->>G: "Payment confirmed"
 ```
 
-Mock Gateway · checkoutPENDING
+A página de checkout simulada mostra o valor, a descrição (`item xN - título da lista`), o QR code gerado no servidor com ZXing e os botões Approve e Decline. Approve ou Decline num charge vencido devolve 410 CHARGE_EXPIRED.
 
-R$ 90,00
-
-Picanha · 1 kg · Churrasco do Erick
-
-Expira em 30 min (mesmo instante da reserva)
-
-http://192.168.0.10:8080/mock-gateway/checkout/mock_8h2k1x9q0w3e5r7t6y4u
-
-### O que acontece no back-end
-
-Prévia ilustrativa. Clique em Approve ou Decline para ver a sequência de eventos.
-
+- **`ReservationFlow` orquestra reservar e abrir a cobrança.** Ele não é transacional: `ReservationService.reserve()` faz commit e libera o lock, e só depois o `PaymentService.openCharge()` chama o gateway. Se as duas chamadas ficassem no mesmo bean, a chamada interna não passaria pelo proxy do Spring e as transações se misturariam.
 - **O QR code aponta para `app.public-base-url`.** Com `localhost`, o celular que escanear não abre a página. Na demo, use o IP da rede local.
 - **Polling a cada 3 s** em vez de SSE/WebSocket. É mais simples e suficiente, e o mesmo GET serve para a tela "minha reserva".
 - **O webhook lê o corpo cru** (`byte[]`). Se o Spring desserializar para DTO antes de validar o HMAC, a assinatura deixa de bater.
 - **Atraso e duplicação configuráveis** no gateway simulado: `mock-gateway.webhook-delay-ms` e `mock-gateway.duplicate-deliveries`. Servem para demonstrar a idempotência ao vivo.
 
-## Concorrência lock + corridas de transição
+## Concorrência
 
 ### Última cota, dois convidados
 
@@ -691,7 +728,9 @@ sequenceDiagram
 3. O bloqueio da tx B deve aparecer como uma **barra de ativação suspensa** (ou uma restrição de duração `{blocked until A commits}`). O Mermaid só consegue mostrar isso como nota.
 4. A mensagem do webhook é **assíncrona** (seta aberta). Confira que o Astah não a converta em síncrona ao redesenhar.
 
-## Edge cases onde cada um é provado
+## Edge cases
+
+**Situação:** os testes de integração e as collections citados na coluna "Onde" ainda não existem no repositório (veja [Divergências conhecidas](#divergências-conhecidas)). O comportamento descrito está implementado, exceto os pontos listados lá.
 
 A última coluna diz onde cada caso é reproduzido. collection roda no Postman ou no Insomnia. JUnit é teste de integração com Testcontainers. script é o `race-last-quota.sh`. manual precisa de uma pessoa, e são esses que não dá para automatizar nem desenhar no Mermaid.
 
@@ -726,18 +765,14 @@ A última coluna diz onde cada caso é reproduzido. collection roda no Postman o
 | EC27 | Celular escaneia um QR que aponta para localhost | A página não abre; configure `app.public-base-url` com o IP da rede local | manual |
 | EC28 | Disponível desatualizado na tela do convidado | A SPA mostra "Essa cota acabou de ser reservada" no 409 e recarrega a lista | manual (duas abas) |
 | EC29 | Convidado fecha a aba durante o pagamento | O webhook confirma mesmo assim; ao reabrir `/r/:id`, a tela mostra CONFIRMED | manual |
+| EC30 | Provedor reenvia `payment.paid` de um pagamento já PAID com outro `eventId` | 204 e outcome DUPLICATE; nada muda | collection 06 |
+| EC31 | A JVM cai entre o commit da reserva e o `createCharge()` | O pagamento fica em CREATED e o job o expira junto com a reserva | JUnit |
 
-## Itens padrão por tipo de evento prévia editável
+## Itens padrão por tipo de evento
 
-São 10 sugestões por tipo, gravadas na migration `V2__event_type_seed.sql`. O organizador edita tudo antes de criar a lista. Os códigos são em inglês, e os nomes dos itens ficam em português porque são dados exibidos ao usuário. Os preços são exemplos.
+São 10 sugestões por tipo, gravadas na migration `V2__event_type_seed.sql`, para `BARBECUE` (Churrasco), `BABY_SHOWER` (Chá de bebê), `WEDDING` (Casamento) e `OTHER` (Outro, sem sugestões). O organizador edita tudo antes de criar a lista. Os códigos são em inglês, e os nomes dos itens ficam em português porque são dados exibidos ao usuário. Os preços são exemplos. Todos os tipos usam 30 min de prazo por padrão.
 
-| name | unit | unitPrice (R$) | quotas | total | Remover |
-| --- | --- | --- | --- | --- | --- |
-|  |  |  |  |  |  |
-
-Edite qualquer célula.
-
-## Endpoints REST
+## Endpoints
 
 | Route | Auth | Responses |
 | --- | --- | --- |
@@ -769,1020 +804,15 @@ Edite qualquer célula.
 | POST/dev/clock/reset | dev only | 200 |
 | POST/dev/jobs/expire-reservations | dev only | 200 |
 
-## OpenAPI esboço 3.1
+## OpenAPI
 
-Arquivo em `docs/api/openapi.yaml`. Passa no `redocly lint` sem erros. Os tipos do Angular em `web/src/app/api/` são gerados a partir dele.
+O contrato fica em [`docs/api/openapi.yaml`](../api/openapi.yaml) e é a fonte da verdade dos endpoints, DTOs e códigos de erro. A cópia que existia neste arquivo foi removida para não divergir. Os tipos do Angular em `web/src/app/core/models/` ainda são escritos à mão; gerá-los a partir do OpenAPI está pendente.
 
-Ver openapi.yaml (1000 linhas)
+## Collections
 
-```
-openapi: 3.1.0
-info:
-  title: Padrinhos API
-  version: 0.1.0-draft
-  summary: Gift registry with quotas for weddings, baby showers, barbecues and other events.
-  description: |
-    DRAFT. Contract sketch for the Padrinhos monorepo (api/ Spring Boot, web/ Angular).
+**Pendente no repositório.** As collections foram desenhadas na v0.2 (59 requests em 8 pastas, com testes e webhooks assinados por HMAC-SHA256), mas `docs/api/collections/` ainda não existe. Quando forem adicionadas, devem usar o nome Cota Ae! e seguir esta ordem, com a API no perfil `dev`:
 
-    Conventions
-    - Money is always an integer amount of cents (BRL). Never floating point.
-    - Errors use RFC 9457 Problem Details (`application/problem+json`) with an extra `code` field.
-    - 400 = malformed or invalid input (Bean Validation). 409 = state conflict. 422 = well-formed
-      request that breaks a business rule. 404 is also returned when a resource exists but the caller
-      is not allowed to see it (no existence oracle).
-    - Timestamps are ISO-8601 UTC (`Instant`). `eventDate` is a local date in the zone configured by
-      `app.zone` (default America/Sao_Paulo).
-    - `/mock-gateway/**` and `/dev/**` exist only with the `dev` Spring profile.
-servers:
-  - url: http://localhost:8080
-    description: Local (dev profile)
-tags:
-  - name: Auth
-    description: Organizer registration and login (JWT).
-  - name: Event types
-    description: Event types and their 10 suggested items.
-  - name: Gift lists
-    description: Organizer area. Requires a bearer token.
-  - name: Public
-    description: Guest area. No login; reservations are managed with a one-time manage token.
-  - name: Webhooks
-    description: Called by the payment provider.
-  - name: Mock gateway
-    description: Fake payment provider (dev profile only). Renders the checkout page with a QR code.
-  - name: Dev support
-    description: Controllable clock and job triggers to reproduce time-based edge cases (dev profile only).
-
-security:
-  - bearerAuth: []
-
-paths:
-  /api/auth/register:
-    post:
-      tags: [Auth]
-      operationId: register
-      summary: Register
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/RegisterRequest' }
-      responses:
-        '201':
-          description: Organizer created.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/OrganizerResponse' }
-        '400': { $ref: '#/components/responses/ValidationFailed' }
-        '409':
-          description: EMAIL_ALREADY_REGISTERED
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-
-  /api/auth/login:
-    post:
-      tags: [Auth]
-      operationId: login
-      summary: Login
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/LoginRequest' }
-      responses:
-        '200':
-          description: JWT issued.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/TokenResponse' }
-        '400': { $ref: '#/components/responses/ValidationFailed' }
-        '401':
-          description: INVALID_CREDENTIALS (same response for unknown email and wrong password).
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-
-  /api/event-types:
-    get:
-      tags: [Event types]
-      operationId: listEventTypes
-      summary: List event types
-      security: []
-      responses:
-        '200':
-          description: All event types, ordered by name.
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: '#/components/schemas/EventType' }
-
-  /api/event-types/{eventTypeCode}/template-items:
-    get:
-      tags: [Event types]
-      operationId: listTemplateItems
-      summary: List template items
-      security: []
-      parameters:
-        - $ref: '#/components/parameters/EventTypeCode'
-      responses:
-        '200':
-          description: Suggested items, ordered by position. Empty for OTHER.
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: '#/components/schemas/TemplateItem' }
-        '404': { $ref: '#/components/responses/NotFound' }
-
-  /api/gift-lists:
-    post:
-      tags: [Gift lists]
-      operationId: createGiftList
-      summary: Create gift list
-      description: |
-        Creates a DRAFT list. The client sends the full item list (usually the template items after
-        the organizer edited them). Templates are copied, never referenced.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/CreateGiftListRequest' }
-      responses:
-        '201':
-          description: Created.
-          headers:
-            Location:
-              schema: { type: string, example: /api/gift-lists/0f8b2c9e-6c1d-4a51-9a39-2d7f7e3b1c11 }
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/GiftList' }
-        '400': { $ref: '#/components/responses/ValidationFailed' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '422':
-          description: EVENT_DATE_IN_PAST
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-    get:
-      tags: [Gift lists]
-      operationId: listMyGiftLists
-      summary: List my gift lists
-      responses:
-        '200':
-          description: Lists owned by the caller.
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: '#/components/schemas/GiftListSummary' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-
-  /api/gift-lists/{giftListId}:
-    parameters:
-      - $ref: '#/components/parameters/GiftListId'
-    get:
-      tags: [Gift lists]
-      operationId: getGiftList
-      summary: Get gift list
-      responses:
-        '200':
-          description: Full list with items (including archived ones, flagged).
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/GiftList' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-    patch:
-      tags: [Gift lists]
-      operationId: updateGiftList
-      summary: Update gift list
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/UpdateGiftListRequest' }
-      responses:
-        '200':
-          description: Updated.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/GiftList' }
-        '400': { $ref: '#/components/responses/ValidationFailed' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409':
-          description: INVALID_STATE_TRANSITION (list is CLOSED)
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-
-  /api/gift-lists/{giftListId}/publish:
-    parameters:
-      - $ref: '#/components/parameters/GiftListId'
-    post:
-      tags: [Gift lists]
-      operationId: publishGiftList
-      summary: Publish gift list
-      responses:
-        '200':
-          description: Status is now PUBLISHED and the slug is reachable publicly.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/GiftList' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409':
-          description: INVALID_STATE_TRANSITION (not DRAFT)
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-        '422':
-          description: LIST_HAS_NO_ITEMS or EVENT_DATE_IN_PAST
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-
-  /api/gift-lists/{giftListId}/close:
-    parameters:
-      - $ref: '#/components/parameters/GiftListId'
-    post:
-      tags: [Gift lists]
-      operationId: closeGiftList
-      summary: Close gift list
-      description: Stops new reservations. PENDING reservations can still be paid until they expire.
-      responses:
-        '200':
-          description: Status is now CLOSED.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/GiftList' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409':
-          description: INVALID_STATE_TRANSITION (not PUBLISHED)
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-
-  /api/gift-lists/{giftListId}/items:
-    parameters:
-      - $ref: '#/components/parameters/GiftListId'
-    post:
-      tags: [Gift lists]
-      operationId: addItem
-      summary: Add item
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/ItemInput' }
-      responses:
-        '201':
-          description: Created.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Item' }
-        '400': { $ref: '#/components/responses/ValidationFailed' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409':
-          description: INVALID_STATE_TRANSITION (list is CLOSED)
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-
-  /api/gift-lists/{giftListId}/items/{itemId}:
-    parameters:
-      - $ref: '#/components/parameters/GiftListId'
-      - $ref: '#/components/parameters/ItemId'
-    put:
-      tags: [Gift lists]
-      operationId: updateItem
-      summary: Update item
-      description: |
-        Takes the same row lock used by reservations. A price change does not affect existing
-        reservations (they keep a price snapshot).
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/ItemInput' }
-      responses:
-        '200':
-          description: Updated.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Item' }
-        '400': { $ref: '#/components/responses/ValidationFailed' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409':
-          description: QUOTAS_BELOW_OCCUPIED (totalQuotas lower than CONFIRMED + active PENDING quotas)
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-    delete:
-      tags: [Gift lists]
-      operationId: archiveItem
-      summary: Archive item
-      description: Soft delete (archived = true). Archived items disappear from the public list.
-      responses:
-        '204': { description: Archived. }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409':
-          description: ITEM_HAS_ACTIVE_RESERVATIONS (any CONFIRMED or active PENDING reservation)
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-
-  /api/gift-lists/{giftListId}/summary:
-    parameters:
-      - $ref: '#/components/parameters/GiftListId'
-    get:
-      tags: [Gift lists]
-      operationId: getGiftListSummary
-      summary: Get gift list summary
-      responses:
-        '200':
-          description: Totals per item and contributors.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/GiftListSummaryReport' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-
-  /api/public/gift-lists/{slug}:
-    get:
-      tags: [Public]
-      operationId: getPublicGiftList
-      summary: Get public gift list
-      security: []
-      parameters:
-        - name: slug
-          in: path
-          required: true
-          schema: { type: string, pattern: '^[a-z0-9-]+-[a-z2-7]{4}$', example: churrasco-do-erick-7f3k }
-      responses:
-        '200':
-          description: PUBLISHED or CLOSED list. Archived items are omitted.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/PublicGiftList' }
-        '404':
-          description: Unknown slug or list still in DRAFT.
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-
-  /api/public/items/{itemId}/reservations:
-    parameters:
-      - $ref: '#/components/parameters/ItemId'
-    post:
-      tags: [Public]
-      operationId: reserveQuotas
-      summary: Reserve quotas
-      security: []
-      description: |
-        Locks the item row (SELECT ... FOR UPDATE), computes available quotas from reservations, inserts
-        the reservation and its payment (status CREATED), commits, then asks the gateway for a charge
-        outside the lock. The checkout URL is also encoded in the QR code.
-      parameters:
-        - $ref: '#/components/parameters/IdempotencyKey'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/ReserveRequest' }
-      responses:
-        '201':
-          description: Reservation created. `manageToken` is returned only here.
-          headers:
-            Location:
-              schema: { type: string, example: /api/public/reservations/5b0c3f61-2f5e-4d2b-8f37-1f6f0b8b2d90 }
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/ReservationCreated' }
-        '200':
-          description: Replay of an earlier request with the same Idempotency-Key and the same body.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/ReservationCreated' }
-        '400': { $ref: '#/components/responses/ValidationFailed' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409':
-          description: QUOTA_UNAVAILABLE (body has `availableQuotas`) or LIST_NOT_ACCEPTING_RESERVATIONS
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-        '422':
-          description: IDEMPOTENCY_KEY_MISMATCH (same key, different body)
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-        '429':
-          description: TOO_MANY_PENDING_RESERVATIONS (more than 3 PENDING for the same e-mail in the same list)
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-        '502':
-          description: PAYMENT_GATEWAY_UNAVAILABLE. The reservation was cancelled and the quotas released.
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-
-  /api/public/reservations/{reservationId}:
-    parameters:
-      - $ref: '#/components/parameters/ReservationId'
-      - $ref: '#/components/parameters/ManageToken'
-    get:
-      tags: [Public]
-      operationId: getReservation
-      summary: Get reservation
-      security: []
-      description: Polled by the SPA every 3 s while the guest is on the payment screen.
-      responses:
-        '200':
-          description: Current state.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/ReservationView' }
-        '404':
-          description: Unknown id or wrong token (indistinguishable on purpose).
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-    delete:
-      tags: [Public]
-      operationId: cancelReservation
-      summary: Cancel reservation
-      security: []
-      responses:
-        '204': { description: Cancelled. Quotas are available again. }
-        '404':
-          description: Unknown id or wrong token.
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-        '409':
-          description: INVALID_STATE_TRANSITION (only PENDING can be cancelled; paid reservations are not refundable here)
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-
-  /api/webhooks/payments:
-    post:
-      tags: [Webhooks]
-      operationId: receivePaymentNotification
-      summary: Receive payment notification
-      security: []
-      description: |
-        The signature is an HMAC-SHA256 of the raw request bytes. The controller must read the body as a
-        String (or byte[]) before any JSON binding; re-serializing a DTO changes the bytes.
-        Any signed and parseable notification gets 204, including duplicates, late payments and unknown
-        references, so the provider stops retrying. The outcome is stored in payment_notification.
-      parameters:
-        - name: X-Signature
-          in: header
-          required: true
-          schema: { type: string, pattern: '^sha256=[0-9a-f]{64}$' }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/PaymentNotificationPayload' }
-      responses:
-        '204': { description: 'Accepted: APPLIED, DUPLICATE, LATE_PAYMENT or REJECTED.' }
-        '400':
-          description: Body is not valid JSON or misses required fields.
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-        '401':
-          description: INVALID_SIGNATURE
-          content:
-            application/problem+json:
-              schema: { $ref: '#/components/schemas/Problem' }
-
-  /mock-gateway/checkout/{providerReference}:
-    parameters:
-      - $ref: '#/components/parameters/ProviderReference'
-    get:
-      tags: [Mock gateway]
-      operationId: mockCheckoutPage
-      summary: Mock checkout page
-      security: []
-      description: HTML page with the amount, a QR code of this same URL and Approve / Decline buttons.
-      responses:
-        '200':
-          description: Checkout page.
-          content:
-            text/html:
-              schema: { type: string }
-        '404': { description: Unknown reference. }
-
-  /mock-gateway/charges/{providerReference}:
-    parameters:
-      - $ref: '#/components/parameters/ProviderReference'
-    get:
-      tags: [Mock gateway]
-      operationId: getMockCharge
-      summary: Get mock charge
-      security: []
-      responses:
-        '200':
-          description: Charge state as the fake provider sees it.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/MockCharge' }
-        '404': { description: Unknown reference. }
-
-  /mock-gateway/charges/{providerReference}/approve:
-    parameters:
-      - $ref: '#/components/parameters/ProviderReference'
-    post:
-      tags: [Mock gateway]
-      operationId: approveMockCharge
-      summary: Approve mock charge
-      security: []
-      description: |
-        Marks the charge as paid and sends `payment.paid` to /api/webhooks/payments after
-        `mock-gateway.webhook-delay-ms` (default 1500). `mock-gateway.duplicate-deliveries` (default 1)
-        sends the same event N times to exercise idempotency.
-      responses:
-        '202': { description: Webhook scheduled. }
-        '404': { description: Unknown reference. }
-        '409': { description: Charge is not PENDING. }
-        '410': { description: CHARGE_EXPIRED (expiresAt <= dev clock now). }
-
-  /mock-gateway/charges/{providerReference}/decline:
-    parameters:
-      - $ref: '#/components/parameters/ProviderReference'
-    post:
-      tags: [Mock gateway]
-      operationId: declineMockCharge
-      summary: Decline mock charge
-      security: []
-      responses:
-        '202': { description: payment.declined webhook scheduled. }
-        '404': { description: Unknown reference. }
-        '409': { description: Charge is not PENDING. }
-        '410': { description: CHARGE_EXPIRED }
-
-  /dev/clock:
-    get:
-      tags: [Dev support]
-      operationId: getDevClock
-      summary: Get dev clock
-      security: []
-      responses:
-        '200':
-          description: Current application clock.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/DevClock' }
-  /dev/clock/advance:
-    post:
-      tags: [Dev support]
-      operationId: advanceDevClock
-      summary: Advance dev clock
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [minutes]
-              properties:
-                minutes: { type: integer, minimum: 1, maximum: 100000 }
-      responses:
-        '200':
-          description: Clock moved forward.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/DevClock' }
-  /dev/clock/reset:
-    post:
-      tags: [Dev support]
-      operationId: resetDevClock
-      summary: Reset dev clock
-      security: []
-      responses:
-        '200':
-          description: Clock back to system time.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/DevClock' }
-  /dev/jobs/expire-reservations:
-    post:
-      tags: [Dev support]
-      operationId: runExpiryJob
-      summary: Run expiry job
-      security: []
-      responses:
-        '200':
-          description: Job executed synchronously.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  expiredReservations: { type: integer }
-
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-
-  parameters:
-    EventTypeCode:
-      name: eventTypeCode
-      in: path
-      required: true
-      schema: { $ref: '#/components/schemas/EventTypeCode' }
-    GiftListId:
-      name: giftListId
-      in: path
-      required: true
-      schema: { type: string, format: uuid }
-    ItemId:
-      name: itemId
-      in: path
-      required: true
-      schema: { type: integer, format: int64, minimum: 1 }
-    ReservationId:
-      name: reservationId
-      in: path
-      required: true
-      schema: { type: string, format: uuid }
-    ManageToken:
-      name: X-Manage-Token
-      in: header
-      required: true
-      description: Returned once at reservation time. Sent as a header, never in the query string (query strings end up in logs).
-      schema: { type: string, minLength: 43, maxLength: 43 }
-    IdempotencyKey:
-      name: Idempotency-Key
-      in: header
-      required: true
-      description: Client-generated UUID. Same key + same body = replay (200). Same key + different body = 422.
-      schema: { type: string, format: uuid }
-    ProviderReference:
-      name: providerReference
-      in: path
-      required: true
-      schema: { type: string, pattern: '^mock_[a-z0-9]{20}$', example: mock_8h2k1x9q0w3e5r7t6y4u }
-
-  responses:
-    ValidationFailed:
-      description: VALIDATION_FAILED. `errors` lists each invalid field.
-      content:
-        application/problem+json:
-          schema: { $ref: '#/components/schemas/Problem' }
-    Unauthorized:
-      description: Missing, expired or invalid bearer token.
-      content:
-        application/problem+json:
-          schema: { $ref: '#/components/schemas/Problem' }
-    NotFound:
-      description: NOT_FOUND (also used when the resource belongs to another organizer).
-      content:
-        application/problem+json:
-          schema: { $ref: '#/components/schemas/Problem' }
-
-  schemas:
-    Cents:
-      type: integer
-      format: int64
-      minimum: 1
-      maximum: 100000000
-      description: Amount in BRL cents. 9000 = R$ 90,00.
-
-    EventTypeCode:
-      type: string
-      enum: [WEDDING, BABY_SHOWER, BARBECUE, OTHER]
-
-    GiftListStatus:
-      type: string
-      enum: [DRAFT, PUBLISHED, CLOSED]
-
-    ReservationStatus:
-      type: string
-      enum: [PENDING, CONFIRMED, CANCELLED, EXPIRED]
-
-    PaymentStatus:
-      type: string
-      enum: [CREATED, PENDING, PAID, DECLINED, EXPIRED, FAILED, REFUND_REQUIRED]
-
-    ErrorCode:
-      type: string
-      enum:
-        - VALIDATION_FAILED
-        - EMAIL_ALREADY_REGISTERED
-        - INVALID_CREDENTIALS
-        - NOT_FOUND
-        - EVENT_DATE_IN_PAST
-        - LIST_HAS_NO_ITEMS
-        - LIST_NOT_ACCEPTING_RESERVATIONS
-        - QUOTA_UNAVAILABLE
-        - QUOTAS_BELOW_OCCUPIED
-        - ITEM_HAS_ACTIVE_RESERVATIONS
-        - INVALID_STATE_TRANSITION
-        - IDEMPOTENCY_KEY_MISMATCH
-        - TOO_MANY_PENDING_RESERVATIONS
-        - PAYMENT_GATEWAY_UNAVAILABLE
-        - INVALID_SIGNATURE
-        - CHARGE_EXPIRED
-
-    Problem:
-      type: object
-      required: [type, title, status, code]
-      properties:
-        type: { type: string, format: uri, example: 'https://padrinhos.dev/problems/quota-unavailable' }
-        title: { type: string, example: Quota unavailable }
-        status: { type: integer, example: 409 }
-        detail: { type: string, example: 'Only 0 of 2 quotas are still available for item 41.' }
-        instance: { type: string, example: /api/public/items/41/reservations }
-        code: { $ref: '#/components/schemas/ErrorCode' }
-        availableQuotas: { type: integer, minimum: 0, description: Only for QUOTA_UNAVAILABLE. }
-        errors:
-          type: array
-          description: Only for VALIDATION_FAILED.
-          items:
-            type: object
-            required: [field, message]
-            properties:
-              field: { type: string, example: quantity }
-              message: { type: string, example: must be greater than or equal to 1 }
-
-    RegisterRequest:
-      type: object
-      required: [name, email, password]
-      properties:
-        name: { type: string, minLength: 2, maxLength: 80 }
-        email: { type: string, format: email, maxLength: 254 }
-        password: { type: string, minLength: 8, maxLength: 72, description: BCrypt limit is 72 bytes. }
-
-    LoginRequest:
-      type: object
-      required: [email, password]
-      properties:
-        email: { type: string, format: email }
-        password: { type: string }
-
-    OrganizerResponse:
-      type: object
-      required: [id, name, email]
-      properties:
-        id: { type: string, format: uuid }
-        name: { type: string }
-        email: { type: string, format: email }
-
-    TokenResponse:
-      type: object
-      required: [accessToken, tokenType, expiresIn]
-      properties:
-        accessToken: { type: string }
-        tokenType: { type: string, const: Bearer }
-        expiresIn: { type: integer, description: Seconds., example: 3600 }
-
-    EventType:
-      type: object
-      required: [code, name, defaultReservationTtlMinutes]
-      properties:
-        code: { $ref: '#/components/schemas/EventTypeCode' }
-        name: { type: string, example: Churrasco }
-        defaultReservationTtlMinutes: { type: integer, example: 30 }
-
-    TemplateItem:
-      type: object
-      required: [position, name, unit, unitPriceCents, suggestedQuotas]
-      properties:
-        position: { type: integer, minimum: 1, maximum: 10 }
-        name: { type: string, example: Picanha }
-        unit: { type: string, example: kg }
-        unitPriceCents: { $ref: '#/components/schemas/Cents' }
-        suggestedQuotas: { type: integer, minimum: 1, example: 4 }
-
-    ItemInput:
-      type: object
-      required: [name, unit, unitPriceCents, totalQuotas]
-      properties:
-        name: { type: string, minLength: 1, maxLength: 80 }
-        unit: { type: string, minLength: 1, maxLength: 30, example: saco de 5 kg }
-        unitPriceCents: { $ref: '#/components/schemas/Cents' }
-        totalQuotas: { type: integer, minimum: 1, maximum: 1000 }
-
-    Item:
-      type: object
-      required: [id, name, unit, unitPriceCents, totalQuotas, totalCents, archived]
-      properties:
-        id: { type: integer, format: int64 }
-        name: { type: string }
-        unit: { type: string }
-        unitPriceCents: { $ref: '#/components/schemas/Cents' }
-        totalQuotas: { type: integer }
-        totalCents: { type: integer, format: int64, description: 'Derived: unitPriceCents * totalQuotas.' }
-        archived: { type: boolean }
-
-    CreateGiftListRequest:
-      type: object
-      required: [eventTypeCode, title, eventDate, items]
-      properties:
-        eventTypeCode: { $ref: '#/components/schemas/EventTypeCode' }
-        title: { type: string, minLength: 3, maxLength: 80, example: Churrasco do Erick }
-        eventDate: { type: string, format: date }
-        reservationTtlMinutes:
-          type: integer
-          minimum: 10
-          maximum: 1440
-          description: Defaults to the event type value. The charge expires at the same instant as the reservation.
-        items:
-          type: array
-          minItems: 0
-          maxItems: 100
-          items: { $ref: '#/components/schemas/ItemInput' }
-
-    UpdateGiftListRequest:
-      type: object
-      minProperties: 1
-      properties:
-        title: { type: string, minLength: 3, maxLength: 80 }
-        eventDate: { type: string, format: date }
-        reservationTtlMinutes: { type: integer, minimum: 10, maximum: 1440, description: Applies to new reservations only. }
-
-    GiftList:
-      type: object
-      required: [id, title, slug, eventTypeCode, eventDate, status, reservationTtlMinutes, items, createdAt]
-      properties:
-        id: { type: string, format: uuid }
-        title: { type: string }
-        slug: { type: string, example: churrasco-do-erick-7f3k }
-        eventTypeCode: { $ref: '#/components/schemas/EventTypeCode' }
-        eventDate: { type: string, format: date }
-        status: { $ref: '#/components/schemas/GiftListStatus' }
-        reservationTtlMinutes: { type: integer }
-        items:
-          type: array
-          items: { $ref: '#/components/schemas/Item' }
-        createdAt: { type: string, format: date-time }
-
-    GiftListSummary:
-      type: object
-      required: [id, title, slug, status, eventDate]
-      properties:
-        id: { type: string, format: uuid }
-        title: { type: string }
-        slug: { type: string }
-        status: { $ref: '#/components/schemas/GiftListStatus' }
-        eventDate: { type: string, format: date }
-
-    GiftListSummaryReport:
-      type: object
-      required: [giftListId, targetCents, confirmedCents, pendingCents, items, contributors]
-      properties:
-        giftListId: { type: string, format: uuid }
-        targetCents: { type: integer, format: int64, description: Sum of totalCents of non-archived items. }
-        confirmedCents: { type: integer, format: int64 }
-        pendingCents: { type: integer, format: int64, description: PENDING reservations whose expiresAt is still in the future. }
-        refundRequiredCents: { type: integer, format: int64, description: Late or post-cancel payments the organizer must refund. }
-        items:
-          type: array
-          items:
-            type: object
-            required: [itemId, name, totalQuotas, confirmedQuotas, pendingQuotas, availableQuotas]
-            properties:
-              itemId: { type: integer, format: int64 }
-              name: { type: string }
-              totalQuotas: { type: integer }
-              confirmedQuotas: { type: integer }
-              pendingQuotas: { type: integer }
-              availableQuotas: { type: integer }
-        contributors:
-          type: array
-          items:
-            type: object
-            required: [guestName, itemName, quantity, amountCents, confirmedAt]
-            properties:
-              guestName: { type: string }
-              itemName: { type: string }
-              quantity: { type: integer }
-              amountCents: { type: integer, format: int64 }
-              confirmedAt: { type: string, format: date-time }
-
-    PublicGiftList:
-      type: object
-      required: [title, eventTypeCode, eventDate, status, acceptsReservations, items]
-      properties:
-        title: { type: string }
-        eventTypeCode: { $ref: '#/components/schemas/EventTypeCode' }
-        eventDate: { type: string, format: date }
-        status: { $ref: '#/components/schemas/GiftListStatus' }
-        acceptsReservations: { type: boolean, description: 'status = PUBLISHED and eventDate >= today (app.zone).' }
-        items:
-          type: array
-          items: { $ref: '#/components/schemas/PublicItem' }
-
-    PublicItem:
-      type: object
-      required: [id, name, unit, unitPriceCents, totalQuotas, availableQuotas]
-      properties:
-        id: { type: integer, format: int64 }
-        name: { type: string }
-        unit: { type: string }
-        unitPriceCents: { $ref: '#/components/schemas/Cents' }
-        totalQuotas: { type: integer }
-        availableQuotas: { type: integer, minimum: 0, description: Snapshot at read time; may be stale by the time the guest submits. }
-
-    ReserveRequest:
-      type: object
-      required: [guestName, guestEmail, quantity]
-      properties:
-        guestName: { type: string, minLength: 2, maxLength: 80 }
-        guestEmail: { type: string, format: email, maxLength: 254 }
-        quantity: { type: integer, minimum: 1, maximum: 1000 }
-
-    PaymentInfo:
-      type: object
-      required: [paymentId, status, amountCents, expiresAt]
-      properties:
-        paymentId: { type: string, format: uuid }
-        status: { $ref: '#/components/schemas/PaymentStatus' }
-        amountCents: { $ref: '#/components/schemas/Cents' }
-        providerReference: { type: [string, 'null'], description: Null while status = CREATED. }
-        checkoutUrl:
-          type: [string, 'null']
-          format: uri
-          description: Built from app.public-base-url. Use the LAN IP, not localhost, if a phone will scan the QR code.
-          example: http://192.168.0.10:8080/mock-gateway/checkout/mock_8h2k1x9q0w3e5r7t6y4u
-        qrCodePayload: { type: [string, 'null'], description: Text encoded in the QR code. Equals checkoutUrl in the mock. }
-        expiresAt: { type: string, format: date-time, description: Always equal to the reservation expiresAt. }
-
-    ReservationCreated:
-      type: object
-      required: [reservationId, manageToken, status, quantity, unitPriceCents, amountCents, expiresAt, payment]
-      properties:
-        reservationId: { type: string, format: uuid }
-        manageToken: { type: string, description: 'Shown once. Stored as SHA-256 hash. Replays return it again only to the same Idempotency-Key.' }
-        status: { $ref: '#/components/schemas/ReservationStatus' }
-        quantity: { type: integer }
-        unitPriceCents: { $ref: '#/components/schemas/Cents' }
-        amountCents: { $ref: '#/components/schemas/Cents' }
-        expiresAt: { type: string, format: date-time }
-        payment: { $ref: '#/components/schemas/PaymentInfo' }
-
-    ReservationView:
-      type: object
-      required: [reservationId, itemName, status, quantity, amountCents, expiresAt, payment]
-      properties:
-        reservationId: { type: string, format: uuid }
-        itemName: { type: string }
-        status: { $ref: '#/components/schemas/ReservationStatus' }
-        quantity: { type: integer }
-        amountCents: { $ref: '#/components/schemas/Cents' }
-        expiresAt: { type: string, format: date-time }
-        payment: { $ref: '#/components/schemas/PaymentInfo' }
-
-    PaymentNotificationPayload:
-      type: object
-      required: [eventId, type, providerReference, amountCents, occurredAt]
-      properties:
-        eventId: { type: string, description: Unique per event. Duplicates are ignored., example: evt_01J9ZK3Q7M }
-        type: { type: string, enum: [payment.paid, payment.declined] }
-        providerReference: { type: string }
-        amountCents: { $ref: '#/components/schemas/Cents' }
-        occurredAt: { type: string, format: date-time }
-
-    MockCharge:
-      type: object
-      required: [providerReference, status, amountCents, expiresAt, checkoutUrl]
-      properties:
-        providerReference: { type: string }
-        status: { type: string, enum: [PENDING, PAID, DECLINED] }
-        amountCents: { $ref: '#/components/schemas/Cents' }
-        expiresAt: { type: string, format: date-time }
-        checkoutUrl: { type: string, format: uri }
-
-    DevClock:
-      type: object
-      required: [now, offsetMinutes]
-      properties:
-        now: { type: string, format: date-time }
-        offsetMinutes: { type: integer }
-```
-
-## Collections Postman + Insomnia
-
-59 requests em 8 pastas, com testes em todos. Os scripts encadeiam as variáveis (token, ids, manage tokens, referências de pagamento) e assinam os webhooks com HMAC-SHA256. Rode as pastas na ordem, com a API no perfil `dev`.
-
-| Folder | Requests |
+| Pasta | Requests |
 | --- | --- |
 | **00 Setup** | Register organizer · Login |
 | **01 Event types** | List event types · Get template items · Template items of OTHER are empty |
@@ -1793,9 +823,32 @@ components:
 | **06 Webhooks - signed by the collection** | Paid webhook for an already PAID payment · Exact same webhook again (same eventId) · Summary unchanged after duplicates · Invalid signature is 401 · Unknown reference is accepted and ignored |
 | **07 Edge cases - time (dev clock)** | Reset clock · Reserve 1 quota of the second item · Amount mismatch webhook is ignored · Still PENDING after mismatch · Advance clock 31 minutes · Expired quota is free before the job runs · Approve expired charge is 410 · Late paid webhook · Late payment: EXPIRED + REFUND_REQUIRED · Run expiry job · Summary shows the refund · Close gift list · Reserve on a closed list is 409 · Reset clock (cleanup) |
 
-- **Postman:** importe a collection e o environment, selecione "Padrinhos - local" e rode no Collection Runner com delay de 300 ms. Os passos "Wait for …" se repetem sozinhos até o webhook chegar.
-- **Insomnia:** importe `padrinhos.insomnia.json`. As variáveis já vêm no Base Environment. Os passos "Wait for …" esperam 1,5 s; se ainda estiver PENDING, envie de novo.
-- **Validação feita:** JSON válido, os 170 scripts passam no parser JS, a collection carrega no SDK oficial do Postman e não há variável usada sem definição. **Não validado:** nenhuma execução real, porque a API ainda não existe. Os scripts do Insomnia usam a API `insomnia.*` e não foram rodados no app.
-- **Arquivos no disco:** `~/padrinhos/docs/api/collections/`. Os botões abaixo copiam o conteúdo, caso você esteja em outra máquina.
+## Front-end e design system
 
-Diagramas em Mermaid. Para revisar ou exportar, copie o código de cada bloco no mermaid.live. Para a entrega em UML, redesenhe no Astah seguindo as listas "Para o Astah".
+A interface segue o design system **Cota Ae!** (`docs/design-system/`, regras para agentes em `AGENTS.md`). Ele é mobile-first: o CSS parte de 320 px sem media query e só expande com `min-width` em 40rem, 48rem e 64rem.
+
+| Peça | Onde | Uso |
+| --- | --- | --- |
+| Tokens e tema | `web/src/styles/cotai-theme.css`, `_design-tokens.scss` | Importados em `styles.scss`; valem dentro de `.cotai-app` |
+| Checkout simulado | `api/src/main/resources/templates/mock-checkout.html` | Mesmos tokens copiados no `<style>`, porque a página é servida pela API e não pelo Angular |
+| Componentes | `web/src/app/shared/cotai-ui/` | `cotai-button`, `cotai-card`, `cotai-status-badge`, `cotai-progress` |
+| Marca | `web/public/brand/` | Logos e ícone em SVG, interpretativos; a referência aprovada é `docs/design-system/references/identidade-aprovada.png` |
+| Textos de status e erro | `web/src/app/core/copy/ui-copy.ts` | Traduz `code` do Problem Detail e o status da reserva para o texto de `UI_COPY.md` |
+
+Rotas existentes: `/` (início), `/l/:slug` (lista pública), `/r/:reservationId` (minha reserva) e `/dashboard` (placeholder). As telas do organizador (`/login`, `/register`, `/lists/new`, `/lists/:id`) ainda não existem no Angular, embora o `SpaForwardController` já encaminhe essas rotas.
+
+No QUOTA_UNAVAILABLE (EC28), a lista pública fecha o formulário, mostra "Essa cota acabou de ser reservada. Atualizamos os números." e recarrega a disponibilidade.
+
+## Divergências conhecidas
+
+O código ainda não cumpre estes pontos do design. São correções a fazer no código, não mudanças de design.
+
+| Ponto do design | Situação no código |
+| --- | --- |
+| Estado e preço congelado só mudam por método de domínio ou `UPDATE` condicional | `@Setter` do Lombok na classe inteira de `Reservation`, `GiftList`, `Item` e `Payment` permite `setStatus`, `setTotalQuotas` e `setUnitPriceCents` |
+| Timeout de 3 s no `createCharge()` | `payment.gateway-timeout-ms` existe em `PaymentProperties`, mas não é usado |
+| Um clique duplo não cria duas reservas (EC04) | A SPA gera uma `Idempotency-Key` nova a cada envio; o botão fica desabilitado durante o envio, mas a key deveria nascer com o formulário |
+| Ao reabrir `/r/:id`, a tela mostra o status (EC29) | O `manageToken` fica em `sessionStorage`, que some ao fechar a aba |
+| QR code da URL de checkout | A SPA gera o QR em `api.qrserver.com`, que recebe a URL e exige internet |
+| Fora do perfil `dev`, outro adaptador implementa `PaymentGateway` | Não há adaptador; sem `dev` a aplicação não sobe |
+| Testes de integração e collections | Só existem o teste de contexto (`CotaiApiApplicationIT`) e dois testes unitários; as collections não estão no repositório |
