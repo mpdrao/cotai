@@ -105,8 +105,8 @@ import {
             @if (progress(); as p) {
               <div class="goal-progress">
                 <p class="goal-percent"><strong>{{ p.percent }}%</strong> da meta confirmada</p>
-                <cotai-progress [value]="s.targetCents ? (s.confirmedCents / s.targetCents) * 100 : 0" label="Valor confirmado da meta" />
-                <p class="goal-message" aria-live="polite">{{ p.message }}</p>
+                <cotai-progress [value]="p.percent" label="Valor confirmado da meta" />
+                <p class="goal-message">{{ p.message }}</p>
               </div>
             }
             <dl class="tiles">
@@ -219,7 +219,7 @@ import {
                   }
                   <div class="actions">
                     <cotai-button [fullWidth]="true" [loading]="busy()" (pressed)="saveNewItem()">Adicionar item</cotai-button>
-                    <cotai-button variant="secondary" [fullWidth]="true" (pressed)="newDraft.set(null)">Cancelar</cotai-button>
+                    <cotai-button variant="secondary" [fullWidth]="true" (pressed)="cancelNewItem()">Cancelar</cotai-button>
                   </div>
                 </div>
               </cotai-card>
@@ -379,6 +379,8 @@ export class ListManageComponent {
   protected readonly recentContributors = computed(() => [...(this.summary()?.contributors ?? [])].reverse().slice(0, 10));
 
   constructor() {
+    // Show the create screen's warning once: history.state survives a reload.
+    if (history.state?.warning) history.replaceState({ ...history.state, warning: undefined }, '');
     this.reload();
   }
 
@@ -481,6 +483,12 @@ export class ListManageComponent {
         this.photoError.set(errorMessage(e, ORGANIZER_COPY));
       },
     });
+  }
+
+  protected cancelNewItem(): void {
+    const draft = this.newDraft();
+    if (draft) setDraftPhoto(draft, null);
+    this.newDraft.set(null);
   }
 
   protected setNewPhoto(file: File | null): void {

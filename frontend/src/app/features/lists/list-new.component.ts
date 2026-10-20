@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -275,6 +275,8 @@ export class ListNewComponent {
   });
 
   constructor() {
+    // Previews of picked photos are object URLs; free them when leaving the screen.
+    inject(DestroyRef).onDestroy(() => this.releasePhotos());
     this.organizer.eventTypes().subscribe({
       next: (types) => this.eventTypes.set(types),
       error: (e) => this.error.set(errorMessage(e)),
@@ -296,6 +298,7 @@ export class ListNewComponent {
     this.templateRequest = this.organizer.templateItems(type.code).subscribe({
       next: (templates) => {
         this.loadingItems.set(false);
+        this.releasePhotos();
         this.items.set(
           templates.map((t) =>
             draftFrom({ name: t.name, unit: t.unit, unitPriceCents: t.unitPriceCents, totalQuotas: t.suggestedQuotas, imageUrl: t.imageUrl }),
@@ -323,6 +326,10 @@ export class ListNewComponent {
   protected setPhoto(d: ItemDraft, file: File | null): void {
     setDraftPhoto(d, file);
     this.touched();
+  }
+
+  private releasePhotos(): void {
+    this.items().forEach((d) => setDraftPhoto(d, null));
   }
 
   protected addItem(): void {
