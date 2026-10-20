@@ -1,0 +1,13 @@
+.auth { display: grid; gap: 2rem; max-width: 30rem; margin: 1rem auto; }
+.intro { display: grid; align-content: center; gap: 1rem; }
+.cotai-lead { margin: 0; max-width: 38ch; }
+.auth-content { min-width: 0; }
+.form { display: grid; gap: 1.5rem; }
+.switch { margin: 1.5rem 0 0; text-align: center; font-size: .875rem; }
+.switch a { display: inline-flex; align-items: center; min-width: var(--cotai-tap-target); min-height: var(--cotai-tap-target); font-weight: 600; }
+@media (min-width: 64rem) {
+  .auth { max-width: 60rem; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 5rem; margin-block: 3rem; align-items: center; }
+  .intro { position: relative; isolation: isolate; padding-block: 3rem; }
+  .intro::before { content: ''; position: absolute; z-index: -1; inset: -1rem -2rem; border-radius: 44% 53% 41% 56%; background: var(--cotai-surface-peach); }
+  .cotai-page-title { font-size: 2.75rem; }
+}
