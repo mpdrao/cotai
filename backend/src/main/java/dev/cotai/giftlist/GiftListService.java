@@ -130,10 +130,8 @@ public class GiftListService {
 
     /** Replaces the item photo (stock or uploaded) with the uploaded one. */
     public ItemResponse uploadPhoto(UUID ownerId, UUID id, Long itemId, byte[] data) {
+        Item item = photoTarget(ownerId, id, itemId);
         String contentType = PhotoFormat.contentTypeOf(data);
-        GiftList list = owned(ownerId, id);
-        list.ensureNotClosed();
-        Item item = lockedItemOf(list, itemId);
         photos.deleteByItemId(itemId);
         ItemPhoto photo = photos.save(new ItemPhoto(itemId, contentType, data, clock.instant()));
         item.setImageUrl(photo.url());
@@ -141,12 +139,21 @@ public class GiftListService {
     }
 
     public ItemResponse removePhoto(UUID ownerId, UUID id, Long itemId) {
-        GiftList list = owned(ownerId, id);
-        list.ensureNotClosed();
-        Item item = lockedItemOf(list, itemId);
+        Item item = photoTarget(ownerId, id, itemId);
         photos.deleteByItemId(itemId);
         item.setImageUrl(null);
         return ItemResponse.of(item);
+    }
+
+    /** Owned, not CLOSED, and not archived: archived items are no longer shown, so their photo can't change. */
+    private Item photoTarget(UUID ownerId, UUID id, Long itemId) {
+        GiftList list = owned(ownerId, id);
+        list.ensureNotClosed();
+        Item item = lockedItemOf(list, itemId);
+        if (item.isArchived()) {
+            throw BusinessException.notFound("Item");
+        }
+        return item;
     }
 
     /** UC06. */
