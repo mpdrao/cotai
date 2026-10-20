@@ -1,9 +1,11 @@
-# Cotai
+# Cota Ae!
 
 Lista de presentes **com cotas** para qualquer evento (casamento, chá de bebê, churrasco…).
 
 O organizador parte de 10 itens sugeridos por tipo de evento, ajusta nome, unidade, preço e número de cotas e publica um link. O convidado reserva cotas e paga por **QR code / link** num gateway simulado; um **webhook assinado** confirma a reserva automaticamente.
 
+> A interface segue o design system Cota Ae! ([`docs/design-system/`](docs/design-system/), regras para agentes em [`AGENTS.md`](AGENTS.md)), mobile-first.
+>
 > Projeto de partida gerado a partir do design em [`docs/design/design-spec.md`](docs/design/design-spec.md) (diagramas de arquitetura, casos de uso, classes, estados, concorrência e edge cases) e do contrato [`docs/api/openapi.yaml`](docs/api/openapi.yaml).
 
 ## Stack
@@ -103,7 +105,6 @@ Variáveis de ambiente (valores padrão servem **apenas** para desenvolvimento):
 Esta é a base inicial: o backend implementa os casos de uso do design (auth, listas, itens, reservas, pagamento simulado, webhook, expiração, resumo). Falta:
 
 - [ ] Testes de integração de concorrência e webhook do design (`ReservationConcurrencyIT`, `IdempotencyRaceIT`, `ConfirmVsExpireRaceIT`, `CancelVsPaidRaceIT`, `PaymentWebhookIT`, `GatewayFailureIT`)
-- [ ] Telas do organizador (login, criar lista a partir do tipo de evento, itens, resumo)
 - [ ] Gerar os tipos do Angular a partir do `openapi.yaml`
 - [ ] Collections Postman/Insomnia (`docs/api/collections/`)
 - [ ] Rate limit por IP e verificação de e-mail (fora do escopo do design atual)

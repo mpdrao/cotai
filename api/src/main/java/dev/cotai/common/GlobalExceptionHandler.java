@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.net.URI;
 import java.util.List;
@@ -64,6 +65,12 @@ public class GlobalExceptionHandler {
     })
     ProblemDetail handleMalformed(Exception ex, HttpServletRequest request) {
         return problem(ErrorCode.VALIDATION_FAILED, ex.getMessage(), request);
+    }
+
+    /** Unknown route or static file (e.g. "/" when the SPA is not bundled): 404, not 500. */
+    @ExceptionHandler(NoResourceFoundException.class)
+    ProblemDetail handleNoResource(NoResourceFoundException ex, HttpServletRequest request) {
+        return problem(ErrorCode.NOT_FOUND, "Not found", request);
     }
 
     @ExceptionHandler(Exception.class)
