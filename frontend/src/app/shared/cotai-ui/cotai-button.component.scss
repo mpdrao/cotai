@@ -8,18 +8,18 @@
   border-radius: 999px;
   padding: .7rem 1.25rem;
   font: 600 1rem/1.35 var(--cotai-font, 'Poppins', sans-serif);
-  color: #fff;
+  color: var(--cotai-surface);
   background: var(--cotai-primary, #2E5D46);
   cursor: pointer;
-  transition: background .18s ease, transform .18s ease;
+  transition: background var(--cotai-motion), transform var(--cotai-motion);
 }
-.cotai-button:hover:not(:disabled) { background: #214734; transform: translateY(-1px); }
+.cotai-button:hover:not(:disabled) { background: var(--cotai-primary-hover); transform: translateY(-1px); }
 .cotai-button:active:not(:disabled) { transform: translateY(0); }
-.cotai-button:focus-visible { outline: 3px solid var(--cotai-terracotta, #D96B5B); outline-offset: 3px; }
+.cotai-button:focus-visible { outline: 3px solid var(--cotai-primary); outline-offset: 3px; }
 .cotai-button:disabled { opacity: .58; cursor: not-allowed; }
 .cotai-button--full { width: 100%; }
-.cotai-button--secondary { background: white; color: var(--cotai-primary, #2E5D46); }
-.cotai-button--secondary:hover:not(:disabled) { background: #f2f8f2; }
+.cotai-button--secondary { background: var(--cotai-surface); color: var(--cotai-primary, #2E5D46); }
+.cotai-button--secondary:hover:not(:disabled) { background: var(--cotai-surface-sage); }
 .cotai-button--ghost { border-color: transparent; background: transparent; color: var(--cotai-primary, #2E5D46); }
-.cotai-button--ghost:hover:not(:disabled) { background: #eaf3ed; }
+.cotai-button--ghost:hover:not(:disabled) { background: var(--cotai-surface-sage); }
 @media (prefers-reduced-motion: reduce) { .cotai-button { transition: none; } }

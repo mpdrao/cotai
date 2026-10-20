@@ -1,4 +1,4 @@
 :host { display: block; min-width:0; }
-.cotai-track { height: .625rem; border-radius:999px; overflow:hidden; background: #E5ECE4; }
-.cotai-fill { display:block; height:100%; border-radius:999px; background:var(--cotai-secondary, #6BA77A); transition:width .2s ease; }
+.cotai-track { height: .625rem; border-radius:999px; overflow:hidden; background: var(--cotai-progress-track); }
+.cotai-fill { display:block; height:100%; border-radius:999px; background:var(--cotai-primary); transition:width .2s ease; }
 @media (prefers-reduced-motion: reduce) { .cotai-fill { transition:none; } }
