@@ -18,6 +18,7 @@ export interface TemplateItem {
   unit: string;
   unitPriceCents: number;
   suggestedQuotas: number;
+  imageUrl?: string;
 }
 
 export interface ItemInput {
@@ -25,6 +26,8 @@ export interface ItemInput {
   unit: string;
   unitPriceCents: number;
   totalQuotas: number;
+  /** Stock photo of a suggestion (/suggestions/...). Uploaded photos go through uploadPhoto. */
+  imageUrl?: string;
 }
 
 export interface Item extends ItemInput {

@@ -7,7 +7,8 @@ import { ORGANIZER_COPY, errorCode, errorMessage } from '../../core/copy/ui-copy
 import { GiftList, GiftListSummaryReport, Item } from '../../core/models/organizer.model';
 import { OrganizerService } from '../../core/services/organizer.service';
 import { ItemEditorComponent } from './item-editor.component';
-import { ItemDraft, ItemErrors, draftFrom, emptyDraft, toItemInput, validateDraft } from './item-draft';
+import { ItemPhotoComponent } from './item-photo.component';
+import { ItemDraft, ItemErrors, draftFrom, draftPhotoSrc, emptyDraft, setDraftPhoto, toItemInput, validateDraft } from './item-draft';
 import {
   CotaiButtonComponent,
   CotaiCardComponent,
@@ -25,6 +26,7 @@ import {
     FormsModule,
     RouterLink,
     ItemEditorComponent,
+    ItemPhotoComponent,
     CotaiButtonComponent,
     CotaiCardComponent,
     CotaiProgressComponent,
@@ -41,6 +43,9 @@ import {
           <p class="meta">{{ l.eventDate | date: 'longDate' }} · prazo para pagar: {{ l.reservationTtlMinutes }} min</p>
         </header>
 
+        @if (warning()) {
+          <p class="cotai-alert cotai-alert--warning" role="status">{{ warning() }}</p>
+        }
         @if (notice()) {
           <p class="cotai-alert cotai-alert--success" role="status">{{ notice() }}</p>
         }
@@ -158,6 +163,9 @@ import {
               } @else {
                 <div class="item">
                   <div class="item-info">
+                    <app-item-photo [src]="item.imageUrl" [editable]="l.status !== 'CLOSED'" [busy]="photoBusyId() === item.id"
+                                    [error]="photoErrorId() === item.id ? photoError() : ''"
+                                    (picked)="uploadPhoto(item, $event)" (removed)="removePhoto(item)" />
                     <h3>{{ item.name }}</h3>
                     <p class="muted">{{ item.unit }} · {{ item.unitPriceCents / 100 | currency: 'BRL' }} por cota · {{ item.totalQuotas }} cotas</p>
                     @if (totalsFor(item.id); as t) {
@@ -197,6 +205,7 @@ import {
               <cotai-card tinted>
                 <div class="item-edit">
                   <h3>Novo item</h3>
+                  <app-item-photo [src]="newPhotoSrc()" (picked)="setNewPhoto($event)" (removed)="setNewPhoto(null)" />
                   <app-item-editor [draft]="d" [errors]="newErrors()" prefix="item-new" />
                   @if (newError()) {
                     <p class="cotai-alert cotai-alert--error" role="alert">{{ newError() }}</p>
@@ -287,6 +296,7 @@ import {
     .paid { text-align: left; overflow-wrap: anywhere; }
     .item { display: grid; gap: 1rem; }
     .item-info { display: grid; gap: 0.375rem; min-width: 0; }
+    .item-info app-item-photo { margin-bottom: 0.5rem; }
     .item-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .item-edit, .confirm { display: grid; gap: 0.75rem; }
     .details { display: grid; gap: 1.5rem; }
@@ -326,6 +336,18 @@ export class ListManageComponent {
   protected readonly newDraft = signal<ItemDraft | null>(null);
   protected readonly newErrors = signal<ItemErrors>({});
   protected readonly newError = signal('');
+  /** Bumped when the new item's photo changes (the draft is mutated in place). */
+  private readonly newPhotoEdits = signal(0);
+  protected readonly newPhotoSrc = computed(() => {
+    this.newPhotoEdits();
+    const d = this.newDraft();
+    return d ? draftPhotoSrc(d) : undefined;
+  });
+  protected readonly photoBusyId = signal<number | null>(null);
+  protected readonly photoErrorId = signal<number | null>(null);
+  protected readonly photoError = signal('');
+  /** Set by the create screen when some photos failed to upload. */
+  protected readonly warning = signal<string>(history.state?.warning ?? '');
 
   protected readonly detailErrors = signal<Record<string, string>>({});
   protected readonly detailsError = signal('');
@@ -418,6 +440,36 @@ export class ListManageComponent {
     this.newError.set('');
   }
 
+  protected uploadPhoto(item: Item, file: File): void {
+    this.photoAction(item, this.organizer.uploadPhoto(this.id, item.id, file), 'Foto salva.');
+  }
+
+  protected removePhoto(item: Item): void {
+    this.photoAction(item, this.organizer.removePhoto(this.id, item.id), 'Foto removida.');
+  }
+
+  private photoAction(item: Item, action: ReturnType<OrganizerService['uploadPhoto']>, success: string): void {
+    this.photoBusyId.set(item.id);
+    this.photoErrorId.set(null);
+    action.subscribe({
+      next: () => {
+        this.photoBusyId.set(null);
+        this.warning.set('');
+        this.afterChange(success);
+      },
+      error: (e) => {
+        this.photoBusyId.set(null);
+        this.photoErrorId.set(item.id);
+        this.photoError.set(errorMessage(e, ORGANIZER_COPY));
+      },
+    });
+  }
+
+  protected setNewPhoto(file: File | null): void {
+    setDraftPhoto(this.newDraft()!, file);
+    this.newPhotoEdits.update((n) => n + 1);
+  }
+
   protected saveNewItem(): void {
     const draft = this.newDraft()!;
     const errors = validateDraft(draft);
@@ -425,9 +477,17 @@ export class ListManageComponent {
     if (Object.keys(errors).length > 0) return;
     this.busy.set(true);
     this.organizer.addItem(this.id, toItemInput(draft)).subscribe({
-      next: () => {
+      next: (item) => {
         this.newDraft.set(null);
-        this.afterChange('Item adicionado.');
+        if (!draft.photo) return this.afterChange('Item adicionado.');
+        this.organizer.uploadPhoto(this.id, item.id, draft.photo).subscribe({
+          next: () => this.afterChange('Item adicionado.'),
+          error: (e) => {
+            this.warning.set(`Item adicionado, mas a foto não foi enviada: ${errorMessage(e, ORGANIZER_COPY)}`);
+            this.afterChange('');
+          },
+        });
+        setDraftPhoto(draft, null);
       },
       error: (e) => {
         this.busy.set(false);

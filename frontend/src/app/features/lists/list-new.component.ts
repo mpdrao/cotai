@@ -2,12 +2,23 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription, catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { ORGANIZER_COPY, errorMessage } from '../../core/copy/ui-copy';
-import { EventType } from '../../core/models/organizer.model';
+import { EventType, GiftList } from '../../core/models/organizer.model';
 import { OrganizerService } from '../../core/services/organizer.service';
 import { ItemEditorComponent } from './item-editor.component';
-import { ItemDraft, ItemErrors, draftFrom, draftTotalCents, emptyDraft, toItemInput, validateDraft } from './item-draft';
+import { ItemPhotoComponent } from './item-photo.component';
+import {
+  ItemDraft,
+  ItemErrors,
+  draftFrom,
+  draftPhotoSrc,
+  draftTotalCents,
+  emptyDraft,
+  setDraftPhoto,
+  toItemInput,
+  validateDraft,
+} from './item-draft';
 import { CotaiButtonComponent, CotaiCardComponent } from '../../shared/cotai-ui';
 
 /** Ideas for "Nome da lista", by event type code. Unknown codes fall back to OTHER. */
@@ -18,6 +29,11 @@ const TITLE_SUGGESTIONS: Record<string, string[]> = {
   OTHER: ['Aniversário de 30 anos', 'Bodas de prata', 'Formatura da turma', 'Vaquinha da galera'],
 };
 
+function photoWarning(failed: number): string {
+  const what = failed === 1 ? '1 foto não foi enviada' : `${failed} fotos não foram enviadas`;
+  return `Lista criada, mas ${what}. Adicione de novo no item.`;
+}
+
 function titleSuggestionsFor(type: EventType | null): string[] {
   return type ? (TITLE_SUGGESTIONS[type.code] ?? TITLE_SUGGESTIONS['OTHER']) : [];
 }
@@ -25,7 +41,7 @@ function titleSuggestionsFor(type: EventType | null): string[] {
 /** UC02 + UC03: create a gift list from an event type and adjust the suggested items. */
 @Component({
   selector: 'app-list-new',
-  imports: [CurrencyPipe, FormsModule, RouterLink, ItemEditorComponent, CotaiButtonComponent, CotaiCardComponent],
+  imports: [CurrencyPipe, FormsModule, RouterLink, ItemEditorComponent, ItemPhotoComponent, CotaiButtonComponent, CotaiCardComponent],
   template: `
     <form class="page" (ngSubmit)="submit()" novalidate>
       <header class="intro">
@@ -136,6 +152,7 @@ function titleSuggestionsFor(type: EventType | null): string[] {
                 <span class="item-total">{{ itemTotal(item) / 100 | currency: 'BRL' }}</span>
                 <cotai-button variant="ghost" (pressed)="removeItem(i)">Remover</cotai-button>
               </div>
+              <app-item-photo [src]="photoSrc(item)" (picked)="setPhoto(item, $event)" (removed)="setPhoto(item, null)" />
               <app-item-editor [draft]="item" [errors]="itemErrors()[i] ?? {}" [prefix]="'new-item-' + i" (changed)="touched()" />
             </div>
           </cotai-card>
@@ -208,11 +225,10 @@ function titleSuggestionsFor(type: EventType | null): string[] {
     .items-hint { flex-basis: 100%; }
     .items cotai-card { --cotai-card-padding: 1rem 1.25rem 1.25rem; }
     .item { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.75rem; }
-    .item-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 0.75rem; }
+    .item-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0 0.75rem; }
     .item-head > * { overflow-wrap: normal; white-space: nowrap; }
     .item-index { font-size: 0.875rem; font-weight: 600; color: var(--cotai-muted); }
-    .item-total { font-weight: 700; }
-    .item-head cotai-button { margin-left: auto; }
+    .item-total { margin-left: auto; font-weight: 700; }
 
     .footer { display: grid; gap: 0.75rem; padding-top: 2rem; border-top: 1px solid var(--cotai-border); }
     .goal { margin: 0; }
@@ -281,7 +297,9 @@ export class ListNewComponent {
       next: (templates) => {
         this.loadingItems.set(false);
         this.items.set(
-          templates.map((t) => draftFrom({ name: t.name, unit: t.unit, unitPriceCents: t.unitPriceCents, totalQuotas: t.suggestedQuotas })),
+          templates.map((t) =>
+            draftFrom({ name: t.name, unit: t.unit, unitPriceCents: t.unitPriceCents, totalQuotas: t.suggestedQuotas, imageUrl: t.imageUrl }),
+          ),
         );
         this.itemErrors.set([]);
       },
@@ -297,13 +315,35 @@ export class ListNewComponent {
     return draftTotalCents(d);
   }
 
+  protected photoSrc(d: ItemDraft): string | undefined {
+    this.edits();
+    return draftPhotoSrc(d);
+  }
+
+  protected setPhoto(d: ItemDraft, file: File | null): void {
+    setDraftPhoto(d, file);
+    this.touched();
+  }
+
   protected addItem(): void {
     this.items.update((list) => [...list, emptyDraft()]);
   }
 
   protected removeItem(index: number): void {
+    setDraftPhoto(this.items()[index], null);
     this.items.update((list) => list.filter((_, i) => i !== index));
     this.itemErrors.update((list) => list.filter((_, i) => i !== index));
+  }
+
+  /** Uploads the photos picked before the list existed. Emits how many failed; the list itself is already saved. */
+  private uploadPhotos(list: GiftList): Observable<number> {
+    const uploads = this.items().flatMap((d, i) => {
+      const item = list.items[i];
+      return d.photo && item
+        ? [this.organizer.uploadPhoto(list.id, item.id, d.photo).pipe(map(() => 0), catchError(() => of(1)))]
+        : [];
+    });
+    return uploads.length ? forkJoin(uploads).pipe(map((r) => r.reduce((a, b) => a + b, 0))) : of(0);
   }
 
   protected submit(): void {
@@ -332,8 +372,10 @@ export class ListNewComponent {
         reservationTtlMinutes: this.ttl!,
         items: this.items().map(toItemInput),
       })
+      .pipe(switchMap((list) => this.uploadPhotos(list).pipe(map((failed) => ({ list, failed })))))
       .subscribe({
-        next: (list) => this.router.navigate(['/lists', list.id]),
+        next: ({ list, failed }) =>
+          this.router.navigate(['/lists', list.id], { state: failed ? { warning: photoWarning(failed) } : {} }),
         error: (e) => {
           this.saving.set(false);
           this.error.set(errorMessage(e, ORGANIZER_COPY));
