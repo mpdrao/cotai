@@ -13,10 +13,10 @@ target/
 *.swp
 
 # Node / Angular
-web/node/
-web/node_modules/
-web/dist/
-web/.angular/
+frontend/node/
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
 
 # OS
 .DS_Store

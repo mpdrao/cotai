@@ -38,24 +38,24 @@ Este documento descreve o código da branch `develop`. Onde o código ainda não
 
 ## Monorepo
 
-Um repositório, um JAR. O POM pai builda `api/` e `web/`; em produção o build do Angular vai para `static/` dentro do JAR, então não existe CORS em produção.
+Um repositório, um JAR. O POM pai builda `backend/` e `frontend/`; em produção o build do Angular vai para `static/` dentro do JAR, então não existe CORS em produção.
 
 ```
 cotai/
-├── pom.xml                              # parent: module api (+ web unless -DskipWeb)
+├── pom.xml                              # parent: module backend (+ frontend unless -DskipWeb)
 ├── docker-compose.yml                   # postgres:17
 ├── README.md
 ├── AGENTS.md                            # rules for coding agents (UI: Cota Ae! design system)
-├── .github/workflows/ci.yml             # api verify (Testcontainers) + web build/test
-├── analise_modelo_e_design/             # Astah model (.asta)
+├── .github/workflows/ci.yml             # backend verify (Testcontainers) + frontend build/test
 ├── docs/
 │   ├── api/
 │   │   ├── openapi.yaml                 # contract, source of truth
 │   │   ├── collections/                 # PENDING: Postman + Insomnia (section Collections)
 │   │   └── scripts/race-last-quota.sh   # real concurrency, parallel curl
 │   ├── design/design-spec.md            # this file
+│   ├── modelagem/                       # Astah model (.asta)
 │   └── design-system/                   # Cota Ae!: brand, mobile-first, components, copy, a11y, QA
-├── api/
+├── backend/
 │   ├── pom.xml                          # Lombok, Spring Security JWT, Flyway, Thymeleaf, ZXing
 │   └── src/
 │       ├── main/java/dev/cotai/
@@ -83,7 +83,7 @@ cotai/
 │           └── reservation/MutableClockTest.java
 │           # PENDING: ReservationConcurrencyIT (50 threads, 10 quotas), IdempotencyRaceIT,
 │           #   ConfirmVsExpireRaceIT, CancelVsPaidRaceIT, PaymentWebhookIT, GatewayFailureIT
-└── web/
+└── frontend/
     ├── pom.xml                          # frontend-maven-plugin: npm ci + ng build -> /static in the jar
     ├── package.json                     # Angular 22.2, Vitest
     ├── proxy.conf.json                  # /api, /mock-gateway -> localhost:8080
@@ -92,8 +92,8 @@ cotai/
         ├── styles.scss                  # @use styles/cotai-theme
         ├── styles/                      # cotai-theme.css, _design-tokens.scss
         └── app/
-            ├── core/                    # models, ApiService, copy/ui-copy.ts
-            ├── features/                # home, gift-list (/l/:slug), reservation (/r/:id), dashboard
+            ├── core/                    # auth, models, services (Api, Organizer), copy/ui-copy.ts
+            ├── features/                # home, gift-list (/l/:slug), reservation (/r/:id), auth, dashboard, lists
             └── shared/cotai-ui/         # cotai-button, cotai-card, cotai-status-badge, cotai-progress
 ```
 
@@ -105,7 +105,7 @@ Os números nas setas seguem a ordem do fluxo de pagamento. O gateway simulado r
 flowchart TB
   subgraph BROWSER["Browser"]
     direction LR
-    SPA["web/ · Angular 22 SPA (Cota Ae! design system)<br/>/ · /l/:slug · /r/:reservationId · /dashboard"]
+    SPA["frontend/ · Angular 22 SPA (Cota Ae! design system)<br/>/ · /l/:slug · /r/:reservationId · /dashboard"]
     CHK["Mock checkout page (server-rendered)<br/>GET /mock-gateway/checkout/{ref}<br/>QR code + Approve / Decline"]
   end
 
@@ -806,7 +806,7 @@ São 10 sugestões por tipo, gravadas na migration `V2__event_type_seed.sql`, pa
 
 ## OpenAPI
 
-O contrato fica em [`docs/api/openapi.yaml`](../api/openapi.yaml) e é a fonte da verdade dos endpoints, DTOs e códigos de erro. A cópia que existia neste arquivo foi removida para não divergir. Os tipos do Angular em `web/src/app/core/models/` ainda são escritos à mão; gerá-los a partir do OpenAPI está pendente.
+O contrato fica em [`docs/api/openapi.yaml`](../api/openapi.yaml) e é a fonte da verdade dos endpoints, DTOs e códigos de erro. A cópia que existia neste arquivo foi removida para não divergir. Os tipos do Angular em `frontend/src/app/core/models/` ainda são escritos à mão; gerá-los a partir do OpenAPI está pendente.
 
 ## Collections
 
@@ -829,11 +829,11 @@ A interface segue o design system **Cota Ae!** (`docs/design-system/`, regras pa
 
 | Peça | Onde | Uso |
 | --- | --- | --- |
-| Tokens e tema | `web/src/styles/cotai-theme.css`, `_design-tokens.scss` | Importados em `styles.scss`; valem dentro de `.cotai-app` |
-| Checkout simulado | `api/src/main/resources/templates/mock-checkout.html` | Mesmos tokens copiados no `<style>`, porque a página é servida pela API e não pelo Angular |
-| Componentes | `web/src/app/shared/cotai-ui/` | `cotai-button`, `cotai-card`, `cotai-status-badge`, `cotai-progress` |
-| Marca | `web/public/brand/` | Logos e ícone em SVG, interpretativos; a referência aprovada é `docs/design-system/references/identidade-aprovada.png` |
-| Textos de status e erro | `web/src/app/core/copy/ui-copy.ts` | Traduz `code` do Problem Detail e o status da reserva para o texto de `UI_COPY.md` |
+| Tokens e tema | `frontend/src/styles/cotai-theme.css`, `_design-tokens.scss` | Importados em `styles.scss`; valem dentro de `.cotai-app` |
+| Checkout simulado | `backend/src/main/resources/templates/mock-checkout.html` | Mesmos tokens copiados no `<style>`, porque a página é servida pela API e não pelo Angular |
+| Componentes | `frontend/src/app/shared/cotai-ui/` | `cotai-button`, `cotai-card`, `cotai-status-badge`, `cotai-progress` |
+| Marca | `frontend/public/brand/` | Logos e ícone em SVG, interpretativos; a referência aprovada é `docs/design-system/references/identidade-aprovada.png` |
+| Textos de status e erro | `frontend/src/app/core/copy/ui-copy.ts` | Traduz `code` do Problem Detail e o status da reserva para o texto de `UI_COPY.md` |
 
 | Rota | Tela | Acesso |
 | --- | --- | --- |

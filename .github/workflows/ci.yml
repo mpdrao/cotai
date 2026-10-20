@@ -2,12 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
 
 jobs:
   api:
-    name: API (unit + integration with Testcontainers)
+    name: Backend (unit + integration with Testcontainers)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,21 +17,21 @@ jobs:
           java-version: 21
           cache: maven
       # Docker is available on ubuntu-latest, so *IT classes run against a real PostgreSQL.
-      - run: ./mvnw -B -DskipWeb -pl api verify
+      - run: ./mvnw -B -DskipWeb -pl backend verify
 
   web:
-    name: Web (Angular build + tests)
+    name: Frontend (Angular build + tests)
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: web
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: web/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run build
       - run: npm test -- --watch=false
