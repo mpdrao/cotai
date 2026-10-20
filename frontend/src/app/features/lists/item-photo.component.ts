@@ -1,10 +1,11 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
+import { shrinkPhoto } from './shrink-photo';
 
 const TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-/** Same limit as the API (PhotoFormat.MAX_BYTES). */
+/** Same limit as the API (PhotoFormat.MAX_BYTES), checked after the photo is shrunk. */
 const MAX_BYTES = 5 * 1024 * 1024;
 
-/** Thumbnail of an item photo with "Adicionar / Trocar / Remover foto". The parent decides when to upload. */
+/** Thumbnail of an item photo with "Adicionar / Trocar / Remover foto". Shrinks the picked file; the parent decides when to upload. */
 @Component({
   selector: 'app-item-photo',
   template: `
@@ -22,11 +23,11 @@ const MAX_BYTES = 5 * 1024 * 1024;
       </div>
       @if (editable()) {
         <div class="controls">
-          <label class="pick" [class.pick--busy]="busy()">
-            <input class="cotai-visually-hidden" type="file" [accept]="accept" [disabled]="busy()" (change)="pick($event)" />
-            {{ busy() ? 'Enviando…' : src() ? 'Trocar foto' : 'Adicionar foto' }}
+          <label class="pick" [class.pick--busy]="working()">
+            <input class="cotai-visually-hidden" type="file" [accept]="accept" [disabled]="working()" (change)="pick($event)" />
+            {{ preparing() ? 'Preparando…' : busy() ? 'Enviando…' : src() ? 'Trocar foto' : 'Adicionar foto' }}
           </label>
-          @if (src() && !busy()) {
+          @if (src() && !working()) {
             <button type="button" class="remove" (click)="removed.emit()">Remover foto</button>
           }
         </div>
@@ -70,17 +71,25 @@ export class ItemPhotoComponent {
   readonly removed = output<void>();
 
   protected readonly accept = TYPES.join(',');
-  protected readonly problem = signal('');
+  /** Local validation message; cleared when the photo changes (picked, uploaded or removed). */
+  protected readonly problem = linkedSignal({ source: this.src, computation: () => '' });
+  protected readonly preparing = signal(false);
+  protected readonly working = computed(() => this.busy() || this.preparing());
   protected readonly brokenSrc = signal<string | null | undefined>(null);
 
-  protected pick(event: Event): void {
+  protected async pick(event: Event): Promise<void> {
     const field = event.target as HTMLInputElement;
-    const file = field.files?.[0];
+    const picked = field.files?.[0];
     field.value = '';
-    if (!file) return;
-    if (!TYPES.includes(file.type)) {
+    if (!picked) return;
+    if (!TYPES.includes(picked.type)) {
       this.problem.set('Use uma foto JPG, PNG ou WebP.');
-    } else if (file.size > MAX_BYTES) {
+      return;
+    }
+    this.preparing.set(true);
+    const file = await shrinkPhoto(picked);
+    this.preparing.set(false);
+    if (file.size > MAX_BYTES) {
       this.problem.set('A foto pode ter até 5 MB.');
     } else {
       this.problem.set('');
