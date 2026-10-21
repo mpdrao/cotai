@@ -26,7 +26,8 @@ cotai/
 ├── AGENTS.md                # regras para agentes de código (.claude/CLAUDE.md aponta pra cá)
 ├── backend/                 # Spring Boot: pom.xml, mvnw, docker-compose.yml (postgres:17)
 │   └── src/main/java/dev/cotai/
-│       ├── organizer/       # Organizer, AuthController, JwtService
+│       ├── security/        # SecurityConfig, JwtService, AuthController, AuthDtos
+│       ├── organizer/       # Organizer, OrganizerRepository
 │       ├── eventtype/       # EventType, TemplateItem, EventTypeController
 │       ├── giftlist/        # GiftList, Item, GiftListService, controllers
 │       ├── reservation/     # Reservation, ReservationService, ReservationExpiryJob

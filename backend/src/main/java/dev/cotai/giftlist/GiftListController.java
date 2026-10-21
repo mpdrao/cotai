@@ -7,7 +7,7 @@ import dev.cotai.giftlist.GiftListDtos.GiftListSummaryReport;
 import dev.cotai.giftlist.GiftListDtos.ItemInput;
 import dev.cotai.giftlist.GiftListDtos.ItemResponse;
 import dev.cotai.giftlist.GiftListDtos.UpdateGiftListRequest;
-import dev.cotai.organizer.JwtService;
+import dev.cotai.security.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

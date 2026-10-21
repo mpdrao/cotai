@@ -1,5 +1,6 @@
-package dev.cotai.organizer;
+package dev.cotai.security;
 
+import dev.cotai.organizer.Organizer;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -22,7 +23,7 @@ public final class AuthDtos {
     }
 
     public record OrganizerResponse(UUID id, String name, String email) {
-        static OrganizerResponse of(Organizer o) {
+        public static OrganizerResponse of(Organizer o) {
             return new OrganizerResponse(o.getId(), o.getName(), o.getEmail());
         }
     }
