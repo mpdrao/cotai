@@ -1,11 +1,13 @@
-package dev.cotai.organizer;
+package dev.cotai.security;
 
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
-import dev.cotai.organizer.AuthDtos.LoginRequest;
-import dev.cotai.organizer.AuthDtos.OrganizerResponse;
-import dev.cotai.organizer.AuthDtos.RegisterRequest;
-import dev.cotai.organizer.AuthDtos.TokenResponse;
+import dev.cotai.organizer.Organizer;
+import dev.cotai.organizer.OrganizerRepository;
+import dev.cotai.security.AuthDtos.LoginRequest;
+import dev.cotai.security.AuthDtos.OrganizerResponse;
+import dev.cotai.security.AuthDtos.RegisterRequest;
+import dev.cotai.security.AuthDtos.TokenResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -61,7 +61,8 @@ cotai/
 │   ├── docker-compose.yml               # postgres:17
 │   └── src/
 │       ├── main/java/dev/cotai/
-│       │   ├── organizer/               # Organizer, AuthController, JwtService
+│       │   ├── security/                # SecurityConfig, JwtService, AuthController, AuthDtos
+│       │   ├── organizer/               # Organizer, OrganizerRepository
 │       │   ├── eventtype/               # EventType, TemplateItem, EventTypeController
 │       │   ├── giftlist/                # GiftList, Item, GiftListService, GiftListController,
 │       │   │                            #   PublicGiftListController, SlugGenerator
@@ -70,7 +71,7 @@ cotai/
 │       │   ├── mockgateway/             # @Profile("dev"): MockPaymentGateway, MockGatewayController, WebhookDispatcher
 │       │   ├── devsupport/              # @Profile("dev"): MutableClock, DevController
 │       │   └── common/                  # GlobalExceptionHandler, ErrorCode, BusinessException,
-│       │                                #   SecurityConfig, ClockConfig, AppProperties, Crypto, SpaForwardController
+│       │                                #   ClockConfig, AppProperties, Crypto, SpaForwardController
 │       ├── main/resources/
 │       │   ├── application.yml
 │       │   ├── application-dev.yml      # mock-gateway.*
@@ -115,7 +116,8 @@ flowchart TB
     SEC["SecurityFilterChain<br/>JWT required: /api/gift-lists/**<br/>permitAll: /api/auth/**, /api/event-types/**,<br/>/api/public/**, /api/webhooks/**, /mock-gateway/**, /dev/**"]
     subgraph FEATURES["Feature packages"]
       direction LR
-      ORG["organizer<br/>AuthController · JwtService"]
+      SEC_PKG["security<br/>SecurityConfig · JwtService · AuthController"]
+      ORG["organizer<br/>Organizer · OrganizerRepository"]
       EVT["eventtype<br/>EventTypeController"]
       GL["giftlist<br/>GiftListController · GiftListService"]
       RES["reservation<br/>PublicReservationController · ReservationFlow<br/>ReservationService · ReservationExpiryJob"]
