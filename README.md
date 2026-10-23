@@ -15,8 +15,8 @@ O organizador parte de 10 itens sugeridos por tipo de evento, ajusta nome, unida
 | Backend | Java 21 · Spring Boot 4 · Spring Web MVC · Spring Data JPA · Spring Security (JWT) |
 | Banco | PostgreSQL 17 · Flyway |
 | Frontend | Angular 22 (standalone components, signals) |
-| Contrato | OpenAPI 3.1 · erros em RFC 9457 (Problem Details) |
-| Testes | JUnit 5 · Testcontainers (PostgreSQL real, não H2) |
+| Contrato | OpenAPI 3.1 (`/openapi.yaml` e `/swagger-ui`) · erros em RFC 9457 (Problem Details) |
+| Testes | JUnit 5 · Testcontainers · Postman Collection · JMeter (`.jmx`) · Vitest |
 | Build | Maven em `backend/` (builda o Angular de `frontend/` junto), um único JAR em produção |
 
 ## Estrutura
@@ -34,14 +34,14 @@ cotai/
 │       ├── payment/         # Payment, PaymentGateway (porta), PaymentService, webhook
 │       ├── mockgateway/     # @Profile("dev"): MockPaymentGateway, checkout com QR
 │       ├── devsupport/      # @Profile("dev"): MutableClock, DevController
-│       └── common/          # erros, segurança, Clock, helpers de hash
+│       └── common/          # erros, OpenApiDocController (/swagger-ui), Clock, helpers de hash
 ├── frontend/                # Angular (build empacotado em /static no JAR)
 │   └── src/app/
 │       ├── core/            # auth, models, services (ApiService, OrganizerService), copy, money
 │       ├── features/        # uma pasta por tela: home, gift-list, reservation, auth, dashboard, lists
 │       └── shared/cotai-ui/ # componentes do design system
 └── docs/
-    ├── api/                 # openapi.yaml + scripts/race-last-quota.sh
+    ├── api/                 # openapi.yaml, collections/cotai-postman-collection.json, scripts/ (race-last-quota.sh + cotai-load-test.jmx)
     ├── design/              # design-spec.md
     ├── design-system/       # marca, mobile-first, componentes, textos, a11y
     └── modelagem/           # modelo Astah (.asta)
@@ -58,7 +58,11 @@ cd backend && docker compose up -d
 # 2. API (perfil dev: gateway simulado + relógio controlável) em http://localhost:8080
 ./mvnw -DskipWeb spring-boot:run
 
-# 3. Frontend com proxy para a API em http://localhost:4200 (outro terminal, a partir da raiz)
+# 3. Swagger UI e contrato OpenAPI 3.1
+#    Swagger UI: http://localhost:8080/swagger-ui
+#    OpenAPI YAML: http://localhost:8080/openapi.yaml
+
+# 4. Frontend com proxy para a API em http://localhost:4200 (outro terminal, a partir da raiz)
 cd frontend && npm install && npm start
 ```
 
@@ -82,6 +86,14 @@ cd backend
 ./mvnw clean package       # JAR único com o Angular de ../frontend em /static
 java -Dspring.profiles.active=dev -jar target/cotai.jar
 ```
+
+### Postman Collection e JMeter
+
+- **Postman Collection:** importe [`docs/api/collections/cotai-postman-collection.json`](docs/api/collections/cotai-postman-collection.json) (59 requisições em 8 pastas com asserções automatizadas e assinatura HMAC-SHA256 de webhooks).
+- **Plano de Carga e Concorrência JMeter:** abra [`docs/api/scripts/cotai-load-test.jmx`](docs/api/scripts/cotai-load-test.jmx) no Apache JMeter 5.6+ ou execute via CLI:
+  ```bash
+  jmeter -n -t docs/api/scripts/cotai-load-test.jmx -l jmeter-results.jtl
+  ```
 
 ## Configuração
 
@@ -112,5 +124,5 @@ Esta é a base inicial: o backend implementa os casos de uso do design (auth, li
 
 - [ ] Testes de integração de concorrência e webhook do design (`ReservationConcurrencyIT`, `IdempotencyRaceIT`, `ConfirmVsExpireRaceIT`, `CancelVsPaidRaceIT`, `PaymentWebhookIT`, `GatewayFailureIT`)
 - [ ] Gerar os tipos do Angular a partir do `openapi.yaml`
-- [ ] Collections Postman/Insomnia (`docs/api/collections/`)
+- [x] Collections Postman (`docs/api/collections/cotai-postman-collection.json`) e plano de carga JMeter (`docs/api/scripts/cotai-load-test.jmx`)
 - [ ] Rate limit por IP e verificação de e-mail (fora do escopo do design atual)
