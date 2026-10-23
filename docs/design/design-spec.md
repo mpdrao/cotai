@@ -809,11 +809,11 @@ São 10 sugestões por tipo, gravadas na migration `V2__event_type_seed.sql`, pa
 
 ## OpenAPI
 
-O contrato fica em [`docs/api/openapi.yaml`](../api/openapi.yaml) e é a fonte da verdade dos endpoints, DTOs e códigos de erro. A cópia que existia neste arquivo foi removida para não divergir. Os tipos do Angular em `frontend/src/app/core/models/` ainda são escritos à mão; gerá-los a partir do OpenAPI está pendente.
+O contrato fica em [`docs/api/openapi.yaml`](../api/openapi.yaml) (servido pela API em `/openapi.yaml` e `/swagger-ui` via `OpenApiDocController`) e é a fonte da verdade dos endpoints, DTOs e códigos de erro. A cópia que existia neste arquivo foi removida para não divergir. Os tipos do Angular em `frontend/src/app/core/models/` ainda são escritos à mão; gerá-los a partir do OpenAPI está pendente.
 
 ## Collections
 
-**Pendente no repositório.** As collections foram desenhadas na v0.2 (59 requests em 8 pastas, com testes e webhooks assinados por HMAC-SHA256), mas `docs/api/collections/` ainda não existe. Quando forem adicionadas, devem usar o nome Cota Ae! e seguir esta ordem, com a API no perfil `dev`:
+A collection do Postman está versionada em [`docs/api/collections/cotai-postman-collection.json`](../api/collections/cotai-postman-collection.json) (59 requests em 8 pastas, com testes automatizados e webhooks assinados por HMAC-SHA256) e o plano de carga do JMeter em [`docs/api/scripts/cotai-load-test.jmx`](../api/scripts/cotai-load-test.jmx). A collection usa o nome Cota Ae! e segue esta ordem, com a API no perfil `dev`:
 
 | Pasta | Requests |
 | --- | --- |
