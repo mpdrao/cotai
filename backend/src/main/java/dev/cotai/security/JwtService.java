@@ -1,6 +1,7 @@
-package dev.cotai.organizer;
+package dev.cotai.security;
 
 import dev.cotai.common.AppProperties;
+import dev.cotai.organizer.Organizer;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
