@@ -275,6 +275,7 @@ classDiagram
     -String unit
     -long unitPriceCents
     -int suggestedQuotas
+    -String imageUrl
   }
 
   class GiftList {
@@ -299,8 +300,18 @@ classDiagram
     -long unitPriceCents
     -int totalQuotas
     -boolean archived
+    -String imageUrl
     +totalCents() long
     +changeTotalQuotas(int newTotal, int occupied) void
+  }
+
+  class ItemPhoto {
+    <<entity>>
+    -UUID id
+    -Long itemId
+    -String contentType
+    -byte[] data
+    -Instant createdAt
   }
 
   class Reservation {
@@ -380,6 +391,7 @@ classDiagram
   GiftList "0..*" --> "1" EventType : eventType
   GiftList "1" *-- "0..100" Item : items
   Reservation "0..*" --> "1" Item : item
+  ItemPhoto "0..1" --> "1" Item : itemId
   Payment "1" --> "1" Reservation : reservation
   PaymentNotification "0..*" --> "0..1" Payment : payment
 
@@ -775,6 +787,10 @@ A última coluna diz onde cada caso é reproduzido. collection roda no Postman o
 
 São 10 sugestões por tipo, gravadas na migration `V2__event_type_seed.sql`, para `BARBECUE` (Churrasco), `BABY_SHOWER` (Chá de bebê), `WEDDING` (Casamento) e `OTHER` (Outro, sem sugestões). O organizador edita tudo antes de criar a lista. Os códigos são em inglês, e os nomes dos itens ficam em português porque são dados exibidos ao usuário. Os preços são exemplos. Todos os tipos usam 30 min de prazo por padrão.
 
+Cada sugestão aceita uma foto de banco de imagens (`template_item.image_url`, migration `V3__item_photos.sql`), que é copiada para o item quando a lista é criada. As fotos ainda não foram adicionadas: a coluna está vazia e as sugestões aparecem sem foto. Para adicionar, coloque os arquivos em `frontend/public/suggestions/` com nomes no formato `barbecue-1.jpg` (código do tipo em minúsculas, `_` vira `-`, e a posição) e crie uma migration que preencha `image_url` com `/suggestions/<arquivo>`. A API só aceita `imageUrl` nesse formato (`^/suggestions/[a-z0-9-]+\.jpg$`).
+
+O organizador também pode enviar a própria foto de cada item (JPEG, PNG ou WebP, até 5 MB, tipo detectado pelos bytes). Ela fica na tabela `item_photo`, substitui a foto anterior e é servida publicamente em `/api/item-photos/{photoId}`, com id aleatório que muda a cada envio, para os convidados verem na lista pública. Antes de enviar, o navegador reduz a foto para no máximo 1600 px no lado maior e a converte para JPEG (`shrink-photo.ts`), para a lista pública não baixar 5 MB por item; se o navegador não conseguir decodificar a imagem, envia o arquivo original. Itens arquivados não aceitam troca de foto (404).
+
 ## Endpoints
 
 | Route | Auth | Responses |
@@ -792,7 +808,10 @@ São 10 sugestões por tipo, gravadas na migration `V2__event_type_seed.sql`, pa
 | POST/api/gift-lists/{giftListId}/items | bearer | 201 · 400 · 401 · 404 · 409 |
 | PUT/api/gift-lists/{giftListId}/items/{itemId} | bearer | 200 · 400 · 401 · 404 · 409 |
 | DELETE/api/gift-lists/{giftListId}/items/{itemId} | bearer | 204 · 401 · 404 · 409 |
+| PUT/api/gift-lists/{giftListId}/items/{itemId}/photo | bearer | 200 · 400 · 401 · 404 · 409 · 413 · 415 |
+| DELETE/api/gift-lists/{giftListId}/items/{itemId}/photo | bearer | 200 · 401 · 404 · 409 |
 | GET/api/gift-lists/{giftListId}/summary | bearer | 200 · 401 · 404 |
+| GET/api/item-photos/{photoId} | public | 200 · 404 |
 | GET/api/public/gift-lists/{slug} | public | 200 · 404 |
 | POST/api/public/items/{itemId}/reservations | public | 201 · 200 · 400 · 404 · 409 · 422 · 429 · 502 |
 | GET/api/public/reservations/{reservationId} | public | 200 · 404 |
@@ -837,6 +856,7 @@ A interface segue o design system **Cota Ae!** (`docs/design-system/`, regras pa
 | Componentes | `frontend/src/app/shared/cotai-ui/` | `cotai-button`, `cotai-card`, `cotai-status-badge`, `cotai-progress` |
 | Marca | `frontend/public/brand/` | Logos e ícone em SVG, interpretativos; a referência aprovada é `docs/design-system/references/identidade-aprovada.png` |
 | Textos de status e erro | `frontend/src/app/core/copy/ui-copy.ts` | Traduz `code` do Problem Detail e o status da reserva para o texto de `UI_COPY.md` |
+| Progresso da arrecadação | `frontend/src/app/core/copy/progress-copy.ts` | Porcentagem exata confirmada da meta e frase que muda a cada 10%, com três variações por faixa |
 
 | Rota | Tela | Acesso |
 | --- | --- | --- |
@@ -845,8 +865,8 @@ A interface segue o design system **Cota Ae!** (`docs/design-system/`, regras pa
 | `/r/:reservationId` | Minha reserva: QR, link de pagamento e status | quem tem o `manageToken` no navegador |
 | `/login`, `/register` | Entrar e criar conta (UC01) | público |
 | `/dashboard` | Minhas listas | organizador |
-| `/lists/new` | Criar lista a partir do tipo de evento, com as sugestões editáveis (UC02, UC03) | organizador |
-| `/lists/:id` | Publicar, compartilhar o link, editar, adicionar e remover itens, editar dados, acompanhar a arrecadação e encerrar (UC04 a UC07) | organizador |
+| `/lists/new` | Criar lista a partir do tipo de evento, com ideias de nome por tipo, sugestões editáveis e foto por item (UC02, UC03) | organizador |
+| `/lists/:id` | Publicar, compartilhar o link, editar, adicionar e remover itens e fotos, editar dados, acompanhar a arrecadação (porcentagem e frase por faixa de 10%) e encerrar (UC04 a UC07) | organizador |
 
 A sessão do organizador guarda o JWT no `localStorage` até expirar (`app.jwt.ttl-seconds`). O `authInterceptor` envia o token só para `/api/gift-lists/**` e, num 401, volta para `/login`. O `authGuard` protege as rotas do organizador.
 
@@ -866,4 +886,4 @@ A revisão de composição do frontend não altera os contratos nem resolve as l
 | Ao reabrir `/r/:id`, a tela mostra o status (EC29) | O `manageToken` fica em `sessionStorage`, que some ao fechar a aba |
 | QR code da URL de checkout | A SPA gera o QR em `api.qrserver.com`, que recebe a URL e exige internet |
 | Fora do perfil `dev`, outro adaptador implementa `PaymentGateway` | Não há adaptador; sem `dev` a aplicação não sobe |
-| Testes de integração e collections | Só existem o teste de contexto (`CotaiApiApplicationIT`) e dois testes unitários; as collections não estão no repositório |
+| Testes de integração e collections | Só existem o teste de contexto (`CotaiApiApplicationIT`), o de fotos dos itens (`ItemPhotoIT`) e dois testes unitários; as collections não estão no repositório |

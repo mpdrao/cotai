@@ -5,6 +5,7 @@ export interface PublicItem {
   unitPriceCents: number;
   totalQuotas: number;
   availableQuotas: number;
+  imageUrl?: string;
 }
 
 export interface PublicGiftList {

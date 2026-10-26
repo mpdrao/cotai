@@ -20,7 +20,7 @@ public class EventTypeController {
     }
 
     public record TemplateItemResponse(int position, String name, String unit, long unitPriceCents,
-                                       int suggestedQuotas) {
+                                       int suggestedQuotas, String imageUrl) {
     }
 
     private final EventTypeRepository eventTypes;
@@ -38,7 +38,7 @@ public class EventTypeController {
                 .orElseThrow(() -> BusinessException.notFound("Event type"));
         return eventType.getTemplateItems().stream()
                 .map(t -> new TemplateItemResponse(t.getPosition(), t.getName(), t.getUnit(),
-                        t.getUnitPriceCents(), t.getSuggestedQuotas()))
+                        t.getUnitPriceCents(), t.getSuggestedQuotas(), t.getImageUrl()))
                 .toList();
     }
 }

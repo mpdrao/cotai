@@ -53,6 +53,10 @@ public class Item {
     @Column(nullable = false)
     private boolean archived;
 
+    /** Stock photo path ({@code /suggestions/...}) or uploaded photo URL ({@code /api/item-photos/...}). */
+    @Column(name = "image_url", length = 200)
+    private String imageUrl;
+
     Item(GiftList giftList, String name, String unit, long unitPriceCents, int totalQuotas) {
         this.giftList = giftList;
         this.name = name;
