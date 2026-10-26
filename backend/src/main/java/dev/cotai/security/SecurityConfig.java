@@ -1,6 +1,7 @@
-package dev.cotai.common;
+package dev.cotai.security;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import dev.cotai.common.AppProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
