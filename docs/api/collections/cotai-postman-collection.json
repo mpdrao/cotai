@@ -1,0 +1,3122 @@
+{
+  "info": {
+    "_postman_id": "8d94b710-5c3a-4e82-9a19-c07a1ae00059",
+    "name": "Cota Ae!",
+    "description": "Colecao oficial da API Cota Ae! (59 requisicoes em 8 pastas cobrindo casos de uso UC01-UC18, idempotencia, concorrencia, webhooks assinados via HMAC-SHA256 e relogio controlavel no perfil dev).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "webhookSecret",
+      "value": "change-me-webhook-secret",
+      "type": "string"
+    },
+    {
+      "key": "organizerEmail",
+      "value": "organizador@cotai.dev",
+      "type": "string"
+    },
+    {
+      "key": "organizerPassword",
+      "value": "SenhaForte123!",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "giftListId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "slug",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "itemId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "secondItemId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "archiveItemId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "idempotencyKey1",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reservationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "manageToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "providerReference",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "amountCents",
+      "value": "9000",
+      "type": "string"
+    },
+    {
+      "key": "cancelReservationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cancelManageToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lastQuotaReservationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lastQuotaManageToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lastQuotaProviderReference",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "dupEventId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lateReservationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lateManageToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lateProviderReference",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lateAmountCents",
+      "value": "6000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 Setup",
+      "item": [
+        {
+          "name": "Register organizer",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.collectionVariables.set('organizerEmail', `organizador.${ts}@cotai.dev`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Returns organizer id and email', function () {",
+                  "    pm.expect(json.id).to.be.a('string');",
+                  "    pm.expect(json.email).to.eql(pm.collectionVariables.get('organizerEmail'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Erick Organizador\",\n  \"email\": \"{{organizerEmail}}\",\n  \"password\": \"{{organizerPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', json.accessToken);",
+                  "pm.test('JWT accessToken issued', function () {",
+                  "    pm.expect(json.accessToken).to.be.a('string').and.not.empty;",
+                  "    pm.expect(json.tokenType).to.eql('Bearer');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{organizerEmail}}\",\n  \"password\": \"{{organizerPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01 Event types",
+      "item": [
+        {
+          "name": "List event types",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const list = pm.response.json();",
+                  "pm.test('Contains 4 event types', function () {",
+                  "    pm.expect(list.length).to.be.at.least(4);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/event-types",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "event-types"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get template items",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const items = pm.response.json();",
+                  "pm.test('Returns 10 suggested items for BARBECUE', function () {",
+                  "    pm.expect(items.length).to.eql(10);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/event-types/BARBECUE/template-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "event-types",
+                "BARBECUE",
+                "template-items"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Template items of OTHER are empty",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const items = pm.response.json();",
+                  "pm.test('OTHER has empty template list', function () {",
+                  "    pm.expect(items).to.be.an('array').that.is.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/event-types/OTHER/template-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "event-types",
+                "OTHER",
+                "template-items"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 Organizer - gift lists",
+      "item": [
+        {
+          "name": "Create gift list from template",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('giftListId', json.id);",
+                  "pm.collectionVariables.set('slug', json.slug);",
+                  "pm.collectionVariables.set('itemId', String(json.items[0].id));",
+                  "pm.collectionVariables.set('secondItemId', String(json.items[1].id));",
+                  "pm.test('Created in DRAFT status with 2 items', function () {",
+                  "    pm.expect(json.status).to.eql('DRAFT');",
+                  "    pm.expect(json.items.length).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventTypeCode\": \"BARBECUE\",\n  \"title\": \"Churrasco da Turma\",\n  \"eventDate\": \"2027-12-15\",\n  \"reservationTtlMinutes\": 30,\n  \"items\": [\n    {\n      \"name\": \"Picanha maturata\",\n      \"unit\": \"kg\",\n      \"unitPriceCents\": 8500,\n      \"totalQuotas\": 2\n    },\n    {\n      \"name\": \"Carvao vegetal\",\n      \"unit\": \"saco 5kg\",\n      \"unitPriceCents\": 6000,\n      \"totalQuotas\": 2\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Public view of a DRAFT list is 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/gift-lists/{{slug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "gift-lists",
+                "{{slug}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Publish gift list",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Status is PUBLISHED', function () {",
+                  "    pm.expect(pm.response.json().status).to.eql('PUBLISHED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/publish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "publish"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get my gift list",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List my gift lists",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns non-empty list', function () {",
+                  "    pm.expect(pm.response.json().length).to.be.at.least(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update item (name and price)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.collectionVariables.set('amountCents', '9000');",
+                  "pm.test('Item updated to 9000 cents', function () {",
+                  "    pm.expect(pm.response.json().unitPriceCents).to.eql(9000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/items/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "items",
+                "{{itemId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Picanha Angus Especial\",\n  \"unit\": \"kg\",\n  \"unitPriceCents\": 9000,\n  \"totalQuotas\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const item = pm.response.json();",
+                  "pm.collectionVariables.set('archiveItemId', String(item.id));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "items"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pao de alho\",\n  \"unit\": \"bandeja\",\n  \"unitPriceCents\": 2000,\n  \"totalQuotas\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Archive item without reservations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/items/{{archiveItemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "items",
+                "{{archiveItemId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 Guest - reserve and pay",
+      "item": [
+        {
+          "name": "Get public gift list",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('List accepts reservations and archived item is hidden', function () {",
+                  "    pm.expect(json.acceptsReservations).to.be.true;",
+                  "    pm.expect(json.items.length).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/gift-lists/{{slug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "gift-lists",
+                "{{slug}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reserve 1 quota",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const uuid = pm.variables.replaceIn('{{$guid}}');",
+                  "pm.collectionVariables.set('idempotencyKey1', uuid);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('reservationId', json.reservationId);",
+                  "pm.collectionVariables.set('manageToken', json.manageToken);",
+                  "pm.collectionVariables.set('providerReference', json.payment.providerReference);",
+                  "pm.collectionVariables.set('amountCents', String(json.amountCents));",
+                  "pm.test('Reservation is PENDING and manageToken returned', function () {",
+                  "    pm.expect(json.status).to.eql('PENDING');",
+                  "    pm.expect(json.manageToken).to.be.a('string').with.lengthOf(43);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey1}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "items",
+                "{{itemId}}",
+                "reservations"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Maria Convidada\",\n  \"guestEmail\": \"maria@example.com\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Replay with the same Idempotency-Key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Returns same reservationId and manageToken', function () {",
+                  "    pm.expect(json.reservationId).to.eql(pm.collectionVariables.get('reservationId'));",
+                  "    pm.expect(json.manageToken).to.eql(pm.collectionVariables.get('manageToken'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey1}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "items",
+                "{{itemId}}",
+                "reservations"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Maria Convidada\",\n  \"guestEmail\": \"maria@example.com\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get reservation (manage token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Status is PENDING', function () {",
+                  "    pm.expect(pm.response.json().status).to.eql('PENDING');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Manage-Token",
+                "value": "{{manageToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/reservations/{{reservationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "reservations",
+                "{{reservationId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Open checkout page (QR code)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('HTML page contains QR code image', function () {",
+                  "    pm.expect(pm.response.text()).to.include('data:image/png;base64');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mock-gateway/checkout/{{providerReference}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mock-gateway",
+                "checkout",
+                "{{providerReference}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get mock charge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Charge is PENDING', function () {",
+                  "    pm.expect(pm.response.json().status).to.eql('PENDING');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mock-gateway/charges/{{providerReference}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mock-gateway",
+                "charges",
+                "{{providerReference}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve charge on the mock gateway",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 202', function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mock-gateway/charges/{{providerReference}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mock-gateway",
+                "charges",
+                "{{providerReference}}",
+                "approve"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Wait for CONFIRMED",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "setTimeout(function () {}, 2000);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Reservation is CONFIRMED and payment is PAID', function () {",
+                  "    pm.expect(json.status).to.eql('CONFIRMED');",
+                  "    pm.expect(json.payment.status).to.eql('PAID');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Manage-Token",
+                "value": "{{manageToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/reservations/{{reservationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "reservations",
+                "{{reservationId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Organizer summary",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Confirmed cents equals 9000', function () {",
+                  "    pm.expect(json.confirmedCents).to.eql(9000);",
+                  "    pm.expect(json.contributors.length).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "summary"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 Guest - cancel",
+      "item": [
+        {
+          "name": "Reserve 1 quota (to cancel)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('cancelReservationId', json.reservationId);",
+                  "pm.collectionVariables.set('cancelManageToken', json.manageToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "items",
+                "{{itemId}}",
+                "reservations"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Carlos Convidado\",\n  \"guestEmail\": \"carlos@example.com\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel with a wrong token is 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Manage-Token",
+                "value": "wrong_token_0000000000000000000000000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/reservations/{{cancelReservationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "reservations",
+                "{{cancelReservationId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Manage-Token",
+                "value": "{{cancelManageToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/reservations/{{cancelReservationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "reservations",
+                "{{cancelReservationId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel twice is 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test('Code is INVALID_STATE_TRANSITION', function () {",
+                  "    pm.expect(pm.response.json().code).to.eql('INVALID_STATE_TRANSITION');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Manage-Token",
+                "value": "{{cancelManageToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/reservations/{{cancelReservationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "reservations",
+                "{{cancelReservationId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancelled quota is available again",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const item = pm.response.json().items.find(i => String(i.id) === pm.collectionVariables.get('itemId'));",
+                  "pm.test('1 quota available again on first item', function () {",
+                  "    pm.expect(item.availableQuotas).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/gift-lists/{{slug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "gift-lists",
+                "{{slug}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 Edge cases - validation and conflicts",
+      "item": [
+        {
+          "name": "Login with wrong password is 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test('Error code is INVALID_CREDENTIALS', function () {",
+                  "    pm.expect(pm.response.json().code).to.eql('INVALID_CREDENTIALS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{organizerEmail}}\",\n  \"password\": \"SenhaIncorreta999\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Organizer endpoint without token is 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Quantity 0 is 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test('Error code is VALIDATION_FAILED', function () {",
+                  "    pm.expect(pm.response.json().code).to.eql('VALIDATION_FAILED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "items",
+                "{{itemId}}",
+                "reservations"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Convidado Invalido\",\n  \"guestEmail\": \"invalido@example.com\",\n  \"quantity\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Missing Idempotency-Key is 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "items",
+                "{{itemId}}",
+                "reservations"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Sem Idempotencia\",\n  \"guestEmail\": \"semkey@example.com\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "More quotas than available is 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test('Error code is QUOTA_UNAVAILABLE', function () {",
+                  "    pm.expect(pm.response.json().code).to.eql('QUOTA_UNAVAILABLE');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "items",
+                "{{itemId}}",
+                "reservations"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Convidado Excesso\",\n  \"guestEmail\": \"excesso@example.com\",\n  \"quantity\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reused Idempotency-Key with another body is 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 422', function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "pm.test('Error code is IDEMPOTENCY_KEY_MISMATCH', function () {",
+                  "    pm.expect(pm.response.json().code).to.eql('IDEMPOTENCY_KEY_MISMATCH');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey1}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "items",
+                "{{itemId}}",
+                "reservations"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Outro Corpo Com Mesma Chave\",\n  \"guestEmail\": \"outro@example.com\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reserve the last quota",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('lastQuotaReservationId', json.reservationId);",
+                  "pm.collectionVariables.set('lastQuotaManageToken', json.manageToken);",
+                  "pm.collectionVariables.set('lastQuotaProviderReference', json.payment.providerReference);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "items",
+                "{{itemId}}",
+                "reservations"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Ultima Cota Guest\",\n  \"guestEmail\": \"ultima@example.com\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sold out item is 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Available quotas is 0', function () {",
+                  "    pm.expect(json.code).to.eql('QUOTA_UNAVAILABLE');",
+                  "    pm.expect(json.availableQuotas).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "items",
+                "{{itemId}}",
+                "reservations"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Sem Cota Guest\",\n  \"guestEmail\": \"semcota@example.com\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reduce quotas below occupied is 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test('Code is QUOTAS_BELOW_OCCUPIED', function () {",
+                  "    pm.expect(pm.response.json().code).to.eql('QUOTAS_BELOW_OCCUPIED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/items/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "items",
+                "{{itemId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Picanha Angus Especial\",\n  \"unit\": \"kg\",\n  \"unitPriceCents\": 9000,\n  \"totalQuotas\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Archive item with active reservations is 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test('Code is ITEM_HAS_ACTIVE_RESERVATIONS', function () {",
+                  "    pm.expect(pm.response.json().code).to.eql('ITEM_HAS_ACTIVE_RESERVATIONS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/items/{{itemId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "items",
+                "{{itemId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Publish twice is 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test('Code is INVALID_STATE_TRANSITION', function () {",
+                  "    pm.expect(pm.response.json().code).to.eql('INVALID_STATE_TRANSITION');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/publish",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "publish"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Decline the last quota's charge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 202', function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mock-gateway/charges/{{lastQuotaProviderReference}}/decline",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mock-gateway",
+                "charges",
+                "{{lastQuotaProviderReference}}",
+                "decline"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Wait for CANCELLED after decline",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "setTimeout(function () {}, 2000);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Reservation is CANCELLED and payment is DECLINED', function () {",
+                  "    pm.expect(json.status).to.eql('CANCELLED');",
+                  "    pm.expect(json.payment.status).to.eql('DECLINED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Manage-Token",
+                "value": "{{lastQuotaManageToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/reservations/{{lastQuotaReservationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "reservations",
+                "{{lastQuotaReservationId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 Webhooks - signed by the collection",
+      "item": [
+        {
+          "name": "Paid webhook for an already PAID payment",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const evtId = 'evt_dup_' + Date.now();",
+                  "pm.collectionVariables.set('dupEventId', evtId);",
+                  "const secret = pm.collectionVariables.get('webhookSecret') || 'change-me-webhook-secret';",
+                  "const rawBody = pm.request.body ? pm.request.body.raw : '';",
+                  "const resolvedBody = pm.variables.replaceIn(rawBody);",
+                  "const signature = CryptoJS.HmacSHA256(resolvedBody, secret).toString(CryptoJS.enc.Hex);",
+                  "pm.variables.set('computedWebhookSignature', 'sha256=' + signature);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Signature",
+                "value": "{{computedWebhookSignature}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "webhooks",
+                "payments"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": \"{{dupEventId}}\",\n  \"type\": \"payment.paid\",\n  \"providerReference\": \"{{providerReference}}\",\n  \"amountCents\": 9000,\n  \"occurredAt\": \"2026-10-23T12:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Exact same webhook again (same eventId)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const secret = pm.collectionVariables.get('webhookSecret') || 'change-me-webhook-secret';",
+                  "const rawBody = pm.request.body ? pm.request.body.raw : '';",
+                  "const resolvedBody = pm.variables.replaceIn(rawBody);",
+                  "const signature = CryptoJS.HmacSHA256(resolvedBody, secret).toString(CryptoJS.enc.Hex);",
+                  "pm.variables.set('computedWebhookSignature', 'sha256=' + signature);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Signature",
+                "value": "{{computedWebhookSignature}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "webhooks",
+                "payments"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": \"{{dupEventId}}\",\n  \"type\": \"payment.paid\",\n  \"providerReference\": \"{{providerReference}}\",\n  \"amountCents\": 9000,\n  \"occurredAt\": \"2026-10-23T12:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Summary unchanged after duplicates",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Confirmed cents remains 9000', function () {",
+                  "    pm.expect(json.confirmedCents).to.eql(9000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "summary"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid signature is 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test('Code is INVALID_SIGNATURE', function () {",
+                  "    pm.expect(pm.response.json().code).to.eql('INVALID_SIGNATURE');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Signature",
+                "value": "sha256=0000000000000000000000000000000000000000000000000000000000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "webhooks",
+                "payments"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": \"evt_bad_sig_01\",\n  \"type\": \"payment.paid\",\n  \"providerReference\": \"{{providerReference}}\",\n  \"amountCents\": 9000,\n  \"occurredAt\": \"2026-10-23T12:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unknown reference is accepted and ignored",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const secret = pm.collectionVariables.get('webhookSecret') || 'change-me-webhook-secret';",
+                  "const rawBody = pm.request.body ? pm.request.body.raw : '';",
+                  "const resolvedBody = pm.variables.replaceIn(rawBody);",
+                  "const signature = CryptoJS.HmacSHA256(resolvedBody, secret).toString(CryptoJS.enc.Hex);",
+                  "pm.variables.set('computedWebhookSignature', 'sha256=' + signature);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Signature",
+                "value": "{{computedWebhookSignature}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "webhooks",
+                "payments"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": \"evt_unknown_ref_01\",\n  \"type\": \"payment.paid\",\n  \"providerReference\": \"mock_00000000000000000000\",\n  \"amountCents\": 9000,\n  \"occurredAt\": \"2026-10-23T12:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07 Edge cases - time (dev clock)",
+      "item": [
+        {
+          "name": "Reset clock",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Offset is 0', function () {",
+                  "    pm.expect(pm.response.json().offsetMinutes).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dev/clock/reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dev",
+                "clock",
+                "reset"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reserve 1 quota of the second item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('lateReservationId', json.reservationId);",
+                  "pm.collectionVariables.set('lateManageToken', json.manageToken);",
+                  "pm.collectionVariables.set('lateProviderReference', json.payment.providerReference);",
+                  "pm.collectionVariables.set('lateAmountCents', String(json.amountCents));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/items/{{secondItemId}}/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "items",
+                "{{secondItemId}}",
+                "reservations"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Pedro Atrasado\",\n  \"guestEmail\": \"pedro@example.com\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Amount mismatch webhook is ignored",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const secret = pm.collectionVariables.get('webhookSecret') || 'change-me-webhook-secret';",
+                  "const rawBody = pm.request.body ? pm.request.body.raw : '';",
+                  "const resolvedBody = pm.variables.replaceIn(rawBody);",
+                  "const signature = CryptoJS.HmacSHA256(resolvedBody, secret).toString(CryptoJS.enc.Hex);",
+                  "pm.variables.set('computedWebhookSignature', 'sha256=' + signature);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Signature",
+                "value": "{{computedWebhookSignature}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "webhooks",
+                "payments"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": \"evt_mismatch_01\",\n  \"type\": \"payment.paid\",\n  \"providerReference\": \"{{lateProviderReference}}\",\n  \"amountCents\": 100,\n  \"occurredAt\": \"2026-10-23T12:05:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Still PENDING after mismatch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Still PENDING after amount mismatch', function () {",
+                  "    pm.expect(pm.response.json().status).to.eql('PENDING');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Manage-Token",
+                "value": "{{lateManageToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/reservations/{{lateReservationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "reservations",
+                "{{lateReservationId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Advance clock 31 minutes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Clock advanced 31 minutes', function () {",
+                  "    pm.expect(pm.response.json().offsetMinutes).to.eql(31);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dev/clock/advance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dev",
+                "clock",
+                "advance"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"minutes\": 31\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Expired quota is free before the job runs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const second = pm.response.json().items.find(i => String(i.id) === pm.collectionVariables.get('secondItemId'));",
+                  "pm.test('All 2 quotas available again immediately after TTL', function () {",
+                  "    pm.expect(second.availableQuotas).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/gift-lists/{{slug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "gift-lists",
+                "{{slug}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Approve expired charge is 410",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 410', function () {",
+                  "    pm.response.to.have.status(410);",
+                  "});",
+                  "pm.test('Error code is CHARGE_EXPIRED', function () {",
+                  "    pm.expect(pm.response.json().code).to.eql('CHARGE_EXPIRED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mock-gateway/charges/{{lateProviderReference}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mock-gateway",
+                "charges",
+                "{{lateProviderReference}}",
+                "approve"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Late paid webhook",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const secret = pm.collectionVariables.get('webhookSecret') || 'change-me-webhook-secret';",
+                  "const rawBody = pm.request.body ? pm.request.body.raw : '';",
+                  "const resolvedBody = pm.variables.replaceIn(rawBody);",
+                  "const signature = CryptoJS.HmacSHA256(resolvedBody, secret).toString(CryptoJS.enc.Hex);",
+                  "pm.variables.set('computedWebhookSignature', 'sha256=' + signature);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 204', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Signature",
+                "value": "{{computedWebhookSignature}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/webhooks/payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "webhooks",
+                "payments"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventId\": \"evt_late_paid_01\",\n  \"type\": \"payment.paid\",\n  \"providerReference\": \"{{lateProviderReference}}\",\n  \"amountCents\": 6000,\n  \"occurredAt\": \"2026-10-23T12:40:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Late payment: EXPIRED + REFUND_REQUIRED",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Reservation is EXPIRED and payment is REFUND_REQUIRED', function () {",
+                  "    pm.expect(json.status).to.eql('EXPIRED');",
+                  "    pm.expect(json.payment.status).to.eql('REFUND_REQUIRED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Manage-Token",
+                "value": "{{lateManageToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/reservations/{{lateReservationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "reservations",
+                "{{lateReservationId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Run expiry job",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns expiredReservations count', function () {",
+                  "    pm.expect(pm.response.json().expiredReservations).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dev/jobs/expire-reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dev",
+                "jobs",
+                "expire-reservations"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Summary shows the refund",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('refundRequiredCents equals 6000', function () {",
+                  "    pm.expect(json.refundRequiredCents).to.eql(6000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "summary"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Close gift list",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Status is CLOSED', function () {",
+                  "    pm.expect(pm.response.json().status).to.eql('CLOSED');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/close",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "close"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reserve on a closed list is 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test('Code is LIST_NOT_ACCEPTING_RESERVATIONS', function () {",
+                  "    pm.expect(pm.response.json().code).to.eql('LIST_NOT_ACCEPTING_RESERVATIONS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/public/items/{{secondItemId}}/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "public",
+                "items",
+                "{{secondItemId}}",
+                "reservations"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"guestName\": \"Convidado Lista Fechada\",\n  \"guestEmail\": \"fechada@example.com\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset clock (cleanup)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dev/clock/reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dev",
+                "clock",
+                "reset"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
