@@ -46,4 +46,7 @@ public class TemplateItem {
     @Column(name = "suggested_quotas", nullable = false)
     private int suggestedQuotas;
 
+    @Column(name = "image_url", length = 200)
+    private String imageUrl;
+
 }
