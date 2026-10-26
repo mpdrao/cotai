@@ -48,6 +48,9 @@ import { CotaiButtonComponent, CotaiCardComponent, CotaiProgressComponent } from
         @for (item of l.items; track item.id) {
           <li [attr.data-item-id]="item.id">
             <cotai-card [elevation]="selected()?.id === item.id ? 'soft' : 'flat'" [class.selected]="selected()?.id === item.id">
+              @if (item.imageUrl && !brokenPhotos().has(item.imageUrl)) {
+                <img class="item-photo" [src]="item.imageUrl" alt="" loading="lazy" (error)="hidePhoto(item.imageUrl)" />
+              }
               <div class="item">
                 <div class="item-info">
                   <h2>{{ item.name }}</h2>
@@ -143,6 +146,10 @@ import { CotaiButtonComponent, CotaiCardComponent, CotaiProgressComponent } from
     .empty { margin: 0; }
     .items { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin: 0; padding: 0; list-style: none; }
     .item { display: grid; gap: 1rem; }
+    .item-photo {
+      display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 1rem;
+      border-radius: var(--cotai-radius-sm); background: var(--cotai-surface-peach);
+    }
     .item-info { display: grid; gap: .5rem; min-width: 0; }
     .item h2 { margin: 0; font-size: 1.25rem; line-height: 1.3; font-weight: 600; }
     .availability { margin: 0; font-size: 0.875rem; font-weight: 500; }
@@ -189,6 +196,13 @@ export class GiftListDetailComponent {
   protected readonly list = signal<PublicGiftList | null>(null);
   protected readonly notFound = signal(false);
   protected readonly selected = signal<PublicItem | null>(null);
+  /** Photos that failed to load are hidden instead of showing a broken image. */
+  protected readonly brokenPhotos = signal<ReadonlySet<string>>(new Set());
+
+  protected hidePhoto(url: string): void {
+    this.brokenPhotos.update((set) => new Set(set).add(url));
+  }
+
   protected readonly quantity = signal(1);
   protected readonly submitting = signal(false);
   protected readonly error = signal('');
