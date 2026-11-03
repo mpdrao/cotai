@@ -43,8 +43,6 @@ Um repositório, um JAR. O Maven fica em `backend/` e, por padrão, builda tamb�
 ```
 cotai/
 ├── README.md
-├── AGENTS.md                            # rules for coding agents (UI: Cota Ae! design system)
-├── .claude/CLAUDE.md                    # imports AGENTS.md
 ├── .github/workflows/ci.yml             # backend verify (Testcontainers) + frontend build/test
 ├── docs/
 │   ├── api/
@@ -847,7 +845,7 @@ A collection do Postman está versionada em [`docs/api/collections/cotai-postman
 
 ## Front-end e design system
 
-A interface segue o design system **Cota Ae!** (`docs/design-system/`, regras para agentes em `AGENTS.md`). Ele é mobile-first: o CSS parte de 320 px sem media query e só expande com `min-width` em 40rem, 48rem e 64rem.
+A interface segue o design system **Cota Ae!** (`docs/design-system/`). Ele é mobile-first: o CSS parte de 320 px sem media query e só expande com `min-width` em 40rem, 48rem e 64rem.
 
 | Peça | Onde | Uso |
 | --- | --- | --- |
