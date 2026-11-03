@@ -1,6 +1,6 @@
 # Frontend (Angular)
 
-SPA do Cota Ae!. Visão geral do projeto, configuração e fluxo de pagamento: [`../README.md`](../README.md). Regras de UI: [`../AGENTS.md`](../AGENTS.md).
+SPA do Cota Ae!. Visão geral do projeto, configuração e fluxo de pagamento: [`../README.md`](../README.md). Regras de UI: [`../docs/design-system/`](../docs/design-system/).
 
 ```bash
 npm install
