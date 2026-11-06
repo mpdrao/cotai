@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 
-/** Authentication and organizer registration use cases (UC01). */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -38,7 +37,7 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public TokenResponse login(LoginRequest body) {
-        // Same error for unknown e-mail and wrong password (no account enumeration).
+
         Organizer organizer = organizers.findByEmail(Organizer.normalizeEmail(body.email()))
                 .filter(o -> passwordEncoder.matches(body.password(), o.getPasswordHash()))
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_CREDENTIALS, "Invalid e-mail or password."));

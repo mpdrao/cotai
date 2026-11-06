@@ -22,7 +22,6 @@ import {
 } from './item-draft';
 import { CotaiButtonComponent, CotaiCardComponent } from '../../shared/cotai-ui';
 
-/** Ideas for "Nome da lista", by event type code. Unknown codes fall back to OTHER. */
 const TITLE_SUGGESTIONS: Record<string, string[]> = {
   BARBECUE: ['Churrasco da firma', 'Churras de fim de ano', 'Churrasco de aniversário', 'Resenha do fim de semana'],
   BABY_SHOWER: ['Chá de bebê da Ana', 'Chá de fraldas', 'Chá revelação', 'Chegada do bebê'],
@@ -39,7 +38,6 @@ function titleSuggestionsFor(type: EventType | null): string[] {
   return type ? (TITLE_SUGGESTIONS[type.code] ?? TITLE_SUGGESTIONS['OTHER']) : [];
 }
 
-/** UC02 + UC03: create a gift list from an event type and adjust the suggested items. */
 @Component({
   selector: 'app-list-new',
   imports: [CurrencyPipe, FormsModule, RouterLink, ItemEditorComponent, ItemPhotoComponent, CotaiButtonComponent, CotaiCardComponent],
@@ -61,9 +59,9 @@ export class ListNewComponent {
   protected readonly loadingItems = signal(false);
   protected readonly titleSuggestions = computed(() => titleSuggestionsFor(this.selectedType()));
   protected readonly titlePlaceholder = computed(() => `Ex.: ${this.titleSuggestions()[0] ?? 'Churrasco da firma'}`);
-  /** Bumped on every item edit so totals are recomputed (the editor mutates the drafts in place). */
+
   private readonly edits = signal(0);
-  /** Pending template request; cancelled when another type is picked so a slow, stale response can't win. */
+
   private templateRequest?: Subscription;
 
   protected title = '';
@@ -76,7 +74,7 @@ export class ListNewComponent {
   });
 
   constructor() {
-    // Previews of picked photos are object URLs; free them when leaving the screen.
+
     inject(DestroyRef).onDestroy(() => this.releasePhotos());
     this.organizer.eventTypes().subscribe({
       next: (types) => this.eventTypes.set(types),
@@ -89,7 +87,7 @@ export class ListNewComponent {
   }
 
   protected chooseType(type: EventType): void {
-    // A title picked from the previous type's ideas is swapped for the matching idea of the new type; typed titles stay.
+
     const previousIndex = this.titleSuggestions().indexOf(this.title);
     this.selectedType.set(type);
     if (previousIndex >= 0) this.title = this.titleSuggestions()[previousIndex] ?? this.titleSuggestions()[0];
@@ -143,7 +141,6 @@ export class ListNewComponent {
     this.itemErrors.update((list) => list.filter((_, i) => i !== index));
   }
 
-  /** Uploads the photos picked before the list existed. Emits how many failed; the list itself is already saved. */
   private uploadPhotos(list: GiftList): Observable<number> {
     const uploads = this.items().flatMap((d, i) => {
       const item = list.items[i];

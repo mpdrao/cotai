@@ -18,11 +18,6 @@ import lombok.Setter;
 
 import java.util.Map;
 
-/**
- * Item of a gift list, split into {@code totalQuotas} quotas of {@code unitPriceCents} each.
- * The available quotas are NOT persisted: they are derived from reservations under a row lock
- * (see {@link ItemRepository#lockById(Long)} and {@link ItemRepository#occupiedQuotas}).
- */
 @Entity
 @Table(name = "item")
 @Setter
@@ -53,7 +48,6 @@ public class Item {
     @Column(nullable = false)
     private boolean archived;
 
-    /** Stock photo path ({@code /suggestions/...}) or uploaded photo URL ({@code /api/item-photos/...}). */
     @Column(name = "image_url", length = 200)
     private String imageUrl;
 
@@ -69,14 +63,12 @@ public class Item {
         return unitPriceCents * totalQuotas;
     }
 
-    /** Price changes never affect existing reservations: they keep a price snapshot (EC18). */
     public void update(String newName, String newUnit, long newUnitPriceCents) {
         this.name = newName;
         this.unit = newUnit;
         this.unitPriceCents = newUnitPriceCents;
     }
 
-    /** Must be called while holding the item row lock, with {@code occupied} computed under it. */
     public void changeTotalQuotas(int newTotal, int occupied) {
         if (newTotal < occupied) {
             throw new BusinessException(ErrorCode.QUOTAS_BELOW_OCCUPIED,

@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-/** Real PostgreSQL (not H2): H2 does not reproduce FOR UPDATE / row locks faithfully. */
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
 

@@ -27,10 +27,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Reservation use cases. Rule of thumb: row lock on the item inside {@link #reserve}, conditional
- * UPDATEs for every state transition, and no external call while a lock is held.
- */
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -43,13 +39,11 @@ public class ReservationService {
     private final PaymentProperties paymentProperties;
     private final Clock clock;
 
-    /** UC09 + UC10: reserve quotas under the item row lock. The charge is opened afterwards (UC11). */
     @Transactional
     public ReserveOutcome reserve(Long itemId, ReserveRequest cmd, UUID idempotencyKey) {
         String requestHash = Crypto.sha256Hex(itemId + "|" + cmd.guestName().trim() + "|"
                 + cmd.guestEmail().trim().toLowerCase() + "|" + cmd.quantity());
 
-        // Idempotency is checked BEFORE availability (EC04, EC05).
         var existing = reservations.findByIdempotencyKey(idempotencyKey);
         if (existing.isPresent()) {
             return new ReserveOutcome(replay(existing.get(), requestHash), true);
@@ -94,7 +88,6 @@ public class ReservationService {
         return new ReserveOutcome(toCreated(reservation, manageToken, payment), false);
     }
 
-    /** Used by the flow after a lost idempotency race (EC06). */
     @Transactional(readOnly = true)
     public ReservationCreated replayByKey(UUID idempotencyKey, ReserveRequest cmd, Long itemId) {
         String requestHash = Crypto.sha256Hex(itemId + "|" + cmd.guestName().trim() + "|"
@@ -113,7 +106,6 @@ public class ReservationService {
                 reservation.getAmountCents(), reservation.getExpiresAt(), toInfo(payment));
     }
 
-    /** UC14. Only PENDING (and not yet past its deadline) can be cancelled. */
     @Transactional
     public void cancel(UUID reservationId, String manageToken) {
         Reservation reservation = findAuthorized(reservationId, manageToken);
@@ -125,19 +117,16 @@ public class ReservationService {
         }
     }
 
-    /** payment.paid. false when the reservation is no longer PENDING or already past expiresAt. */
     @Transactional
     public boolean confirmPaid(UUID reservationId) {
         return reservations.markConfirmed(reservationId, clock.instant()) == 1;
     }
 
-    /** payment.declined, or gateway failure on createCharge. Releases the quotas immediately. */
     @Transactional
     public boolean cancelDeclined(UUID reservationId) {
         return reservations.markCancelled(reservationId, clock.instant()) == 1;
     }
 
-    /** UC18. Idempotent; safe on N instances at once (no ShedLock needed). */
     @Transactional
     public int expireOverdue() {
         int expired = reservations.markExpiredOverdue(clock.instant());
@@ -145,7 +134,6 @@ public class ReservationService {
         return expired;
     }
 
-    /** Deterministic per Idempotency-Key, so a replay can return the same token (43 chars). */
     private String manageToken(UUID idempotencyKey) {
         return Crypto.hmacSha256Base64Url(appProperties.manageTokenSecret(), idempotencyKey.toString());
     }
@@ -160,7 +148,7 @@ public class ReservationService {
     }
 
     private Reservation findAuthorized(UUID reservationId, String manageToken) {
-        // Unknown id and wrong token are indistinguishable on purpose (EC21).
+
         return reservations.findById(reservationId)
                 .filter(r -> manageToken != null
                         && Crypto.constantTimeEquals(r.getManageTokenHash(), Crypto.sha256Hex(manageToken)))

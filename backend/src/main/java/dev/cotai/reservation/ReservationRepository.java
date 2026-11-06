@@ -10,10 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Every transition is a conditional UPDATE ({@code WHERE status = 'PENDING'}). A result of 0 rows
- * means another transaction already changed the state.
- */
 public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
 
     Optional<Reservation> findByIdempotencyKey(UUID idempotencyKey);
@@ -55,7 +51,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
             """)
     int markCancelled(@Param("id") UUID id, @Param("now") Instant now);
 
-    /** Idempotent: safe to run on N instances at the same time (EC16). */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""
             update Reservation r

@@ -21,11 +21,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
-/**
- * JWT is required only for {@code /api/gift-lists/**}. Everything else (auth, event types, public
- * guest area, webhooks, mock gateway, dev endpoints and the SPA itself) is open. The webhook is
- * protected by its HMAC signature instead.
- */
 @Configuration(proxyBeanMethods = false)
 public class SecurityConfig {
 

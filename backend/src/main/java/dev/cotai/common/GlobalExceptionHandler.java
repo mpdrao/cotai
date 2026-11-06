@@ -20,10 +20,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Maps exceptions to RFC 9457 Problem Details ({@code application/problem+json}) with an extra
- * {@code code} field.
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -70,13 +66,11 @@ public class GlobalExceptionHandler {
         return problem(ErrorCode.VALIDATION_FAILED, ex.getMessage(), request);
     }
 
-    /** Upload above spring.servlet.multipart limits, rejected before reaching the controller. */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     ProblemDetail handleTooLarge(MaxUploadSizeExceededException ex, HttpServletRequest request) {
         return problem(ErrorCode.PHOTO_TOO_LARGE, "Photo is larger than 5 MB.", request);
     }
 
-    /** Unknown route or static file (e.g. "/" when the SPA is not bundled): 404, not 500. */
     @ExceptionHandler(NoResourceFoundException.class)
     ProblemDetail handleNoResource(NoResourceFoundException ex, HttpServletRequest request) {
         return problem(ErrorCode.NOT_FOUND, "Not found", request);

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Duration;
 import java.util.Map;
 
-/** Controllable clock and job triggers (dev profile only). */
 @Profile("dev")
 @RestController
 @RequestMapping("/dev")

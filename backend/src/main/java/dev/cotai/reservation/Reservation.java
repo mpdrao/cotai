@@ -18,11 +18,6 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Quotas reserved by a guest. State transitions are conditional UPDATEs in
- * {@link ReservationRepository} ({@code WHERE status = 'PENDING'}), never setters, so concurrent
- * transitions (pay vs expire vs cancel) have exactly one winner.
- */
 @Entity
 @Table(name = "reservation")
 @Getter
@@ -46,7 +41,6 @@ public class Reservation {
     @Column(nullable = false, updatable = false)
     private int quantity;
 
-    /** Snapshot of the item price at creation (EC18). */
     @Column(name = "unit_price_cents", nullable = false, updatable = false)
     private long unitPriceCents;
 
@@ -57,14 +51,12 @@ public class Reservation {
     @Column(nullable = false, length = 20)
     private ReservationStatus status;
 
-    /** SHA-256 of the manage token. The token itself is never stored. */
     @Column(name = "manage_token_hash", nullable = false, length = 64, updatable = false)
     private String manageTokenHash;
 
     @Column(name = "idempotency_key", nullable = false, unique = true, updatable = false)
     private UUID idempotencyKey;
 
-    /** SHA-256 of the request body, to detect a reused Idempotency-Key with another body (EC05). */
     @Column(name = "request_hash", nullable = false, length = 64, updatable = false)
     private String requestHash;
 
@@ -95,7 +87,6 @@ public class Reservation {
         this.expiresAt = expiresAt;
     }
 
-    /** A PENDING reservation past its deadline is EXPIRED even before the job runs (EC15). */
     public ReservationStatus effectiveStatus(Instant now) {
         if (status == ReservationStatus.PENDING && !now.isBefore(expiresAt)) {
             return ReservationStatus.EXPIRED;

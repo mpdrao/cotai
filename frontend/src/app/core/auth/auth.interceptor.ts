@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
-/** Adds the organizer's bearer token to /api/gift-lists/** and sends an expired session back to login. */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   if (!req.url.startsWith('/api/gift-lists')) {
     return next(req);

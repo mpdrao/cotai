@@ -15,7 +15,6 @@
       <p class="cotai-alert cotai-alert--success" role="status">{{ notice() }}</p>
     }
 
-    <!-- Status and the action that moves the list forward -->
     <cotai-card [tinted]="l.status !== 'PUBLISHED'">
       @switch (l.status) {
         @case ('DRAFT') {
@@ -62,7 +61,6 @@
       }
     </cotai-card>
 
-    <!-- Collection summary (UC06) -->
     @if (summary(); as s) {
       <section class="block" aria-labelledby="summary-title">
         <h2 id="summary-title" class="section-title">Arrecadação</h2>
@@ -111,7 +109,6 @@
       </section>
     }
 
-    <!-- Items (UC05) -->
     <section class="block" aria-labelledby="items-title">
       <h2 id="items-title" class="section-title">Itens</h2>
       @if (activeItems().length === 0) {
@@ -193,7 +190,6 @@
       }
     </section>
 
-    <!-- List details -->
     @if (l.status !== 'CLOSED') {
       <section class="block" aria-labelledby="details-title">
         <h2 id="details-title" class="section-title">Dados da lista</h2>
@@ -237,3 +233,4 @@
     <p role="status">Carregando…</p>
   }
 </div>
+

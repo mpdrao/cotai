@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
-  // Guest area
+
   {
     path: 'l/:slug',
     loadChildren: () =>
@@ -13,7 +13,7 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/reservation/reservation.routes').then((m) => m.RESERVATION_ROUTES),
   },
-  // Organizer area
+
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login.component').then((m) => m.LoginComponent),

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Duration;
 import java.util.UUID;
 
-/** Public: guests see item photos on the shared list. The id is random and changes on every upload. */
 @RestController
 @RequiredArgsConstructor
 public class ItemPhotoController {

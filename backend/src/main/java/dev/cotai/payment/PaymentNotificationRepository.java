@@ -12,10 +12,6 @@ public interface PaymentNotificationRepository extends JpaRepository<PaymentNoti
 
     Optional<PaymentNotification> findByProviderEventId(String providerEventId);
 
-    /**
-     * {@code INSERT ... ON CONFLICT DO NOTHING}. Returns 0 when the event id was already stored
-     * (duplicate delivery). Concurrent duplicates block on the unique index until the first commits.
-     */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = """
             insert into payment_notification (provider_event_id, event_type, raw_payload, outcome, received_at)

@@ -15,7 +15,6 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Event type (WEDDING, BABY_SHOWER, BARBECUE, OTHER) with up to 10 suggested items. Seeded by Flyway V2. */
 @Entity
 @Table(name = "event_type")
 @Getter

@@ -26,7 +26,7 @@ export class GiftListDetailComponent {
   protected readonly list = signal<PublicGiftList | null>(null);
   protected readonly notFound = signal(false);
   protected readonly selected = signal<PublicItem | null>(null);
-  /** Photos that failed to load are hidden instead of showing a broken image. */
+
   protected readonly brokenPhotos = signal<ReadonlySet<string>>(new Set());
   protected readonly quantity = signal(1);
   protected readonly submitting = signal(false);
@@ -91,10 +91,10 @@ export class GiftListDetailComponent {
         error: (e) => {
           this.submitting.set(false);
           if (errorCode(e) === 'QUOTA_UNAVAILABLE') {
-            // EC28: the availability on screen was stale. Close the form and reload the numbers.
+
             this.selected.set(null);
             this.listNotice.set(errorMessage(e));
-            // The form held focus; move it to the notice (the item button may come back disabled).
+
             afterNextRender(() => this.listNoticeEl()?.nativeElement.focus(), { injector: this.injector });
             this.load();
           } else {

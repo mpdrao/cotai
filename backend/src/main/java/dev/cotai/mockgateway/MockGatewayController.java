@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 
-/** Checkout page + fake provider API (dev profile only). Rendered by Spring, not by the SPA, on purpose. */
 @Profile("dev")
 @Controller
 @RequestMapping("/mock-gateway")

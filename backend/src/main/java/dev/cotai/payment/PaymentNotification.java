@@ -18,7 +18,6 @@ import lombok.Setter;
 
 import java.time.Instant;
 
-/** Audit trail of every signed webhook received, including duplicates and rejected ones. */
 @Entity
 @Table(name = "payment_notification")
 @Getter
@@ -30,7 +29,6 @@ public class PaymentNotification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Optional: notifications with an unknown reference are stored too (EC10). */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id")
     private Payment payment;
@@ -61,7 +59,6 @@ public class PaymentNotification {
         this.receivedAt = receivedAt;
     }
 
-    /** Sets the final outcome (and the payment, when the reference was known). */
     public void resolve(Payment payment, NotificationOutcome outcome) {
         this.payment = payment;
         this.outcome = outcome;

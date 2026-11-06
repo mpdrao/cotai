@@ -15,7 +15,6 @@ import org.springframework.data.domain.Persistable;
 import java.time.Instant;
 import java.util.UUID;
 
-/** Photo uploaded by the organizer for an item. Served publicly by its random id (see {@link ItemPhotoController}). */
 @Entity
 @Table(name = "item_photo")
 @Getter
@@ -37,7 +36,6 @@ public class ItemPhoto implements Persistable<UUID> {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    /** The id is assigned here, so Spring Data can't tell new from loaded; without this save() merges (extra SELECT). */
     @Transient
     @Getter(AccessLevel.NONE)
     private boolean persisted;

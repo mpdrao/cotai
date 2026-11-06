@@ -18,7 +18,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
-/** UC11 (open charge) and UC15-UC17 (process payment notification). */
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -33,11 +32,6 @@ public class PaymentService {
     private final JsonMapper jsonMapper;
     private final Clock clock;
 
-    /**
-     * Asks the gateway for a charge. Runs AFTER the reservation transaction committed, so no row lock
-     * is held during the external call. On failure the reservation is cancelled (quotas released) and
-     * the payment becomes FAILED (EC07).
-     */
     public PaymentInfo openCharge(UUID reservationId) {
         ChargeRequest request = tx.execute(status -> {
             Payment p = payments.findByReservationIdWithDetails(reservationId).orElseThrow();
@@ -68,12 +62,8 @@ public class PaymentService {
         });
     }
 
-    /**
-     * UC15. Returns normally (-> HTTP 204) for every signed, parseable notification, including
-     * duplicates, late payments and unknown references, so the provider stops retrying.
-     */
     public NotificationOutcome handleNotification(byte[] rawBody, String signatureHeader) {
-        // UC16: signature over the RAW bytes, before any JSON binding.
+
         if (!gateway.isSignatureValid(rawBody, signatureHeader)) {
             throw new BusinessException(ErrorCode.INVALID_SIGNATURE, "Missing or invalid X-Signature.");
         }
@@ -84,7 +74,7 @@ public class PaymentService {
 
     private NotificationOutcome apply(NotificationPayload n, String rawText) {
         Instant now = clock.instant();
-        // Duplicate delivery (same eventId): the unique index makes this a no-op.
+
         if (notifications.insertIfAbsent(n.eventId(), n.type(), rawText, now) == 0) {
             return NotificationOutcome.DUPLICATE;
         }
@@ -98,7 +88,7 @@ public class PaymentService {
 
     private NotificationOutcome decide(NotificationPayload n, Payment payment) {
         if (payment == null || n.amountCents() == null || n.amountCents() != payment.getAmountCents()) {
-            return NotificationOutcome.REJECTED; // unknown reference or amount mismatch (EC10, EC11)
+            return NotificationOutcome.REJECTED;
         }
         UUID reservationId = payment.getReservation().getId();
         return switch (n.type()) {
@@ -116,7 +106,7 @@ public class PaymentService {
             payments.markPaid(payment.getId(), clock.instant());
             return NotificationOutcome.APPLIED;
         }
-        // Reservation is no longer PENDING or already past expiresAt: it is NOT resurrected (EC12, EC14).
+
         if (payments.transition(payment.getId(), PaymentStatus.PENDING, PaymentStatus.REFUND_REQUIRED) == 0) {
             payments.transition(payment.getId(), PaymentStatus.EXPIRED, PaymentStatus.REFUND_REQUIRED);
         }

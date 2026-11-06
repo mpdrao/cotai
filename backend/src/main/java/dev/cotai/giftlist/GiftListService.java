@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** Organizer use cases (UC02-UC07) and the public gift list view (UC08). */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -51,7 +50,6 @@ public class GiftListService {
     private final AppProperties props;
     private final Clock clock;
 
-    /** UC02 + UC03. Template items are copied, never referenced. */
     public GiftListResponse create(UUID ownerId, CreateGiftListRequest req) {
         EventType eventType = eventTypes.findById(req.eventTypeCode())
                 .orElseThrow(() -> BusinessException.notFound("Event type"));
@@ -106,7 +104,6 @@ public class GiftListService {
         return ItemResponse.of(item);
     }
 
-    /** UC05. Takes the same row lock used by reservations, so the occupied count cannot change meanwhile. */
     public ItemResponse updateItem(UUID ownerId, UUID id, Long itemId, ItemInput in) {
         GiftList list = owned(ownerId, id);
         list.ensureNotClosed();
@@ -128,7 +125,6 @@ public class GiftListService {
         item.archive();
     }
 
-    /** Replaces the item photo (stock or uploaded) with the uploaded one. */
     public ItemResponse uploadPhoto(UUID ownerId, UUID id, Long itemId, byte[] data) {
         Item item = photoTarget(ownerId, id, itemId);
         String contentType = PhotoFormat.contentTypeOf(data);
@@ -145,7 +141,6 @@ public class GiftListService {
         return ItemResponse.of(item);
     }
 
-    /** Owned, not CLOSED, and not archived: archived items are no longer shown, so their photo can't change. */
     private Item photoTarget(UUID ownerId, UUID id, Long itemId) {
         GiftList list = owned(ownerId, id);
         list.ensureNotClosed();
@@ -156,14 +151,13 @@ public class GiftListService {
         return item;
     }
 
-    /** UC06. */
     @Transactional(readOnly = true)
     public GiftListSummaryReport summary(UUID ownerId, UUID id) {
         GiftList list = owned(ownerId, id);
         Instant now = clock.instant();
         List<Reservation> all = reservations.findAllByGiftListId(list.getId());
 
-        Map<Long, int[]> perItem = new HashMap<>(); // [confirmed, pending]
+        Map<Long, int[]> perItem = new HashMap<>();
         long confirmedCents = 0;
         long pendingCents = 0;
         for (Reservation r : all) {
@@ -196,7 +190,6 @@ public class GiftListService {
                 payments.sumRefundRequired(list.getId()), totals, contributors);
     }
 
-    /** UC08. DRAFT and unknown slugs are 404. */
     @Transactional(readOnly = true)
     public PublicGiftList publicView(String slug) {
         GiftList list = giftLists.findBySlug(slug)
@@ -217,7 +210,6 @@ public class GiftListService {
                 list.getStatus(), list.acceptsReservations(today()), publicItems);
     }
 
-    /** Another organizer's list is 404, not 403: no existence oracle (EC26). */
     private GiftList owned(UUID ownerId, UUID id) {
         return giftLists.findWithItemsById(id)
                 .filter(l -> l.isOwnedBy(ownerId))

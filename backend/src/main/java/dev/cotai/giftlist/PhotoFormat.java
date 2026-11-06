@@ -6,7 +6,6 @@ import dev.cotai.common.ErrorCode;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-/** Accepts JPEG, PNG and WebP, detected from the file bytes (never from the client's content type or name). */
 final class PhotoFormat {
 
     static final int MAX_BYTES = 5 * 1024 * 1024;

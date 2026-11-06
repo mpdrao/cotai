@@ -5,7 +5,7 @@ export interface ItemInput {
   unit: string;
   unitPriceCents: number;
   totalQuotas: number;
-  /** Stock photo of a suggestion (/suggestions/...). Uploaded photos go through uploadPhoto. */
+
   imageUrl?: string;
 }
 

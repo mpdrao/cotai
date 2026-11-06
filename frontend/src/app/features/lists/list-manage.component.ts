@@ -27,7 +27,6 @@ import {
   CotaiStatusBadgeComponent,
 } from '../../shared/cotai-ui';
 
-/** UC04-UC07: publish, share, edit items, follow the collection and close the list. */
 @Component({
   selector: 'app-list-manage',
   imports: [
@@ -73,7 +72,7 @@ export class ListManageComponent {
   protected readonly photoBusyId = signal<number | null>(null);
   protected readonly photoErrorId = signal<number | null>(null);
   protected readonly photoError = signal('');
-  /** Set by the create screen when some photos failed to upload. */
+
   protected readonly warning = signal<string>(history.state?.warning ?? '');
 
   protected readonly detailErrors = signal<Record<string, string>>({});
@@ -92,7 +91,7 @@ export class ListManageComponent {
   protected readonly recentContributors = computed(() => [...(this.summary()?.contributors ?? [])].reverse().slice(0, 10));
 
   constructor() {
-    // Show the create screen's warning once: history.state survives a reload.
+
     if (history.state?.warning) history.replaceState({ ...history.state, warning: undefined }, '');
     this.reload();
   }
