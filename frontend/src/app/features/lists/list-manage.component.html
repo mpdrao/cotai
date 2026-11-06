@@ -1,0 +1,239 @@
+<div class="page">
+  <a routerLink="/dashboard" class="cotai-back">← Minhas listas</a>
+
+  @if (list(); as l) {
+    <header class="head">
+      <cotai-status-badge [status]="badge()" />
+      <h1 class="cotai-page-title">{{ l.title }}</h1>
+      <p class="meta">{{ l.eventDate | date: 'longDate' }} · prazo para pagar: {{ l.reservationTtlMinutes }} min</p>
+    </header>
+
+    @if (warning()) {
+      <p class="cotai-alert cotai-alert--warning" role="status">{{ warning() }}</p>
+    }
+    @if (notice()) {
+      <p class="cotai-alert cotai-alert--success" role="status">{{ notice() }}</p>
+    }
+
+    <!-- Status and the action that moves the list forward -->
+    <cotai-card [tinted]="l.status !== 'PUBLISHED'">
+      @switch (l.status) {
+        @case ('DRAFT') {
+          <h2>Rascunho</h2>
+          <p class="muted">Só você vê esta lista. Publique quando os itens estiverem prontos para receber o link de compartilhamento.</p>
+          @if (actionError()) {
+            <p class="cotai-alert cotai-alert--error" role="alert">{{ actionError() }}</p>
+          }
+          <cotai-button [fullWidth]="true" [loading]="busy()" (pressed)="publish()">Publicar lista</cotai-button>
+        }
+        @case ('PUBLISHED') {
+          <h2>Compartilhar lista</h2>
+          <p class="muted">Quem abrir o link escolhe as cotas e paga, sem precisar de cadastro.</p>
+          <p class="share-url">{{ publicUrl() }}</p>
+          <div class="actions">
+            <cotai-button [fullWidth]="true" (pressed)="copyLink()">Copiar link</cotai-button>
+            <a class="cotai-link-button" [routerLink]="['/l', l.slug]" target="_blank" rel="noopener">Ver página da lista</a>
+          </div>
+          @if (copied()) {
+            <p class="muted small" role="status">Link copiado.</p>
+          }
+          <div class="close-area">
+            @if (!confirmClose()) {
+              <cotai-button variant="ghost" [fullWidth]="true" (pressed)="confirmClose.set(true)">Encerrar lista</cotai-button>
+            } @else {
+              <p class="cotai-alert cotai-alert--warning">
+                Ninguém mais vai conseguir reservar. Quem já reservou ainda pode pagar até o fim do prazo.
+              </p>
+              @if (actionError()) {
+                <p class="cotai-alert cotai-alert--error" role="alert">{{ actionError() }}</p>
+              }
+              <div class="actions">
+                <cotai-button [fullWidth]="true" [loading]="busy()" (pressed)="close()">Sim, encerrar lista</cotai-button>
+                <cotai-button variant="secondary" [fullWidth]="true" (pressed)="confirmClose.set(false)">Voltar</cotai-button>
+              </div>
+            }
+          </div>
+        }
+        @case ('CLOSED') {
+          <h2>Lista encerrada</h2>
+          <p class="muted">A lista não recebe novas reservas. As reservas que ainda estavam no prazo podem ser pagas.</p>
+          <a class="cotai-link-button" [routerLink]="['/l', l.slug]" target="_blank" rel="noopener">Ver página da lista</a>
+        }
+      }
+    </cotai-card>
+
+    <!-- Collection summary (UC06) -->
+    @if (summary(); as s) {
+      <section class="block" aria-labelledby="summary-title">
+        <h2 id="summary-title" class="section-title">Arrecadação</h2>
+        @if (progress(); as p) {
+          <div class="goal-progress">
+            <p class="goal-percent"><strong>{{ p.percent }}%</strong> da meta confirmada</p>
+            <cotai-progress [value]="p.percent" label="Valor confirmado da meta" />
+            <p class="goal-message">{{ p.message }}</p>
+          </div>
+        }
+        <dl class="tiles">
+          <div><dt>Confirmado</dt><dd>{{ s.confirmedCents / 100 | currency: 'BRL' }}</dd></div>
+          <div><dt>Aguardando pagamento</dt><dd>{{ s.pendingCents / 100 | currency: 'BRL' }}</dd></div>
+          <div><dt>Meta</dt><dd>{{ s.targetCents / 100 | currency: 'BRL' }}</dd></div>
+          @if (s.refundRequiredCents > 0) {
+            <div class="refund"><dt>Pagamentos fora do prazo</dt><dd>{{ s.refundRequiredCents / 100 | currency: 'BRL' }}</dd></div>
+          }
+        </dl>
+        @if (s.refundRequiredCents > 0) {
+          <p class="cotai-alert cotai-alert--warning">
+            Chegaram pagamentos depois do prazo da reserva. Esse valor precisa ser estornado; as reservas não foram reabertas.
+          </p>
+        }
+
+        <cotai-card>
+          <h3>Últimas contribuições</h3>
+          @if (s.contributors.length === 0) {
+            <p class="muted">Nenhum pagamento confirmado ainda.</p>
+          } @else {
+            <ul class="contributors">
+              @for (c of recentContributors(); track $index) {
+                <li>
+                  <div class="who">
+                    <strong>{{ c.guestName }}</strong>
+                    <span class="muted small">{{ c.itemName }} · {{ c.quantity }} {{ c.quantity === 1 ? 'cota' : 'cotas' }}</span>
+                  </div>
+                  <div class="paid">
+                    <strong>{{ c.amountCents / 100 | currency: 'BRL' }}</strong>
+                    <span class="muted small">{{ c.confirmedAt | date: 'short' }}</span>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </cotai-card>
+      </section>
+    }
+
+    <!-- Items (UC05) -->
+    <section class="block" aria-labelledby="items-title">
+      <h2 id="items-title" class="section-title">Itens</h2>
+      @if (activeItems().length === 0) {
+        <p class="cotai-alert cotai-alert--warning">A lista ainda não tem itens. Adicione pelo menos um para publicar.</p>
+      }
+      @for (item of activeItems(); track item.id) {
+        <cotai-card>
+          @if (editingId() === item.id) {
+            <div class="item-edit">
+              <app-item-editor [draft]="editDraft()!" [errors]="editErrors()" [prefix]="'item-' + item.id" />
+              @if (itemError()) {
+                <p class="cotai-alert cotai-alert--error" role="alert">{{ itemError() }}</p>
+              }
+              <p class="cotai-hint">Mudar o valor não afeta reservas já feitas: elas mantêm o valor da hora da reserva.</p>
+              <div class="actions">
+                <cotai-button [fullWidth]="true" [loading]="busy()" (pressed)="saveItem(item)">Salvar item</cotai-button>
+                <cotai-button variant="secondary" [fullWidth]="true" (pressed)="cancelEdit()">Cancelar</cotai-button>
+              </div>
+            </div>
+          } @else {
+            <div class="item">
+              <div class="item-info">
+                <app-item-photo [src]="item.imageUrl" [editable]="l.status !== 'CLOSED'" [busy]="photoBusyId() === item.id"
+                                [error]="photoErrorId() === item.id ? photoError() : ''"
+                                (picked)="uploadPhoto(item, $event)" (removed)="removePhoto(item)" />
+                <h3>{{ item.name }}</h3>
+                <p class="muted">{{ item.unit }} · {{ item.unitPriceCents / 100 | currency: 'BRL' }} por cota · {{ item.totalQuotas }} cotas</p>
+                @if (totalsFor(item.id); as t) {
+                  <cotai-progress [value]="((t.confirmedQuotas + t.pendingQuotas) / t.totalQuotas) * 100"
+                                  [label]="'Cotas reservadas de ' + item.name" />
+                  <p class="small">
+                    {{ t.confirmedQuotas }} pagas · {{ t.pendingQuotas }} aguardando · {{ t.availableQuotas }} livres
+                  </p>
+                }
+              </div>
+              @if (l.status !== 'CLOSED') {
+                @if (confirmRemoveId() === item.id) {
+                  <div class="confirm">
+                    <p class="small">Remover "{{ item.name }}" da lista?</p>
+                    @if (itemError()) {
+                      <p class="cotai-alert cotai-alert--error" role="alert">{{ itemError() }}</p>
+                    }
+                    <div class="actions">
+                      <cotai-button [fullWidth]="true" [loading]="busy()" (pressed)="removeItem(item)">Sim, remover</cotai-button>
+                      <cotai-button variant="secondary" [fullWidth]="true" (pressed)="confirmRemoveId.set(null)">Voltar</cotai-button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="item-actions">
+                    <cotai-button variant="secondary" (pressed)="startEdit(item)">Editar</cotai-button>
+                    <cotai-button variant="ghost" (pressed)="askRemove(item)">Remover</cotai-button>
+                  </div>
+                }
+              }
+            </div>
+          }
+        </cotai-card>
+      }
+
+      @if (l.status !== 'CLOSED') {
+        @if (newDraft(); as d) {
+          <cotai-card tinted>
+            <div class="item-edit">
+              <h3>Novo item</h3>
+              <app-item-photo [src]="newPhotoSrc()" (picked)="setNewPhoto($event)" (removed)="setNewPhoto(null)" />
+              <app-item-editor [draft]="d" [errors]="newErrors()" prefix="item-new" />
+              @if (newError()) {
+                <p class="cotai-alert cotai-alert--error" role="alert">{{ newError() }}</p>
+              }
+              <div class="actions">
+                <cotai-button [fullWidth]="true" [loading]="busy()" (pressed)="saveNewItem()">Adicionar item</cotai-button>
+                <cotai-button variant="secondary" [fullWidth]="true" (pressed)="cancelNewItem()">Cancelar</cotai-button>
+              </div>
+            </div>
+          </cotai-card>
+        } @else {
+          <cotai-button variant="secondary" [fullWidth]="true" (pressed)="openNewItem()">+ Adicionar item</cotai-button>
+        }
+      }
+    </section>
+
+    <!-- List details -->
+    @if (l.status !== 'CLOSED') {
+      <section class="block" aria-labelledby="details-title">
+        <h2 id="details-title" class="section-title">Dados da lista</h2>
+        <cotai-card>
+          <form class="details" (ngSubmit)="saveDetails()" novalidate>
+            <label class="cotai-field wide">
+              <span class="cotai-label">Nome da lista</span>
+              <input class="cotai-input" id="edit-title" name="title" maxlength="80" [(ngModel)]="title"
+                     [attr.aria-invalid]="!!detailErrors()['title']" />
+              @if (detailErrors()['title']) { <span class="cotai-field-error">{{ detailErrors()['title'] }}</span> }
+            </label>
+            <label class="cotai-field">
+              <span class="cotai-label">Data do evento</span>
+              <input class="cotai-input" id="edit-date" name="eventDate" type="date" [(ngModel)]="eventDate"
+                     [attr.aria-invalid]="!!detailErrors()['eventDate']" />
+              @if (detailErrors()['eventDate']) { <span class="cotai-field-error">{{ detailErrors()['eventDate'] }}</span> }
+            </label>
+            <label class="cotai-field">
+              <span class="cotai-label">Prazo para pagar (minutos)</span>
+              <input class="cotai-input" id="edit-ttl" name="ttl" type="number" inputmode="numeric" min="10" max="1440"
+                     [(ngModel)]="ttl" aria-describedby="edit-ttl-hint" [attr.aria-invalid]="!!detailErrors()['ttl']" />
+              <span class="cotai-hint" id="edit-ttl-hint">Vale para as próximas reservas.</span>
+              @if (detailErrors()['ttl']) { <span class="cotai-field-error">{{ detailErrors()['ttl'] }}</span> }
+            </label>
+            @if (detailsError()) {
+              <p class="cotai-alert cotai-alert--error wide" role="alert">{{ detailsError() }}</p>
+            }
+            <div class="wide">
+              <cotai-button type="submit" variant="secondary" [loading]="busy()">Salvar dados</cotai-button>
+            </div>
+          </form>
+        </cotai-card>
+      </section>
+    }
+  } @else if (loadError()) {
+    <cotai-card tinted>
+      <h1 class="state-title">{{ loadError() }}</h1>
+      <a routerLink="/dashboard">Voltar para minhas listas</a>
+    </cotai-card>
+  } @else {
+    <p role="status">Carregando…</p>
+  }
+</div>

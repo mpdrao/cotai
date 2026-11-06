@@ -1,4 +1,4 @@
-package dev.cotai.common;
+package dev.cotai.common.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.GetMapping;
  * jar (production). In development the Angular dev server handles these routes itself.
  */
 @Controller
-class SpaForwardController {
+public class SpaForwardController {
 
     @GetMapping({"/l/{slug}", "/r/{reservationId}", "/dashboard", "/login", "/register", "/lists/new", "/lists/{id}"})
-    String forward() {
+    public String forward() {
         return "forward:/index.html";
     }
 }

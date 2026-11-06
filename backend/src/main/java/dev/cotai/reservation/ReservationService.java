@@ -12,10 +12,10 @@ import dev.cotai.payment.Payment;
 import dev.cotai.payment.PaymentGateway;
 import dev.cotai.payment.PaymentProperties;
 import dev.cotai.payment.PaymentRepository;
-import dev.cotai.reservation.ReservationDtos.PaymentInfo;
-import dev.cotai.reservation.ReservationDtos.ReservationCreated;
-import dev.cotai.reservation.ReservationDtos.ReservationView;
-import dev.cotai.reservation.ReservationDtos.ReserveRequest;
+import dev.cotai.reservation.dto.PaymentInfo;
+import dev.cotai.reservation.dto.ReservationCreated;
+import dev.cotai.reservation.dto.ReservationView;
+import dev.cotai.reservation.dto.ReserveRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,14 +45,14 @@ public class ReservationService {
 
     /** UC09 + UC10: reserve quotas under the item row lock. The charge is opened afterwards (UC11). */
     @Transactional
-    public ReservationDtos.ReserveOutcome reserve(Long itemId, ReserveRequest cmd, UUID idempotencyKey) {
+    public ReserveOutcome reserve(Long itemId, ReserveRequest cmd, UUID idempotencyKey) {
         String requestHash = Crypto.sha256Hex(itemId + "|" + cmd.guestName().trim() + "|"
                 + cmd.guestEmail().trim().toLowerCase() + "|" + cmd.quantity());
 
         // Idempotency is checked BEFORE availability (EC04, EC05).
         var existing = reservations.findByIdempotencyKey(idempotencyKey);
         if (existing.isPresent()) {
-            return new ReservationDtos.ReserveOutcome(replay(existing.get(), requestHash), true);
+            return new ReserveOutcome(replay(existing.get(), requestHash), true);
         }
 
         Instant now = clock.instant();
@@ -91,7 +91,7 @@ public class ReservationService {
                 now, now.plus(list.getReservationTtlMinutes(), ChronoUnit.MINUTES)));
         Payment payment = payments.save(new Payment(reservation, gateway.providerName()));
 
-        return new ReservationDtos.ReserveOutcome(toCreated(reservation, manageToken, payment), false);
+        return new ReserveOutcome(toCreated(reservation, manageToken, payment), false);
     }
 
     /** Used by the flow after a lost idempotency race (EC06). */
@@ -144,8 +144,6 @@ public class ReservationService {
         payments.expireForExpiredReservations();
         return expired;
     }
-
-    // ----------------------------------------------------------------------------------------
 
     /** Deterministic per Idempotency-Key, so a replay can return the same token (43 chars). */
     private String manageToken(UUID idempotencyKey) {

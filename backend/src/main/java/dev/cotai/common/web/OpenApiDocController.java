@@ -1,4 +1,4 @@
-package dev.cotai.common;
+package dev.cotai.common.web;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;

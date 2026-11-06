@@ -1,14 +1,15 @@
 package dev.cotai.giftlist;
 
-import dev.cotai.giftlist.GiftListDtos.CreateGiftListRequest;
-import dev.cotai.giftlist.GiftListDtos.GiftListResponse;
-import dev.cotai.giftlist.GiftListDtos.GiftListSummary;
-import dev.cotai.giftlist.GiftListDtos.GiftListSummaryReport;
-import dev.cotai.giftlist.GiftListDtos.ItemInput;
-import dev.cotai.giftlist.GiftListDtos.ItemResponse;
-import dev.cotai.giftlist.GiftListDtos.UpdateGiftListRequest;
+import dev.cotai.giftlist.dto.CreateGiftListRequest;
+import dev.cotai.giftlist.dto.GiftListResponse;
+import dev.cotai.giftlist.dto.GiftListSummary;
+import dev.cotai.giftlist.dto.GiftListSummaryReport;
+import dev.cotai.giftlist.dto.ItemInput;
+import dev.cotai.giftlist.dto.ItemResponse;
+import dev.cotai.giftlist.dto.UpdateGiftListRequest;
 import dev.cotai.security.JwtService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.net.URI;

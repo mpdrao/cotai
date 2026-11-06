@@ -1,9 +1,8 @@
 package dev.cotai.reservation;
 
 import dev.cotai.payment.PaymentService;
-import dev.cotai.reservation.ReservationDtos.ReservationCreated;
-import dev.cotai.reservation.ReservationDtos.ReserveOutcome;
-import dev.cotai.reservation.ReservationDtos.ReserveRequest;
+import dev.cotai.reservation.dto.ReservationCreated;
+import dev.cotai.reservation.dto.ReserveRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,5 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
-import { shrinkPhoto } from './shrink-photo';
+import { shrinkPhoto } from '../../core/utils/shrink-photo';
 
 const TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 /** Same limit as the API (PhotoFormat.MAX_BYTES), checked after the photo is shrunk. */

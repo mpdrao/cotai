@@ -1,11 +1,10 @@
 package dev.cotai.reservation;
 
-import dev.cotai.reservation.ReservationDtos.ReservationCreated;
-import dev.cotai.reservation.ReservationDtos.ReservationView;
-import dev.cotai.reservation.ReservationDtos.ReserveOutcome;
-import dev.cotai.reservation.ReservationDtos.ReserveRequest;
-import lombok.RequiredArgsConstructor;
+import dev.cotai.reservation.dto.ReservationCreated;
+import dev.cotai.reservation.dto.ReservationView;
+import dev.cotai.reservation.dto.ReserveRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;

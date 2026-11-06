@@ -1,0 +1,114 @@
+@if (list(); as l) {
+  <header class="list-header">
+    <div class="event-heading">
+      <p class="cotai-eyebrow">Junta pra fazer acontecer.</p>
+      <h1>{{ l.title }}</h1>
+      <p class="meta">{{ l.eventDate | date: 'longDate' }}</p>
+    </div>
+    <div class="event-progress">
+      <p><strong>{{ overall().reserved }}</strong> de {{ overall().total }} cotas reservadas</p>
+      <cotai-progress [value]="overall().percent" label="Cotas reservadas na lista" />
+      <p class="meta">Cada cota faz parte do encontro.</p>
+    </div>
+    @if (!l.acceptsReservations) {
+      <p class="notice" role="status">Esta lista não está mais recebendo reservas.</p>
+    }
+  </header>
+
+  @if (listNotice()) {
+    <p #listNoticeEl class="notice" role="alert" tabindex="-1">{{ listNotice() }}</p>
+  }
+
+  @if (l.items.length === 0) {
+    <cotai-card tinted><p class="empty">Esta lista ainda não tem itens.</p></cotai-card>
+  }
+
+  @if (l.items.length > 0) {
+    <div class="collection-heading">
+      <h2>{{ l.acceptsReservations ? 'Escolha como contribuir' : 'Itens do encontro' }}</h2>
+      @if (l.acceptsReservations) {
+        <p class="meta">Reserve suas cotas e finalize o pagamento dentro do prazo.</p>
+      }
+    </div>
+  }
+  <ul class="items" #itemsList>
+    @for (item of l.items; track item.id) {
+      <li [attr.data-item-id]="item.id">
+        <cotai-card [elevation]="selected()?.id === item.id ? 'soft' : 'flat'" [class.selected]="selected()?.id === item.id">
+          @if (item.imageUrl && !brokenPhotos().has(item.imageUrl)) {
+            <img class="item-photo" [src]="item.imageUrl" alt="" loading="lazy" (error)="hidePhoto(item.imageUrl)" />
+          }
+          <div class="item">
+            <div class="item-info">
+              <h2>{{ item.name }}</h2>
+              <p class="meta">{{ item.unit }}</p>
+              <p class="price"><strong>{{ item.unitPriceCents / 100 | currency: 'BRL' }}</strong> <span>por cota</span></p>
+              <cotai-progress
+                [value]="reservedPercent(item)"
+                [label]="'Cotas reservadas de ' + item.name" />
+              <p class="availability">
+                @if (item.availableQuotas === 0) {
+                  Todas as cotas foram reservadas
+                } @else {
+                  {{ item.availableQuotas }} de {{ item.totalQuotas }} cotas disponíveis
+                }
+              </p>
+            </div>
+            @if (selected()?.id !== item.id) {
+              <cotai-button
+                variant="secondary"
+                [fullWidth]="true"
+                [disabled]="!l.acceptsReservations || item.availableQuotas === 0"
+                (pressed)="select(item)">
+                Reservar minhas cotas
+              </cotai-button>
+            }
+          </div>
+
+          @if (selected()?.id === item.id) {
+            <form #reservationForm class="reserve" (ngSubmit)="reserve(item)" #form="ngForm">
+              <h3 tabindex="-1">Suas cotas para este encontro</h3>
+              <div class="field">
+                <span class="label" id="qty-label-{{ item.id }}">Quantidade de cotas</span>
+                <div class="stepper" role="group" [attr.aria-labelledby]="'qty-label-' + item.id">
+                  <button type="button" aria-label="Diminuir" [disabled]="quantity() <= 1" (click)="step(-1, item)">−</button>
+                  <output aria-live="polite">{{ quantity() }}</output>
+                  <button type="button" aria-label="Aumentar" [disabled]="quantity() >= item.availableQuotas" (click)="step(1, item)">+</button>
+                </div>
+              </div>
+              <label class="field">
+                <span class="label">Seu nome</span>
+                <input class="cotai-input" name="guestName" autocomplete="name" required minlength="2" maxlength="80"
+                       [(ngModel)]="guestName" />
+              </label>
+              <label class="field">
+                <span class="label">Seu e-mail</span>
+                <input class="cotai-input" name="guestEmail" type="email" inputmode="email" autocomplete="email" required
+                       maxlength="254" [(ngModel)]="guestEmail" />
+              </label>
+              <p class="total">
+                Total: <strong>{{ (quantity() * item.unitPriceCents) / 100 | currency: 'BRL' }}</strong>
+              </p>
+              @if (error()) {
+                <p class="error" role="alert">{{ error() }}</p>
+              }
+              <div class="form-actions">
+                <cotai-button type="submit" [fullWidth]="true" [loading]="submitting()" [disabled]="!!form.invalid">
+                  Ir para pagamento
+                </cotai-button>
+                <cotai-button variant="ghost" [fullWidth]="true" (pressed)="closeReservation()">Voltar</cotai-button>
+              </div>
+            </form>
+          }
+        </cotai-card>
+      </li>
+    }
+  </ul>
+} @else if (notFound()) {
+  <cotai-card tinted>
+    <h1 class="state-title">Lista não encontrada</h1>
+    <p>Confira se o link está completo.</p>
+  </cotai-card>
+} @else {
+  <p role="status">Carregando…</p>
+}

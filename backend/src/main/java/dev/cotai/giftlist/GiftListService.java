@@ -5,23 +5,23 @@ import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
 import dev.cotai.eventtype.EventType;
 import dev.cotai.eventtype.EventTypeRepository;
-import dev.cotai.giftlist.GiftListDtos.Contributor;
-import dev.cotai.giftlist.GiftListDtos.CreateGiftListRequest;
-import dev.cotai.giftlist.GiftListDtos.GiftListResponse;
-import dev.cotai.giftlist.GiftListDtos.GiftListSummary;
-import dev.cotai.giftlist.GiftListDtos.GiftListSummaryReport;
-import dev.cotai.giftlist.GiftListDtos.ItemInput;
-import dev.cotai.giftlist.GiftListDtos.ItemResponse;
-import dev.cotai.giftlist.GiftListDtos.ItemTotals;
-import dev.cotai.giftlist.GiftListDtos.PublicGiftList;
-import dev.cotai.giftlist.GiftListDtos.PublicItem;
-import dev.cotai.giftlist.GiftListDtos.UpdateGiftListRequest;
-import lombok.RequiredArgsConstructor;
+import dev.cotai.giftlist.dto.Contributor;
+import dev.cotai.giftlist.dto.CreateGiftListRequest;
+import dev.cotai.giftlist.dto.GiftListResponse;
+import dev.cotai.giftlist.dto.GiftListSummary;
+import dev.cotai.giftlist.dto.GiftListSummaryReport;
+import dev.cotai.giftlist.dto.ItemInput;
+import dev.cotai.giftlist.dto.ItemResponse;
+import dev.cotai.giftlist.dto.ItemTotals;
+import dev.cotai.giftlist.dto.PublicGiftList;
+import dev.cotai.giftlist.dto.PublicItem;
+import dev.cotai.giftlist.dto.UpdateGiftListRequest;
 import dev.cotai.organizer.OrganizerRepository;
 import dev.cotai.payment.PaymentRepository;
 import dev.cotai.reservation.Reservation;
 import dev.cotai.reservation.ReservationRepository;
 import dev.cotai.reservation.ReservationStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -216,8 +216,6 @@ public class GiftListService {
         return new PublicGiftList(list.getTitle(), list.getEventType().getCode(), list.getEventDate(),
                 list.getStatus(), list.acceptsReservations(today()), publicItems);
     }
-
-    // ----------------------------------------------------------------------------------------
 
     /** Another organizer's list is 404, not 403: no existence oracle (EC26). */
     private GiftList owned(UUID ownerId, UUID id) {

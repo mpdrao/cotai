@@ -1,5 +1,6 @@
 package dev.cotai.common;
 
+import dev.cotai.common.web.OpenApiDocController;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;

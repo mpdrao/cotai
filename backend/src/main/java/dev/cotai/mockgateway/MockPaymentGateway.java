@@ -4,6 +4,8 @@ import dev.cotai.common.AppProperties;
 import dev.cotai.common.Crypto;
 import dev.cotai.payment.PaymentGateway;
 import dev.cotai.payment.PaymentProperties;
+import dev.cotai.payment.dto.Charge;
+import dev.cotai.payment.dto.ChargeRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -89,11 +91,6 @@ public class MockPaymentGateway implements PaymentGateway {
         return Optional.ofNullable(charges.get(providerReference));
     }
 
-    public boolean isExpired(MockCharge charge) {
-        return !clock.instant().isBefore(charge.expiresAt());
-    }
-
-    /** Marks the charge as paid and schedules the signed {@code payment.paid} webhook. */
     public void approve(MockCharge charge) {
         charge.status = ChargeStatus.PAID;
         dispatcher.dispatch("payment.paid", charge.providerReference(), charge.amountCents());
@@ -104,11 +101,15 @@ public class MockPaymentGateway implements PaymentGateway {
         dispatcher.dispatch("payment.declined", charge.providerReference(), charge.amountCents());
     }
 
+    public boolean isExpired(MockCharge charge) {
+        return !clock.instant().isBefore(charge.expiresAt());
+    }
+
     private String randomChars(int length) {
-        StringBuilder sb = new StringBuilder(length);
+        StringBuilder b = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
-            sb.append(ALPHABET.charAt(random.nextInt(ALPHABET.length())));
+            b.append(ALPHABET.charAt(random.nextInt(ALPHABET.length())));
         }
-        return sb.toString();
+        return b.toString();
     }
 }

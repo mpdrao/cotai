@@ -2,9 +2,10 @@ package dev.cotai.payment;
 
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
-import dev.cotai.payment.PaymentGateway.Charge;
-import dev.cotai.payment.PaymentGateway.ChargeRequest;
-import dev.cotai.reservation.ReservationDtos.PaymentInfo;
+import dev.cotai.payment.dto.Charge;
+import dev.cotai.payment.dto.ChargeRequest;
+import dev.cotai.payment.dto.NotificationPayload;
+import dev.cotai.reservation.dto.PaymentInfo;
 import dev.cotai.reservation.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,10 +24,6 @@ import java.util.UUID;
 public class PaymentService {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
-
-    public record NotificationPayload(String eventId, String type, String providerReference,
-                                      Long amountCents, Instant occurredAt) {
-    }
 
     private final PaymentGateway gateway;
     private final PaymentRepository payments;

@@ -8,6 +8,7 @@ import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
 import dev.cotai.mockgateway.MockPaymentGateway.ChargeStatus;
 import dev.cotai.mockgateway.MockPaymentGateway.MockCharge;
+import dev.cotai.mockgateway.dto.MockChargeResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.ByteArrayOutputStream;
-import java.time.Instant;
 import java.util.Base64;
 
 /** Checkout page + fake provider API (dev profile only). Rendered by Spring, not by the SPA, on purpose. */
@@ -30,10 +30,6 @@ import java.util.Base64;
 @RequestMapping("/mock-gateway")
 @RequiredArgsConstructor
 public class MockGatewayController {
-
-    public record MockChargeResponse(String providerReference, ChargeStatus status, long amountCents,
-                                     Instant expiresAt, String checkoutUrl) {
-    }
 
     private final MockPaymentGateway gateway;
 
