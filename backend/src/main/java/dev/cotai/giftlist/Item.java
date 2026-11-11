@@ -1,6 +1,6 @@
 package dev.cotai.giftlist;
 
-import dev.cotai.eventtype.EventType;
+import dev.cotai.eventtype.Event;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -50,7 +50,7 @@ public class Item {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_type_code")
-    private EventType event;
+    private Event event;
 
     public Item(GiftList giftList, String name, String unit, long unitPriceCents, String imageUrl) {
         this.giftList = giftList;
@@ -61,7 +61,7 @@ public class Item {
         this.isDefault = false;
     }
 
-    public Item(EventType event, String name, String unit, long unitPriceCents, String imageUrl) {
+    public Item(Event event, String name, String unit, long unitPriceCents, String imageUrl) {
         this.event = event;
         this.name = name;
         this.unit = unit;
@@ -88,4 +88,3 @@ public class Item {
         this.archived = true;
     }
 }
-

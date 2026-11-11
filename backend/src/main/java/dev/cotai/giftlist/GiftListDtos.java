@@ -51,7 +51,7 @@ public final class GiftListDtos {
                                    GiftListStatus status, int reservationTtlMinutes, List<ItemResponse> items,
                                    Instant createdAt) {
         public static GiftListResponse of(GiftList l) {
-            return new GiftListResponse(l.getId(), l.getTitle(), l.getSlug(), l.getEventType().getCode(),
+            return new GiftListResponse(l.getId(), l.getTitle(), l.getSlug(), l.getEvent().getCode(),
                     l.getEventDate(), l.getStatus(), l.getReservationTtlMinutes(),
                     l.getItems().stream().map(ItemResponse::of).toList(), l.getCreatedAt());
         }
