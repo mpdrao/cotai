@@ -3,7 +3,7 @@ package dev.cotai.giftlist;
 import dev.cotai.common.AppProperties;
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
-import dev.cotai.eventtype.EventType;
+import dev.cotai.eventtype.Event;
 import dev.cotai.eventtype.EventTypeRepository;
 import dev.cotai.giftlist.GiftListDtos.Contributor;
 import dev.cotai.giftlist.GiftListDtos.CreateGiftListRequest;
@@ -51,15 +51,15 @@ public class GiftListService {
     private final Clock clock;
 
     public GiftListResponse create(UUID ownerId, CreateGiftListRequest req) {
-        EventType eventType = eventTypes.findById(req.eventTypeCode())
+        Event event = eventTypes.findById(req.eventTypeCode())
                 .orElseThrow(() -> BusinessException.notFound("Event type"));
         if (req.eventDate().isBefore(today())) {
             throw new BusinessException(ErrorCode.EVENT_DATE_IN_PAST, "Event date is in the past.");
         }
         int ttl = req.reservationTtlMinutes() != null
-                ? req.reservationTtlMinutes() : eventType.getDefaultReservationTtlMinutes();
+                ? req.reservationTtlMinutes() : event.getDefaultReservationTtlMinutes();
 
-        GiftList list = new GiftList(organizers.getReferenceById(ownerId), eventType, req.title().trim(),
+        GiftList list = new GiftList(organizers.getReferenceById(ownerId), event, req.title().trim(),
                 uniqueSlug(req.title()), req.eventDate(), ttl, clock.instant());
         for (ItemInput in : req.items()) {
             Item item = list.addItem(in.name().trim(), in.unit().trim(), in.unitPriceCents());
@@ -204,7 +204,7 @@ public class GiftListService {
                         1, Math.max(1 - occupied.getOrDefault(i.getId(), 0), 0),
                         i.getImageUrl()))
                 .toList();
-        return new PublicGiftList(list.getTitle(), list.getEventType().getCode(), list.getEventDate(),
+        return new PublicGiftList(list.getTitle(), list.getEvent().getCode(), list.getEventDate(),
                 list.getStatus(), list.acceptsReservations(today()), publicItems);
     }
 

@@ -20,3 +20,11 @@ ALTER TABLE item ADD COLUMN IF NOT EXISTS is_default BOOLEAN NOT NULL DEFAULT FA
 ALTER TABLE item ADD COLUMN IF NOT EXISTS event_type_code VARCHAR(30) REFERENCES event_type(code);
 ALTER TABLE item ALTER COLUMN gift_list_id DROP NOT NULL;
 
+INSERT INTO item (name, unit, unit_price_cents, archived, image_url, is_default, event_type_code)
+SELECT name, unit, unit_price_cents, FALSE, image_url, TRUE, event_type_code
+FROM template_item
+ORDER BY event_type_code, position;
+
+DROP TABLE IF EXISTS template_item;
+
+

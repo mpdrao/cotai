@@ -3,7 +3,7 @@ package dev.cotai.giftlist;
 import dev.cotai.common.AppProperties;
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
-import dev.cotai.eventtype.EventType;
+import dev.cotai.eventtype.Event;
 import dev.cotai.eventtype.EventTypeRepository;
 import dev.cotai.giftlist.GiftListDtos.CreateGiftListRequest;
 import dev.cotai.giftlist.GiftListDtos.GiftListResponse;
@@ -58,7 +58,7 @@ class GiftListServiceTest {
     private final Instant now = Instant.parse("2026-11-11T12:00:00Z");
     private final Clock clock = Clock.fixed(now, ZoneOffset.UTC);
     private Organizer organizer;
-    private EventType eventType;
+    private Event event;
 
     @BeforeEach
     void setUp() {
@@ -73,7 +73,7 @@ class GiftListServiceTest {
         );
 
         organizer = new Organizer("Mario", "mario@example.com", "hash", now);
-        eventType = new EventType("BARBECUE", "Churrasco", 60);
+        event = new Event("BARBECUE", "Churrasco", 60);
     }
 
     @Test
@@ -89,7 +89,7 @@ class GiftListServiceTest {
                 List.of(new ItemInput("Carvao", "saco", 3000, 1, null))
         );
 
-        when(eventTypes.findById("BARBECUE")).thenReturn(Optional.of(eventType));
+        when(eventTypes.findById("BARBECUE")).thenReturn(Optional.of(event));
         when(organizers.getReferenceById(ownerId)).thenReturn(organizer);
         when(slugGenerator.generate("Churrasco de Sabado")).thenReturn("churrasco-de-sabado");
         when(giftLists.existsBySlug("churrasco-de-sabado")).thenReturn(false);
@@ -110,7 +110,7 @@ class GiftListServiceTest {
     @DisplayName("addItem adds item to gift list and returns ItemResponse")
     void addItemSuccess() {
         UUID ownerId = organizer.getId();
-        GiftList list = new GiftList(organizer, eventType, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         UUID listId = list.getId();
 
         when(giftLists.findWithItemsById(listId)).thenReturn(Optional.of(list));
@@ -129,7 +129,7 @@ class GiftListServiceTest {
     @DisplayName("archiveItem throws when item has active reservations")
     void archiveItemWithActiveReservations() {
         UUID ownerId = organizer.getId();
-        GiftList list = new GiftList(organizer, eventType, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         Item item = list.addItem("Picanha", "kg", 8500);
         UUID listId = list.getId();
 
@@ -147,7 +147,7 @@ class GiftListServiceTest {
     @DisplayName("archiveItem successfully marks item as archived when no active reservations")
     void archiveItemSuccess() {
         UUID ownerId = organizer.getId();
-        GiftList list = new GiftList(organizer, eventType, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         Item item = list.addItem("Picanha", "kg", 8500);
         UUID listId = list.getId();
 
@@ -164,7 +164,7 @@ class GiftListServiceTest {
     @DisplayName("update modifies list details")
     void updateListSuccess() {
         UUID ownerId = organizer.getId();
-        GiftList list = new GiftList(organizer, eventType, "Lista Antiga", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        GiftList list = new GiftList(organizer, event, "Lista Antiga", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         UUID listId = list.getId();
 
         when(giftLists.findWithItemsById(listId)).thenReturn(Optional.of(list));

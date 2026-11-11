@@ -1,6 +1,7 @@
 package dev.cotai.reservation;
 
 import dev.cotai.giftlist.Item;
+import dev.cotai.payment.Payment;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -59,6 +61,9 @@ public class Reservation {
 
     @Column(name = "closed_at")
     private Instant closedAt;
+
+    @OneToOne(mappedBy = "reservation", fetch = FetchType.LAZY)
+    private Payment payment;
 
     public Reservation(UUID id, Item item, String guestName, String guestEmail, int quantity,
                        String manageTokenHash, Instant createdAt) {
