@@ -23,14 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Reservation use cases. Rule of thumb: row lock on the item inside {@link #reserve}, conditional
- * UPDATEs for every state transition, and no external call while a lock is held.
- */
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -43,16 +38,15 @@ public class ReservationService {
     private final PaymentProperties paymentProperties;
     private final Clock clock;
 
-    /** UC09 + UC10: reserve quotas under the item row lock. The charge is opened afterwards (UC11). */
     @Transactional
     public ReservationDtos.ReserveOutcome reserve(Long itemId, ReserveRequest cmd, UUID idempotencyKey) {
-        String requestHash = Crypto.sha256Hex(itemId + "|" + cmd.guestName().trim() + "|"
-                + cmd.guestEmail().trim().toLowerCase() + "|" + cmd.quantity());
+        String manageToken = manageToken(idempotencyKey);
+        String manageTokenHash = Crypto.sha256Hex(manageToken);
 
-        // Idempotency is checked BEFORE availability (EC04, EC05).
-        var existing = reservations.findByIdempotencyKey(idempotencyKey);
+        var existing = reservations.findByManageTokenHash(manageTokenHash);
         if (existing.isPresent()) {
-            return new ReservationDtos.ReserveOutcome(replay(existing.get(), requestHash), true);
+            Payment p = payments.findByReservationIdWithDetails(existing.get().getId()).orElseThrow();
+            return new ReservationDtos.ReserveOutcome(toCreated(existing.get(), manageToken, p), true);
         }
 
         Instant now = clock.instant();
@@ -75,33 +69,31 @@ public class ReservationService {
                     "Too many pending reservations for this e-mail. Pay or cancel one first.");
         }
 
-        int available = item.getTotalQuotas() - items.occupiedQuotas(itemId, now);
-        if (cmd.quantity() > available) {
+        int occupied = items.occupiedQuotas(itemId, now);
+        int available = Math.max(1 - occupied, 0);
+        if (cmd.quantity() > available && occupied > 0) {
             throw new BusinessException(ErrorCode.QUOTA_UNAVAILABLE,
-                    "Only " + Math.max(available, 0) + " of " + item.getTotalQuotas()
-                            + " quotas are still available for item " + itemId + ".",
-                    Map.of("availableQuotas", Math.max(available, 0)));
+                    "Only " + available + " quotas are still available for item " + itemId + ".",
+                    Map.of("availableQuotas", available));
         }
 
         UUID reservationId = UUID.randomUUID();
-        String manageToken = manageToken(idempotencyKey);
         Reservation reservation = reservations.saveAndFlush(new Reservation(
                 reservationId, item, cmd.guestName().trim(), email, cmd.quantity(),
-                Crypto.sha256Hex(manageToken), idempotencyKey, requestHash,
-                now, now.plus(list.getReservationTtlMinutes(), ChronoUnit.MINUTES)));
+                manageTokenHash, now));
         Payment payment = payments.save(new Payment(reservation, gateway.providerName()));
 
         return new ReservationDtos.ReserveOutcome(toCreated(reservation, manageToken, payment), false);
     }
 
-    /** Used by the flow after a lost idempotency race (EC06). */
     @Transactional(readOnly = true)
     public ReservationCreated replayByKey(UUID idempotencyKey, ReserveRequest cmd, Long itemId) {
-        String requestHash = Crypto.sha256Hex(itemId + "|" + cmd.guestName().trim() + "|"
-                + cmd.guestEmail().trim().toLowerCase() + "|" + cmd.quantity());
-        Reservation existing = reservations.findByIdempotencyKey(idempotencyKey)
+        String manageToken = manageToken(idempotencyKey);
+        String manageTokenHash = Crypto.sha256Hex(manageToken);
+        Reservation existing = reservations.findByManageTokenHash(manageTokenHash)
                 .orElseThrow(() -> new IllegalStateException("Reservation vanished for key " + idempotencyKey));
-        return replay(existing, requestHash);
+        Payment payment = payments.findByReservationIdWithDetails(existing.getId()).orElseThrow();
+        return toCreated(existing, manageToken, payment);
     }
 
     @Transactional(readOnly = true)
@@ -113,7 +105,6 @@ public class ReservationService {
                 reservation.getAmountCents(), reservation.getExpiresAt(), toInfo(payment));
     }
 
-    /** UC14. Only PENDING (and not yet past its deadline) can be cancelled. */
     @Transactional
     public void cancel(UUID reservationId, String manageToken) {
         Reservation reservation = findAuthorized(reservationId, manageToken);
@@ -125,19 +116,16 @@ public class ReservationService {
         }
     }
 
-    /** payment.paid. false when the reservation is no longer PENDING or already past expiresAt. */
     @Transactional
     public boolean confirmPaid(UUID reservationId) {
         return reservations.markConfirmed(reservationId, clock.instant()) == 1;
     }
 
-    /** payment.declined, or gateway failure on createCharge. Releases the quotas immediately. */
     @Transactional
     public boolean cancelDeclined(UUID reservationId) {
         return reservations.markCancelled(reservationId, clock.instant()) == 1;
     }
 
-    /** UC18. Idempotent; safe on N instances at once (no ShedLock needed). */
     @Transactional
     public int expireOverdue() {
         int expired = reservations.markExpiredOverdue(clock.instant());
@@ -145,24 +133,11 @@ public class ReservationService {
         return expired;
     }
 
-    // ----------------------------------------------------------------------------------------
-
-    /** Deterministic per Idempotency-Key, so a replay can return the same token (43 chars). */
     private String manageToken(UUID idempotencyKey) {
         return Crypto.hmacSha256Base64Url(appProperties.manageTokenSecret(), idempotencyKey.toString());
     }
 
-    private ReservationCreated replay(Reservation existing, String requestHash) {
-        if (!existing.getRequestHash().equals(requestHash)) {
-            throw new BusinessException(ErrorCode.IDEMPOTENCY_KEY_MISMATCH,
-                    "This Idempotency-Key was already used with a different request body.");
-        }
-        Payment payment = payments.findByReservationIdWithDetails(existing.getId()).orElseThrow();
-        return toCreated(existing, manageToken(existing.getIdempotencyKey()), payment);
-    }
-
     private Reservation findAuthorized(UUID reservationId, String manageToken) {
-        // Unknown id and wrong token are indistinguishable on purpose (EC21).
         return reservations.findById(reservationId)
                 .filter(r -> manageToken != null
                         && Crypto.constantTimeEquals(r.getManageTokenHash(), Crypto.sha256Hex(manageToken)))

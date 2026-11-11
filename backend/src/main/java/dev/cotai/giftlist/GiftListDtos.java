@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
@@ -13,7 +12,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-/** Request/response records of the organizer and public gift list endpoints. */
 public final class GiftListDtos {
 
     private GiftListDtos() {
@@ -23,10 +21,8 @@ public final class GiftListDtos {
             @NotBlank @Size(max = 80) String name,
             @NotBlank @Size(max = 30) String unit,
             @Min(1) @Max(100_000_000) long unitPriceCents,
-            @Min(1) @Max(1000) int totalQuotas,
-            // Only a stock photo of the suggestions can be set here; uploads go through the photo endpoint.
-            // Ignored on update, so the current photo is kept.
-            @Pattern(regexp = "^/suggestions/[a-z0-9-]+\\.jpg$") String imageUrl) {
+            Integer totalQuotas,
+            String imageUrl) {
     }
 
     public record CreateGiftListRequest(
@@ -44,17 +40,17 @@ public final class GiftListDtos {
     }
 
     public record ItemResponse(Long id, String name, String unit, long unitPriceCents, int totalQuotas,
-                               long totalCents, boolean archived, String imageUrl) {
-        static ItemResponse of(Item i) {
+                               long totalCents, boolean archived, String imageUrl, boolean isDefault) {
+        public static ItemResponse of(Item i) {
             return new ItemResponse(i.getId(), i.getName(), i.getUnit(), i.getUnitPriceCents(),
-                    i.getTotalQuotas(), i.totalCents(), i.isArchived(), i.getImageUrl());
+                    1, i.totalCents(), i.isArchived(), i.getImageUrl(), i.isDefault());
         }
     }
 
     public record GiftListResponse(UUID id, String title, String slug, String eventTypeCode, LocalDate eventDate,
                                    GiftListStatus status, int reservationTtlMinutes, List<ItemResponse> items,
                                    Instant createdAt) {
-        static GiftListResponse of(GiftList l) {
+        public static GiftListResponse of(GiftList l) {
             return new GiftListResponse(l.getId(), l.getTitle(), l.getSlug(), l.getEventType().getCode(),
                     l.getEventDate(), l.getStatus(), l.getReservationTtlMinutes(),
                     l.getItems().stream().map(ItemResponse::of).toList(), l.getCreatedAt());
@@ -62,7 +58,7 @@ public final class GiftListDtos {
     }
 
     public record GiftListSummary(UUID id, String title, String slug, GiftListStatus status, LocalDate eventDate) {
-        static GiftListSummary of(GiftList l) {
+        public static GiftListSummary of(GiftList l) {
             return new GiftListSummary(l.getId(), l.getTitle(), l.getSlug(), l.getStatus(), l.getEventDate());
         }
     }

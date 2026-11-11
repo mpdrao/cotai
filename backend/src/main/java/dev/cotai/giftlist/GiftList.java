@@ -27,10 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Gift list of an organizer. Named {@code GiftList} (not {@code List}) to avoid clashing with
- * {@link java.util.List}.
- */
 @Entity
 @Table(name = "gift_list")
 @Getter
@@ -64,7 +60,6 @@ public class GiftList {
     @Column(nullable = false, length = 20)
     private GiftListStatus status;
 
-    /** 10..1440. Applies to new reservations only. */
     @Column(name = "reservation_ttl_minutes", nullable = false)
     private int reservationTtlMinutes;
 
@@ -90,17 +85,16 @@ public class GiftList {
         this.status = GiftListStatus.DRAFT;
     }
 
-    public Item addItem(String name, String unit, long unitPriceCents, int totalQuotas) {
+    public Item addItem(String name, String unit, long unitPriceCents) {
         ensureNotClosed();
         if (items.size() >= MAX_ITEMS) {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED, "A gift list has at most " + MAX_ITEMS + " items.");
         }
-        Item item = new Item(this, name, unit, unitPriceCents, totalQuotas);
+        Item item = new Item(this, name, unit, unitPriceCents);
         items.add(item);
         return item;
     }
 
-    /** UC04. DRAFT -> PUBLISHED. */
     public void publish(LocalDate today) {
         if (status != GiftListStatus.DRAFT) {
             throw new BusinessException(ErrorCode.INVALID_STATE_TRANSITION, "Only DRAFT lists can be published.");
@@ -114,7 +108,6 @@ public class GiftList {
         status = GiftListStatus.PUBLISHED;
     }
 
-    /** UC07. PUBLISHED -> CLOSED. PENDING reservations can still be paid until they expire. */
     public void close() {
         if (status != GiftListStatus.PUBLISHED) {
             throw new BusinessException(ErrorCode.INVALID_STATE_TRANSITION, "Only PUBLISHED lists can be closed.");
@@ -122,7 +115,6 @@ public class GiftList {
         status = GiftListStatus.CLOSED;
     }
 
-    /** {@code today} must be computed in {@code app.zone}, never in UTC (EC24). */
     public boolean acceptsReservations(LocalDate today) {
         return status == GiftListStatus.PUBLISHED && !eventDate.isBefore(today);
     }

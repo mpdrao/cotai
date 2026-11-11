@@ -2,7 +2,6 @@ import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ItemDraft, ItemErrors } from './item-draft';
 
-/** Fields of one item (name, unit, price per quota, quotas). The parent owns the draft and validates it. */
 @Component({
   selector: 'app-item-editor',
   imports: [FormsModule],
@@ -52,8 +51,8 @@ import { ItemDraft, ItemErrors } from './item-draft';
 export class ItemEditorComponent {
   readonly draft = input.required<ItemDraft>();
   readonly errors = input<ItemErrors>({});
-  /** Unique id prefix for the inputs (e.g. "item-3"). */
+
   readonly prefix = input.required<string>();
-  /** Emitted after any field changes, so the parent can recompute totals. */
+
   readonly changed = output<void>();
 }

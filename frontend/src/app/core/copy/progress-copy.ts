@@ -1,8 +1,3 @@
-/**
- * Arrecadação: confirmed percentage of the goal and an encouraging message. The percentage is exact
- * (37%); the message changes every 10 points, with three variations per band (docs/design-system/UI_COPY.md).
- * {p} = percentage collected, {r} = percentage still missing.
- */
 const MESSAGES: readonly (readonly [string, string, string])[] = [
   [
     'Tudo pronto pra começar: {p}% arrecadado até agora.',
@@ -62,15 +57,14 @@ const MESSAGES: readonly (readonly [string, string, string])[] = [
 ];
 
 export interface CollectionProgress {
-  /** Whole percentage shown to the organizer (0–100). Never rounds up to 100 before the goal is met. */
+
   percent: number;
   message: string;
 }
 
-/** {@code seed} (the list id) keeps the same variation on every visit while the band does not change. */
 export function collectionProgress(confirmedCents: number, targetCents: number, seed: string): CollectionProgress {
   const exact = targetCents > 0 ? (confirmedCents / targetCents) * 100 : 0;
-  // Something paid but under 1% still shows 1%, so the organizer sees the first cota counting.
+
   const percent = Math.min(100, exact > 0 ? Math.max(1, Math.floor(exact)) : 0);
   const band = Math.min(10, Math.floor(percent / 10));
   const message = MESSAGES[band][hash(`${seed}:${band}`) % 3]

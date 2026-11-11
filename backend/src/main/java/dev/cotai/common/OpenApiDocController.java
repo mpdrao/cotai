@@ -13,10 +13,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/**
- * Serves the canonical OpenAPI 3.1 contract ({@code docs/api/openapi.yaml}) and an interactive
- * Swagger UI page at {@code /swagger-ui}.
- */
 @Controller
 public class OpenApiDocController {
 

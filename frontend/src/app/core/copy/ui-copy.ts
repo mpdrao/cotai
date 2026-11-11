@@ -2,7 +2,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CotaiStatus } from '../../shared/cotai-ui';
 import { ReservationView } from '../models/reservation.model';
 
-/** Guest-facing messages per API error code (docs/design-system/UI_COPY.md). */
 const ERROR_COPY: Record<string, string> = {
   QUOTA_UNAVAILABLE: 'Essa cota acabou de ser reservada. Atualizamos os números.',
   LIST_NOT_ACCEPTING_RESERVATIONS: 'Esta lista não está mais recebendo reservas.',
@@ -21,7 +20,6 @@ const ERROR_COPY: Record<string, string> = {
   PHOTO_TOO_LARGE: 'A foto pode ter até 5 MB.',
 };
 
-/** Organizer screens: the same codes, with wording about the list instead of a reservation. */
 export const ORGANIZER_COPY: Record<string, string> = {
   INVALID_STATE_TRANSITION: 'Essa lista não pode mais ser alterada nesse estado.',
   VALIDATION_FAILED: 'Confira os campos destacados e tente de novo.',
@@ -41,7 +39,6 @@ export interface StatusCopy {
   detail: string;
 }
 
-/** Reservation status as shown to the guest. A late payment is flagged on the payment, not the reservation. */
 export function reservationCopy(view: ReservationView): StatusCopy {
   if (view.payment.status === 'REFUND_REQUIRED') {
     return {

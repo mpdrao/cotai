@@ -9,7 +9,6 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Every status change is a conditional UPDATE ({@code WHERE status = :from}); 0 rows = lost the race. */
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
     @Query("select p from Payment p join fetch p.reservation r join fetch r.item i join fetch i.giftList where r.id = :reservationId")
@@ -22,7 +21,6 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     @Query("update Payment p set p.status = :to where p.id = :id and p.status = :from")
     int transition(@Param("id") UUID id, @Param("from") PaymentStatus from, @Param("to") PaymentStatus to);
 
-    /** CREATED -> PENDING once the gateway returned the charge. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""
             update Payment p
@@ -41,7 +39,6 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
             """)
     int markPaid(@Param("id") UUID id, @Param("now") Instant now);
 
-    /** Payments whose reservation already expired become EXPIRED (called by the expiry job). */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""
             update Payment p

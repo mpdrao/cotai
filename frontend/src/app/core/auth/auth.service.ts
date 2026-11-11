@@ -11,7 +11,6 @@ interface Session {
 
 const STORAGE_KEY = 'cotai.session';
 
-/** Organizer session. The JWT lives in localStorage until it expires (app.jwt.ttl-seconds). */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -78,6 +77,6 @@ function writeSession(session: Session | null): void {
       localStorage.removeItem(STORAGE_KEY);
     }
   } catch {
-    // Storage blocked: the session lasts only while the page is open.
+
   }
 }

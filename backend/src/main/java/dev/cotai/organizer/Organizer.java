@@ -26,7 +26,6 @@ public class Organizer {
     @Column(nullable = false, length = 80)
     private String name;
 
-    /** Always lower-cased; unique index on lower(email). */
     @Column(nullable = false, length = 254)
     private String email;
 
