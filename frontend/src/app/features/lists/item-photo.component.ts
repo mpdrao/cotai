@@ -1,11 +1,10 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
-import { shrinkPhoto } from './shrink-photo';
+import { shrinkPhoto } from '../../core/utils/shrink-photo';
 
 const TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-/** Same limit as the API (PhotoFormat.MAX_BYTES), checked after the photo is shrunk. */
+
 const MAX_BYTES = 5 * 1024 * 1024;
 
-/** Thumbnail of an item photo with "Adicionar / Trocar / Remover foto". Shrinks the picked file; the parent decides when to upload. */
 @Component({
   selector: 'app-item-photo',
   template: `
@@ -65,13 +64,13 @@ export class ItemPhotoComponent {
   readonly src = input<string | null | undefined>(null);
   readonly editable = input(true);
   readonly busy = input(false);
-  /** Error from the parent's upload (e.g. API rejection). */
+
   readonly error = input('');
   readonly picked = output<File>();
   readonly removed = output<void>();
 
   protected readonly accept = TYPES.join(',');
-  /** Local validation message; cleared when the photo changes (picked, uploaded or removed). */
+
   protected readonly problem = linkedSignal({ source: this.src, computation: () => '' });
   protected readonly preparing = signal(false);
   protected readonly working = computed(() => this.busy() || this.preparing());

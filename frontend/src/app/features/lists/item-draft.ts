@@ -1,17 +1,16 @@
 import { ItemInput } from '../../core/models/organizer.model';
 import { centsToInput, parseReais } from '../../core/money';
 
-/** An item as the organizer types it: price is the text in the field ("90,00"). */
 export interface ItemDraft {
   name: string;
   unit: string;
   price: string;
   totalQuotas: number | null;
-  /** Stock photo of the suggestion, sent on create. */
+
   imageUrl?: string;
-  /** Photo picked before the item exists; uploaded right after it is created. */
+
   photo?: File;
-  /** Object URL previewing {@link photo}. */
+
   preview?: string;
 }
 
@@ -29,7 +28,6 @@ export function draftFrom(item: {
   return draft;
 }
 
-/** What the photo slot shows: the picked file, else the current photo. */
 export function draftPhotoSrc(d: ItemDraft): string | undefined {
   return d.preview ?? d.imageUrl;
 }
@@ -45,7 +43,6 @@ export function emptyDraft(): ItemDraft {
   return { name: '', unit: '', price: '', totalQuotas: 1 };
 }
 
-/** Same limits as ItemInput in the API (docs/api/openapi.yaml). */
 export function validateDraft(d: ItemDraft): ItemErrors {
   const errors: ItemErrors = {};
   if (!d.name.trim()) errors.name = 'Informe o nome do item.';
@@ -62,7 +59,7 @@ export function validateDraft(d: ItemDraft): ItemErrors {
 
 export function toItemInput(d: ItemDraft): ItemInput {
   const input: ItemInput = { name: d.name.trim(), unit: d.unit.trim(), unitPriceCents: parseReais(d.price)!, totalQuotas: d.totalQuotas! };
-  // Only stock photos travel in the item; a picked file replaces them and is uploaded separately.
+
   if (!d.photo && d.imageUrl?.startsWith('/suggestions/')) input.imageUrl = d.imageUrl;
   return input;
 }

@@ -18,11 +18,6 @@ import dev.cotai.reservation.Reservation;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * One charge per reservation (1:1). {@code amountCents} and {@code expiresAt} are copied from the
- * reservation in the same transaction. Status changes are conditional UPDATEs in
- * {@link PaymentRepository#transition}.
- */
 @Entity
 @Table(name = "payment")
 @Getter

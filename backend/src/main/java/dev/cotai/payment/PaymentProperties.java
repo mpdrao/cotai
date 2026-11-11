@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-/** Settings under {@code payment.*}. */
 @Validated
 @ConfigurationProperties(prefix = "payment")
 public record PaymentProperties(

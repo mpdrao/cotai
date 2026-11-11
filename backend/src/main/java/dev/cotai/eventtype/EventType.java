@@ -15,7 +15,6 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Event type (WEDDING, BABY_SHOWER, BARBECUE, OTHER) with up to 10 suggested items. Seeded by Flyway V2. */
 @Entity
 @Table(name = "event_type")
 @Getter
@@ -38,6 +37,12 @@ public class EventType {
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private List<TemplateItem> templateItems = new ArrayList<>();
+
+    public EventType(String code, String name, int defaultReservationTtlMinutes) {
+        this.code = code;
+        this.name = name;
+        this.defaultReservationTtlMinutes = defaultReservationTtlMinutes;
+    }
 
     public List<TemplateItem> getTemplateItems() {
         return List.copyOf(templateItems);

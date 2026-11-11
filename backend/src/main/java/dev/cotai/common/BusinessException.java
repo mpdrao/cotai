@@ -4,9 +4,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Business rule violation. Translated to a Problem Detail by {@link GlobalExceptionHandler}.
- */
 public class BusinessException extends RuntimeException {
 
     private final ErrorCode code;

@@ -32,7 +32,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
-/** Organizer area. Requires a bearer token ({@code /api/gift-lists/**}). */
 @RestController
 @RequestMapping("/api/gift-lists")
 @RequiredArgsConstructor

@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Suggested item of an event type. Copied (never referenced) when a gift list is created. */
 @Entity
 @Table(name = "template_item")
 @Getter
@@ -30,7 +29,6 @@ public class TemplateItem {
     @JoinColumn(name = "event_type_code")
     private EventType eventType;
 
-    /** 1..10, unique per event type. */
     @Column(nullable = false)
     private int position;
 

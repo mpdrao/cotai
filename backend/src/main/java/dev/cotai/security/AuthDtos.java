@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
-/** Request/response records of the auth endpoints. */
 public final class AuthDtos {
 
     private AuthDtos() {

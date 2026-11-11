@@ -10,10 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-/**
- * Orchestrates "reserve, then open the charge". Deliberately NOT transactional: the reservation
- * commits first (releasing the item row lock), and only then do we call the payment gateway.
- */
 @Service
 @RequiredArgsConstructor
 public class ReservationFlow {
@@ -26,7 +22,7 @@ public class ReservationFlow {
         try {
             outcome = reservations.reserve(itemId, cmd, idempotencyKey);
         } catch (DataIntegrityViolationException e) {
-            // Two simultaneous requests with the same key: the loser hit the UNIQUE index, re-reads and replays (EC06).
+
             return new ReserveOutcome(reservations.replayByKey(idempotencyKey, cmd, itemId), true);
         }
         if (outcome.replay()) {
