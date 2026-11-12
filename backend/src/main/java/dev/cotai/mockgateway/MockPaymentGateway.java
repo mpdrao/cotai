@@ -16,10 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Fake payment provider that lives inside the same JAR (dev profile only). It keeps charges in
- * memory and calls our own webhook over HTTP, exactly like a real provider would.
- */
 @Profile("dev")
 @Component
 @RequiredArgsConstructor
@@ -68,8 +64,8 @@ public class MockPaymentGateway implements PaymentGateway {
 
     @Override
     public Charge createCharge(ChargeRequest request) {
-        String reference = "mock_" + randomChars(20); // matches ^mock_[a-z0-9]{20}$
-        // The QR code points to app.public-base-url: use the LAN IP if a phone will scan it (EC27).
+        String reference = "mock_" + randomChars(20); 
+
         String url = appProperties.publicBaseUrl().replaceAll("/+$", "") + "/mock-gateway/checkout/" + reference;
         charges.put(reference, new MockCharge(reference, request.amountCents(), request.expiresAt(), url,
                 request.description()));
@@ -93,7 +89,6 @@ public class MockPaymentGateway implements PaymentGateway {
         return !clock.instant().isBefore(charge.expiresAt());
     }
 
-    /** Marks the charge as paid and schedules the signed {@code payment.paid} webhook. */
     public void approve(MockCharge charge) {
         charge.status = ChargeStatus.PAID;
         dispatcher.dispatch("payment.paid", charge.providerReference(), charge.amountCents());

@@ -13,7 +13,6 @@ import {
   UpdateGiftListRequest,
 } from '../models/organizer.model';
 
-/** Organizer endpoints. The bearer token is added by authInterceptor. */
 @Injectable({ providedIn: 'root' })
 export class OrganizerService {
   private readonly http = inject(HttpClient);

@@ -10,7 +10,6 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.UUID;
 
-/** Guest-facing request/response records. */
 public final class ReservationDtos {
 
     private ReservationDtos() {
@@ -39,7 +38,6 @@ public final class ReservationDtos {
                                   long amountCents, Instant expiresAt, PaymentInfo payment) {
     }
 
-    /** Result of {@code reserve}: {@code replay} is true when the Idempotency-Key was already used. */
     public record ReserveOutcome(ReservationCreated body, boolean replay) {
     }
 }

@@ -9,7 +9,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.HexFormat;
 
-/** Small hashing helpers (SHA-256, HMAC-SHA256, constant-time compare). */
 public final class Crypto {
 
     private Crypto() {
@@ -41,7 +40,6 @@ public final class Crypto {
         return HexFormat.of().formatHex(hmacSha256(key.getBytes(StandardCharsets.UTF_8), data));
     }
 
-    /** 32 bytes, base64url without padding = 43 chars (matches {@code X-Manage-Token} length). */
     public static String hmacSha256Base64Url(String key, String data) {
         byte[] mac = hmacSha256(key.getBytes(StandardCharsets.UTF_8), data.getBytes(StandardCharsets.UTF_8));
         return Base64.getUrlEncoder().withoutPadding().encodeToString(mac);

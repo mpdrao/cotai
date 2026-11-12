@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-/** UC18. Every 60 s. Idempotent, so running on several instances at once is harmless (EC16). */
 @Component
 @RequiredArgsConstructor
 public class ReservationExpiryJob {

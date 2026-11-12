@@ -6,10 +6,6 @@ import java.security.SecureRandom;
 import java.text.Normalizer;
 import java.util.Locale;
 
-/**
- * Builds public slugs like {@code churrasco-do-erick-7f3k}: a readable prefix plus 4 random
- * base32 chars ({@code [a-z2-7]}). Pattern: {@code ^[a-z0-9-]+-[a-z2-7]{4}$}.
- */
 @Component
 public class SlugGenerator {
 
