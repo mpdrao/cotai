@@ -1,5 +1,6 @@
 package dev.cotai.eventtype;
 
+import dev.cotai.giftlist.Item;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,13 +16,12 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Event type (WEDDING, BABY_SHOWER, BARBECUE, OTHER) with up to 10 suggested items. Seeded by Flyway V2. */
 @Entity
 @Table(name = "event_type")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EventType {
+public class Event {
 
     @Id
     @Column(length = 30)
@@ -33,13 +33,19 @@ public class EventType {
     @Column(name = "default_reservation_ttl_minutes", nullable = false)
     private int defaultReservationTtlMinutes;
 
-    @OneToMany(mappedBy = "eventType", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("position ASC")
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    private List<TemplateItem> templateItems = new ArrayList<>();
+    private List<Item> items = new ArrayList<>();
 
-    public List<TemplateItem> getTemplateItems() {
-        return List.copyOf(templateItems);
+    public Event(String code, String name, int defaultReservationTtlMinutes) {
+        this.code = code;
+        this.name = name;
+        this.defaultReservationTtlMinutes = defaultReservationTtlMinutes;
+    }
+
+    public List<Item> getItems() {
+        return List.copyOf(items);
     }
 }

@@ -2,10 +2,6 @@ package dev.cotai.common;
 
 import org.springframework.http.HttpStatus;
 
-/**
- * Stable error codes returned in the {@code code} field of RFC 9457 Problem Details.
- * Mirrors {@code ErrorCode} in docs/api/openapi.yaml.
- */
 public enum ErrorCode {
 
     VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "Validation failed"),
@@ -43,7 +39,6 @@ public enum ErrorCode {
         return title;
     }
 
-    /** Slug used in the problem {@code type} URI, e.g. {@code quota-unavailable}. */
     public String slug() {
         return name().toLowerCase().replace('_', '-');
     }

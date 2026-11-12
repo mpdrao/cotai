@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Clock;
 
-/** UC01 Sign up / Log in. */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -47,7 +46,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public TokenResponse login(@Valid @RequestBody LoginRequest body) {
-        // Same error for unknown e-mail and wrong password (no account enumeration).
+
         Organizer organizer = organizers.findByEmail(Organizer.normalizeEmail(body.email()))
                 .filter(o -> passwordEncoder.matches(body.password(), o.getPasswordHash()))
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_CREDENTIALS, "Invalid e-mail or password."));

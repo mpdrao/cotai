@@ -1,13 +1,15 @@
 package dev.cotai.eventtype;
 
 import dev.cotai.common.BusinessException;
+import dev.cotai.giftlist.Item;
+import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -34,11 +36,17 @@ public class EventTypeController {
 
     @GetMapping("/{eventTypeCode}/template-items")
     public List<TemplateItemResponse> templateItems(@PathVariable String eventTypeCode) {
-        EventType eventType = eventTypes.findById(eventTypeCode)
+        Event event = eventTypes.findById(eventTypeCode)
                 .orElseThrow(() -> BusinessException.notFound("Event type"));
-        return eventType.getTemplateItems().stream()
-                .map(t -> new TemplateItemResponse(t.getPosition(), t.getName(), t.getUnit(),
-                        t.getUnitPriceCents(), t.getSuggestedQuotas(), t.getImageUrl()))
+        List<Item> defaultItems = event.getItems().stream()
+                .filter(Item::isDefault)
                 .toList();
+        List<TemplateItemResponse> responses = new ArrayList<>(defaultItems.size());
+        for (int i = 0; i < defaultItems.size(); i++) {
+            Item item = defaultItems.get(i);
+            responses.add(new TemplateItemResponse(i + 1, item.getName(), item.getUnit(),
+                    item.getUnitPriceCents(), 1, item.getImageUrl()));
+        }
+        return responses;
     }
 }

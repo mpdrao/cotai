@@ -1,0 +1,129 @@
+<form class="page" (ngSubmit)="submit()" novalidate>
+  <header class="intro">
+    <a routerLink="/dashboard" class="cotai-back">← Minhas listas</a>
+    <h1 class="cotai-page-title">
+      Criar minha
+      <span class="marked">lista<svg class="stroke" viewBox="0 0 120 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 8.5c26-4.5 62-6 114-3.5" /></svg></span>
+    </h1>
+    <p class="cotai-lead">Escolha o tipo de evento que a gente já sugere os itens. Dá pra mudar tudo antes de publicar.</p>
+  </header>
+
+  <fieldset class="types">
+    <legend class="section-title">Que tipo de evento?</legend>
+    @if (eventTypes().length === 0) {
+      <p class="cotai-hint" role="status">Carregando tipos de evento…</p>
+    }
+    <div class="type-options">
+      @for (type of eventTypes(); track type.code) {
+        <label class="type" [class.type--selected]="selectedType()?.code === type.code">
+          <input type="radio" name="eventType" [id]="'type-' + type.code" [value]="type.code"
+                 [checked]="selectedType()?.code === type.code" (change)="chooseType(type)" />
+          <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            @switch (type.code) {
+              @case ('BARBECUE') {
+                <path d="M5 9h14a7 7 0 0 1-14 0ZM8.5 15.2 6.5 21M15.5 15.2l2 5.8M12 16v5" />
+                <path class="accent" d="M9 2.5c-.7.9-.7 1.9 0 2.8M12 2c-.7.9-.7 1.9 0 2.8M15 2.5c-.7.9-.7 1.9 0 2.8" />
+              }
+              @case ('BABY_SHOWER') {
+                <path d="M10.5 5.5c0-1.7.7-3 1.5-3s1.5 1.3 1.5 3M9 5.5h6V8H9ZM9.5 8h5l.5 2v9.5a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 19.5V10Z" />
+                <path class="accent" d="M11.5 12.5H13M11.5 15.5H13" />
+              }
+              @case ('WEDDING') {
+                <g transform="rotate(-12 7.5 20)"><path d="M5 5h5l-.4 4.5a2.1 2.1 0 0 1-4.2 0ZM7.5 11.6V20M5.5 20h4" /></g>
+                <g transform="rotate(12 16.5 20)"><path d="M14 5h5l-.4 4.5a2.1 2.1 0 0 1-4.2 0ZM16.5 11.6V20M14.5 20h4" /></g>
+                <path class="accent" d="M12 1.5v2.2M9.8 2.6l.9 1.2M14.2 2.6l-.9 1.2" />
+              }
+              @default {
+                <path d="M5.8 11.3 2 22l10.7-3.8M11 13c1.9 1.9 2.8 4.2 2 5-.8.8-3.1-.1-5-2s-2.8-4.2-2-5c.8-.8 3.1.1 5 2Z" />
+                <path class="accent" d="m22 2-2.2.8a2.9 2.9 0 0 0-2 3.1c.1.9-.6 1.6-1.4 1.6H16c-.9 0-1.6.6-1.8 1.4L14 10M22 13l-.8-.3c-.9-.3-1.8.2-2 1.1-.1.7-.7 1.2-1.4 1.2H17M11 2l.3.8c.3.9-.2 1.8-1.1 2-.7.1-1.2.7-1.2 1.4V7" />
+              }
+            }
+          </svg>
+          <span>{{ type.name }}</span>
+        </label>
+      }
+    </div>
+    @if (errors()['eventType']) { <p class="cotai-field-error">{{ errors()['eventType'] }}</p> }
+  </fieldset>
+
+  <section class="panel" aria-labelledby="event-details-title">
+    <h2 class="section-title" id="event-details-title">Sobre o encontro</h2>
+    <div class="details">
+      <div class="cotai-field title">
+        <label class="cotai-label" for="list-title">Nome da lista</label>
+        <input class="cotai-input" id="list-title" name="title" maxlength="80" [placeholder]="titlePlaceholder()"
+               [(ngModel)]="title" [attr.aria-invalid]="!!errors()['title']" />
+        @if (titleSuggestions().length > 0) {
+          <div class="suggestions" role="group" aria-labelledby="title-suggestions-label">
+            <span class="cotai-hint" id="title-suggestions-label">Sem ideia? Toque em uma:</span>
+            @for (suggestion of titleSuggestions(); track suggestion) {
+              <button type="button" class="suggestion" [attr.aria-pressed]="title === suggestion" (click)="title = suggestion">
+                {{ suggestion }}
+              </button>
+            }
+          </div>
+        }
+        @if (errors()['title']) { <span class="cotai-field-error">{{ errors()['title'] }}</span> }
+      </div>
+      <label class="cotai-field">
+        <span class="cotai-label">Data do evento</span>
+        <input class="cotai-input" id="list-date" name="eventDate" type="date" [min]="today" [(ngModel)]="eventDate"
+               [attr.aria-invalid]="!!errors()['eventDate']" />
+        @if (errors()['eventDate']) { <span class="cotai-field-error">{{ errors()['eventDate'] }}</span> }
+      </label>
+      <label class="cotai-field">
+        <span class="cotai-label">Prazo para pagar (minutos)</span>
+        <input class="cotai-input" id="list-ttl" name="ttl" type="number" inputmode="numeric" min="10" max="1440"
+               [(ngModel)]="ttl" aria-describedby="list-ttl-hint" [attr.aria-invalid]="!!errors()['ttl']" />
+        <span class="cotai-hint" id="list-ttl-hint">Tempo que cada reserva fica guardada esperando o pagamento.</span>
+        @if (errors()['ttl']) { <span class="cotai-field-error">{{ errors()['ttl'] }}</span> }
+      </label>
+    </div>
+  </section>
+
+  <section class="items" aria-labelledby="items-title">
+    <div class="items-head">
+      <h2 class="section-title" id="items-title">Itens</h2>
+      @if (items().length > 0) {
+        <p class="items-goal">{{ goalCents() / 100 | currency: 'BRL' }} <span>em {{ items().length }} {{ items().length === 1 ? 'item' : 'itens' }}</span></p>
+      }
+      <p class="cotai-hint items-hint">
+        @if (selectedType()) {
+          Sugestões para {{ selectedType()!.name }}. Mude o que quiser: nome, unidade, valor e número de cotas.
+        } @else {
+          Escolha o tipo de evento para receber sugestões, ou adicione os itens você mesmo.
+        }
+      </p>
+    </div>
+    @if (loadingItems()) {
+      <p class="cotai-hint" role="status">Carregando sugestões…</p>
+    }
+    @for (item of items(); track item; let i = $index) {
+      <cotai-card>
+        <div class="item">
+          <div class="item-head">
+            <span class="item-index">Item {{ i + 1 }}</span>
+            <span class="item-total">{{ itemTotal(item) / 100 | currency: 'BRL' }}</span>
+            <cotai-button variant="ghost" (pressed)="removeItem(i)">Remover</cotai-button>
+          </div>
+          <app-item-photo [src]="photoSrc(item)" (picked)="setPhoto(item, $event)" (removed)="setPhoto(item, null)" />
+          <app-item-editor [draft]="item" [errors]="itemErrors()[i] ?? {}" [prefix]="'new-item-' + i" (changed)="touched()" />
+        </div>
+      </cotai-card>
+    }
+    <cotai-button variant="secondary" [fullWidth]="true" [disabled]="items().length >= 100" (pressed)="addItem()">
+      + Adicionar item
+    </cotai-button>
+  </section>
+
+  <div class="footer">
+    <p class="goal">Meta da lista: <strong>{{ goalCents() / 100 | currency: 'BRL' }}</strong> em {{ items().length }} {{ items().length === 1 ? 'item' : 'itens' }}</p>
+    @if (error()) {
+      <p class="cotai-alert cotai-alert--error" role="alert">{{ error() }}</p>
+    }
+    <cotai-button type="submit" [fullWidth]="true" [loading]="saving()">Criar minha lista</cotai-button>
+    <p class="cotai-hint">A lista começa como rascunho. Você publica e compartilha o link quando estiver pronta.</p>
+  </div>
+</form>
+

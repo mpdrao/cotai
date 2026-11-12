@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
-/** Controllable clock and job triggers (dev profile only). */
 @Profile("dev")
 @RestController
 @RequestMapping("/dev")

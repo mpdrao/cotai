@@ -15,7 +15,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 
-/** Issues HS256 JWTs whose subject is the organizer id. */
 @Service
 @RequiredArgsConstructor
 public class JwtService {

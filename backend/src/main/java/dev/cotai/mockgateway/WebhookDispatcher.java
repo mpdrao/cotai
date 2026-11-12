@@ -21,10 +21,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Calls our own {@code /api/webhooks/payments} over real HTTP, asynchronously and signed with
- * HMAC-SHA256 over the raw body, so the call goes through the security filter and signature check.
- */
 @Profile("dev")
 @Component
 public class WebhookDispatcher {
@@ -62,13 +58,11 @@ public class WebhookDispatcher {
         byte[] body = jsonMapper.writeValueAsString(payload).getBytes(StandardCharsets.UTF_8);
         String signature = "sha256=" + Crypto.hmacSha256Hex(paymentProperties.webhookSecret(), body);
 
-        // Same eventId N times: demonstrates idempotency live (EC08).
         for (int i = 0; i < duplicateDeliveries; i++) {
             scheduler.schedule(() -> send(body, signature), delayMs + i * 200L, TimeUnit.MILLISECONDS);
         }
     }
 
-    /** Public so tests can send arbitrary signed bodies (e.g. wrong amount). */
     public void send(byte[] body, String signature) {
         try {
             client.post().uri("/api/webhooks/payments")

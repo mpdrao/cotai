@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, Output, booleanAttribute } from '@angular/core';
 
-/** Primary button for the Cota Ae! design system. */
 @Component({
   selector: 'cotai-button',
   standalone: true,

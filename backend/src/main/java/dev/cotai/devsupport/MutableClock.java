@@ -6,10 +6,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 
-/**
- * Dev-only clock whose "now" can be moved forward from the Postman/Insomnia collections, so
- * expirations (EC12, EC15, EC23) can be reproduced without waiting 30 minutes.
- */
 public class MutableClock extends Clock {
 
     private final Clock base;

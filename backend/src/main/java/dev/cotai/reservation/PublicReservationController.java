@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 import java.util.UUID;
 
-/** Guest area. No login: reservations are managed with the {@code X-Manage-Token} header. */
 @RestController
 @RequestMapping("/api/public")
 @RequiredArgsConstructor

@@ -2,7 +2,7 @@ package dev.cotai.giftlist;
 
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
-import dev.cotai.eventtype.EventType;
+import dev.cotai.eventtype.Event;
 import dev.cotai.organizer.Organizer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -27,10 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Gift list of an organizer. Named {@code GiftList} (not {@code List}) to avoid clashing with
- * {@link java.util.List}.
- */
 @Entity
 @Table(name = "gift_list")
 @Getter
@@ -49,7 +45,7 @@ public class GiftList {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "event_type_code")
-    private EventType eventType;
+    private Event event;
 
     @Column(nullable = false, length = 80)
     private String title;
@@ -64,7 +60,6 @@ public class GiftList {
     @Column(nullable = false, length = 20)
     private GiftListStatus status;
 
-    /** 10..1440. Applies to new reservations only. */
     @Column(name = "reservation_ttl_minutes", nullable = false)
     private int reservationTtlMinutes;
 
@@ -77,11 +72,11 @@ public class GiftList {
     @Setter(AccessLevel.NONE)
     private List<Item> items = new ArrayList<>();
 
-    public GiftList(Organizer owner, EventType eventType, String title, String slug, LocalDate eventDate,
+    public GiftList(Organizer owner, Event event, String title, String slug, LocalDate eventDate,
                     int reservationTtlMinutes, Instant createdAt) {
         this.id = UUID.randomUUID();
         this.owner = owner;
-        this.eventType = eventType;
+        this.event = event;
         this.title = title;
         this.slug = slug;
         this.eventDate = eventDate;
@@ -90,17 +85,16 @@ public class GiftList {
         this.status = GiftListStatus.DRAFT;
     }
 
-    public Item addItem(String name, String unit, long unitPriceCents, int totalQuotas) {
+    public Item addItem(String name, String unit, long unitPriceCents) {
         ensureNotClosed();
         if (items.size() >= MAX_ITEMS) {
             throw new BusinessException(ErrorCode.VALIDATION_FAILED, "A gift list has at most " + MAX_ITEMS + " items.");
         }
-        Item item = new Item(this, name, unit, unitPriceCents, totalQuotas);
+        Item item = new Item(this, name, unit, unitPriceCents);
         items.add(item);
         return item;
     }
 
-    /** UC04. DRAFT -> PUBLISHED. */
     public void publish(LocalDate today) {
         if (status != GiftListStatus.DRAFT) {
             throw new BusinessException(ErrorCode.INVALID_STATE_TRANSITION, "Only DRAFT lists can be published.");
@@ -114,7 +108,6 @@ public class GiftList {
         status = GiftListStatus.PUBLISHED;
     }
 
-    /** UC07. PUBLISHED -> CLOSED. PENDING reservations can still be paid until they expire. */
     public void close() {
         if (status != GiftListStatus.PUBLISHED) {
             throw new BusinessException(ErrorCode.INVALID_STATE_TRANSITION, "Only PUBLISHED lists can be closed.");
@@ -122,7 +115,6 @@ public class GiftList {
         status = GiftListStatus.CLOSED;
     }
 
-    /** {@code today} must be computed in {@code app.zone}, never in UTC (EC24). */
     public boolean acceptsReservations(LocalDate today) {
         return status == GiftListStatus.PUBLISHED && !eventDate.isBefore(today);
     }
