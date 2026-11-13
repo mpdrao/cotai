@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public final class GiftListDtos {
@@ -25,18 +26,39 @@ public final class GiftListDtos {
             String imageUrl) {
     }
 
+    // Title and type code are cleaned before validation, so "   ab " does not pass as a 3+ letter title.
     public record CreateGiftListRequest(
             @NotBlank String eventTypeCode,
             @NotBlank @Size(min = 3, max = 80) String title,
             @NotNull LocalDate eventDate,
             @Min(10) @Max(1440) Integer reservationTtlMinutes,
             @NotNull @Size(max = 100) List<@Valid ItemInput> items) {
+
+        public CreateGiftListRequest {
+            eventTypeCode = normalizedCode(eventTypeCode);
+            title = trim(title);
+        }
     }
 
+    /** US-07: the organizer can edit title, date and type of the event while the list is not closed. */
     public record UpdateGiftListRequest(
             @Size(min = 3, max = 80) String title,
             LocalDate eventDate,
-            @Min(10) @Max(1440) Integer reservationTtlMinutes) {
+            @Min(10) @Max(1440) Integer reservationTtlMinutes,
+            @Size(min = 1, max = 30) String eventTypeCode) {
+
+        public UpdateGiftListRequest {
+            eventTypeCode = normalizedCode(eventTypeCode);
+            title = trim(title);
+        }
+    }
+
+    private static String trim(String value) {
+        return value == null ? null : value.trim();
+    }
+
+    private static String normalizedCode(String code) {
+        return code == null ? null : code.trim().toUpperCase(Locale.ROOT);
     }
 
     public record ItemResponse(Long id, String name, String unit, long unitPriceCents, int totalQuotas,

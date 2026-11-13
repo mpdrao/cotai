@@ -170,11 +170,101 @@ class GiftListServiceTest {
         when(giftLists.findWithItemsById(listId)).thenReturn(Optional.of(list));
 
         LocalDate newDate = LocalDate.now(clock).plusDays(10);
-        UpdateGiftListRequest updateReq = new UpdateGiftListRequest("Lista Nova", newDate, 120);
+        UpdateGiftListRequest updateReq = new UpdateGiftListRequest("Lista Nova", newDate, 120, null);
         GiftListResponse response = service.update(ownerId, listId, updateReq);
 
         assertThat(response.title()).isEqualTo("Lista Nova");
         assertThat(response.eventDate()).isEqualTo(newDate);
         assertThat(response.reservationTtlMinutes()).isEqualTo(120);
+        assertThat(response.eventTypeCode()).isEqualTo("BARBECUE");
+    }
+
+    @Test
+    @DisplayName("update changes the event type and keeps the items (US-07)")
+    void updateChangesEventType() {
+        GiftList list = new GiftList(organizer, event, "Niver do Mario", "niver", LocalDate.now(clock).plusDays(5), 60, now);
+        list.addItem("Carvao", "saco", 3000);
+        Event birthday = new Event("BIRTHDAY", "Aniversário", 30);
+        when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
+        when(eventTypes.findById("BIRTHDAY")).thenReturn(Optional.of(birthday));
+
+        GiftListResponse response = service.update(organizer.getId(), list.getId(),
+                new UpdateGiftListRequest(null, null, null, " birthday "));
+
+        assertThat(response.eventTypeCode()).isEqualTo("BIRTHDAY");
+        assertThat(response.items()).hasSize(1);
+        assertThat(response.reservationTtlMinutes()).isEqualTo(60);
+    }
+
+    @Test
+    @DisplayName("update refuses an unknown event type")
+    void updateWithUnknownEventType() {
+        GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
+        when(eventTypes.findById("GRADUATION")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.update(organizer.getId(), list.getId(),
+                new UpdateGiftListRequest(null, null, null, "GRADUATION")))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).code())
+                .isEqualTo(ErrorCode.NOT_FOUND);
+        assertThat(list.getEvent()).isSameAs(event);
+    }
+
+    @Test
+    @DisplayName("update refuses moving the event to a past date, like create does")
+    void updateWithPastDate() {
+        GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
+
+        assertThatThrownBy(() -> service.update(organizer.getId(), list.getId(),
+                new UpdateGiftListRequest(null, LocalDate.now(clock).minusDays(1), null, null)))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).code())
+                .isEqualTo(ErrorCode.EVENT_DATE_IN_PAST);
+        assertThat(list.getEventDate()).isEqualTo(LocalDate.now(clock).plusDays(5));
+    }
+
+    @Test
+    @DisplayName("a list whose event already happened can still be renamed")
+    void renameAfterTheEvent() {
+        LocalDate lastWeek = LocalDate.now(clock).minusDays(7);
+        GiftList list = new GiftList(organizer, event, "Churras", "churras", lastWeek, 60, now);
+        when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
+
+        GiftListResponse response = service.update(organizer.getId(), list.getId(),
+                new UpdateGiftListRequest("Churras de sabado", lastWeek, 60, null));
+
+        assertThat(response.title()).isEqualTo("Churras de sabado");
+    }
+
+    @Test
+    @DisplayName("a closed list cannot have its event type changed")
+    void closedListKeepsEventType() {
+        GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        list.addItem("Carvao", "saco", 3000);
+        list.publish(LocalDate.now(clock));
+        list.close();
+        when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
+        when(eventTypes.findById("BIRTHDAY")).thenReturn(Optional.of(new Event("BIRTHDAY", "Aniversário", 30)));
+
+        assertThatThrownBy(() -> service.update(organizer.getId(), list.getId(),
+                new UpdateGiftListRequest(null, null, null, "BIRTHDAY")))
+                .isInstanceOf(BusinessException.class)
+                .extracting(e -> ((BusinessException) e).code())
+                .isEqualTo(ErrorCode.INVALID_STATE_TRANSITION);
+        assertThat(list.getEvent()).isSameAs(event);
+    }
+
+    @Test
+    @DisplayName("requests trim the title and normalize the event type code")
+    void requestsAreNormalized() {
+        UpdateGiftListRequest update = new UpdateGiftListRequest("  Festa  ", null, null, " wedding ");
+        CreateGiftListRequest create = new CreateGiftListRequest(" barbecue", " Churras ", LocalDate.now(clock), null, List.of());
+
+        assertThat(update.title()).isEqualTo("Festa");
+        assertThat(update.eventTypeCode()).isEqualTo("WEDDING");
+        assertThat(create.title()).isEqualTo("Churras");
+        assertThat(create.eventTypeCode()).isEqualTo("BARBECUE");
     }
 }

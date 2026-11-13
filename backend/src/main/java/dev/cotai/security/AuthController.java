@@ -10,9 +10,9 @@ import dev.cotai.security.AuthDtos.RegisterRequest;
 import dev.cotai.security.AuthDtos.TokenResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,23 +33,32 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    @Transactional
     public OrganizerResponse register(@Valid @RequestBody RegisterRequest body) {
         String email = Organizer.normalizeEmail(body.email());
         if (organizers.existsByEmail(email)) {
-            throw new BusinessException(ErrorCode.EMAIL_ALREADY_REGISTERED, "E-mail is already registered.");
+            throw emailAlreadyRegistered();
         }
-        Organizer organizer = organizers.save(new Organizer(
-                body.name().trim(), email, passwordEncoder.encode(body.password()), clock.instant()));
+
+        Organizer organizer = new Organizer(body.name(), email, passwordEncoder.encode(body.password()), clock.instant());
+        try {
+            organizer = organizers.saveAndFlush(organizer);
+        } catch (DataIntegrityViolationException e) {
+            // Two sign ups with the same e-mail at the same time: the unique index lets only one through.
+            throw emailAlreadyRegistered();
+        }
         return OrganizerResponse.of(organizer);
     }
 
     @PostMapping("/login")
     public TokenResponse login(@Valid @RequestBody LoginRequest body) {
-
+        // Same answer for unknown e-mail and wrong password, so nobody can probe which accounts exist.
         Organizer organizer = organizers.findByEmail(Organizer.normalizeEmail(body.email()))
                 .filter(o -> passwordEncoder.matches(body.password(), o.getPasswordHash()))
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_CREDENTIALS, "Invalid e-mail or password."));
         return new TokenResponse(jwtService.issue(organizer), "Bearer", jwtService.ttlSeconds());
+    }
+
+    private static BusinessException emailAlreadyRegistered() {
+        return new BusinessException(ErrorCode.EMAIL_ALREADY_REGISTERED, "E-mail is already registered.");
     }
 }

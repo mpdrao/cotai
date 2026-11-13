@@ -12,13 +12,24 @@ public final class AuthDtos {
     private AuthDtos() {
     }
 
+    // Phones often add a trailing space after autocomplete, and @Email would reject it.
+    // Passwords are never trimmed.
     public record RegisterRequest(
             @NotBlank @Size(min = 2, max = 80) String name,
             @NotBlank @Email @Size(max = 254) String email,
             @NotBlank @Size(min = 8, max = 72) String password) {
+
+        public RegisterRequest {
+            name = trim(name);
+            email = trim(email);
+        }
     }
 
     public record LoginRequest(@NotBlank @Email String email, @NotBlank String password) {
+
+        public LoginRequest {
+            email = trim(email);
+        }
     }
 
     public record OrganizerResponse(UUID id, String name, String email) {
@@ -28,5 +39,9 @@ public final class AuthDtos {
     }
 
     public record TokenResponse(String accessToken, String tokenType, long expiresIn) {
+    }
+
+    private static String trim(String value) {
+        return value == null ? null : value.trim();
     }
 }
