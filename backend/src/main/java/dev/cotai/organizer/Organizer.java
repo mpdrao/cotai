@@ -7,7 +7,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.Instant;
 import java.util.Locale;
@@ -16,7 +15,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "organizer")
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Organizer {
 
@@ -37,14 +35,16 @@ public class Organizer {
 
     public Organizer(String name, String email, String passwordHash, Instant createdAt) {
         this.id = UUID.randomUUID();
-        this.name = name;
+        this.name = name.trim();
         this.email = normalizeEmail(email);
         this.passwordHash = passwordHash;
         this.createdAt = createdAt;
     }
 
+    /**
+     * Same rule for sign up and login, so "Ana@Mail.com " and "ana@mail.com" are one account.
+     */
     public static String normalizeEmail(String email) {
         return email.trim().toLowerCase(Locale.ROOT);
     }
-
 }

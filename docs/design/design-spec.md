@@ -783,7 +783,7 @@ A última coluna diz onde cada caso é reproduzido. collection roda no Postman o
 
 ## Itens padrão por tipo de evento
 
-São 10 sugestões por tipo, gravadas na migration `V2__event_type_seed.sql`, para `BARBECUE` (Churrasco), `BABY_SHOWER` (Chá de bebê), `WEDDING` (Casamento) e `OTHER` (Outro, sem sugestões). O organizador edita tudo antes de criar a lista. Os códigos são em inglês, e os nomes dos itens ficam em português porque são dados exibidos ao usuário. Os preços são exemplos. Todos os tipos usam 30 min de prazo por padrão.
+São 10 sugestões por tipo, gravadas na migration `V2__event_type_seed.sql`, para `BARBECUE` (Churrasco), `BABY_SHOWER` (Chá de bebê), `WEDDING` (Casamento) e `OTHER` (Outro, sem sugestões). `BIRTHDAY` (Aniversário), citado na US-07, entrou depois com a `V5__birthday_event_type.sql`. Desde a `V4`, as sugestões ficam na própria tabela `item`, com `is_default = true` e o `event_type_code` do tipo. O organizador edita tudo antes de criar a lista. Os códigos são em inglês, e os nomes dos itens ficam em português porque são dados exibidos ao usuário. Os preços são exemplos. Todos os tipos usam 30 min de prazo por padrão.
 
 Cada sugestão aceita uma foto de banco de imagens (`template_item.image_url`, migration `V3__item_photos.sql`), que é copiada para o item quando a lista é criada. As fotos ainda não foram adicionadas: a coluna está vazia e as sugestões aparecem sem foto. Para adicionar, coloque os arquivos em `frontend/public/suggestions/` com nomes no formato `barbecue-1.jpg` (código do tipo em minúsculas, `_` vira `-`, e a posição) e crie uma migration que preencha `image_url` com `/suggestions/<arquivo>`. A API só aceita `imageUrl` nesse formato (`^/suggestions/[a-z0-9-]+\.jpg$`).
 

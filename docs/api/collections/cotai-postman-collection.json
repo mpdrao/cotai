@@ -272,8 +272,9 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "const list = pm.response.json();",
-                  "pm.test('Contains 4 event types', function () {",
-                  "    pm.expect(list.length).to.be.at.least(4);",
+                  "pm.test('Contains the 5 event types, birthday included', function () {",
+                  "    pm.expect(list.length).to.be.at.least(5);",
+                  "    pm.expect(list.map(t => t.code)).to.include('BIRTHDAY');",
                   "});"
                 ]
               }

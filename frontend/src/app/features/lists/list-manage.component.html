@@ -5,7 +5,9 @@
     <header class="head">
       <cotai-status-badge [status]="badge()" />
       <h1 class="cotai-page-title">{{ l.title }}</h1>
-      <p class="meta">{{ l.eventDate | date: 'longDate' }} · prazo para pagar: {{ l.reservationTtlMinutes }} min</p>
+      <p class="meta">
+        @if (eventTypeName()) { {{ eventTypeName() }} · }{{ l.eventDate | date: 'longDate' }} · prazo para pagar: {{ l.reservationTtlMinutes }} min
+      </p>
     </header>
 
     @if (warning()) {
@@ -202,8 +204,18 @@
               @if (detailErrors()['title']) { <span class="cotai-field-error">{{ detailErrors()['title'] }}</span> }
             </label>
             <label class="cotai-field">
+              <span class="cotai-label">Tipo de evento</span>
+              <select class="cotai-input" id="edit-type" name="eventTypeCode" [(ngModel)]="eventTypeCode"
+                      aria-describedby="edit-type-hint">
+                @for (type of eventTypes(); track type.code) {
+                  <option [value]="type.code">{{ type.name }}</option>
+                }
+              </select>
+              <span class="cotai-hint" id="edit-type-hint">Os itens da lista continuam os mesmos.</span>
+            </label>
+            <label class="cotai-field">
               <span class="cotai-label">Data do evento</span>
-              <input class="cotai-input" id="edit-date" name="eventDate" type="date" [(ngModel)]="eventDate"
+              <input class="cotai-input" id="edit-date" name="eventDate" type="date" [min]="today" [(ngModel)]="eventDate"
                      [attr.aria-invalid]="!!detailErrors()['eventDate']" />
               @if (detailErrors()['eventDate']) { <span class="cotai-field-error">{{ detailErrors()['eventDate'] }}</span> }
             </label>
