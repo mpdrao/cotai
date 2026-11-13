@@ -5,7 +5,9 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { collectionProgress } from '../../core/copy/progress-copy';
 import { ORGANIZER_COPY, errorCode, errorMessage } from '../../core/copy/ui-copy';
+import { EventType } from '../../core/models/event-type.model';
 import { GiftList, GiftListSummaryReport, Item } from '../../core/models/gift-list.model';
+import { EventCatalogService } from '../../core/services/event-catalog.service';
 import { OrganizerService } from '../../core/services/organizer.service';
 import { ItemEditorComponent } from './item-editor.component';
 import { ItemPhotoComponent } from './item-photo.component';
@@ -80,6 +82,13 @@ export class ListManageComponent {
   protected title = '';
   protected eventDate = '';
   protected ttl: number | null = null;
+  protected eventTypeCode = '';
+
+  protected readonly today = new Date().toLocaleDateString('en-CA');
+  protected readonly eventTypes = signal<EventType[]>([]);
+  protected readonly eventTypeName = computed(
+    () => this.eventTypes().find((t) => t.code === this.list()?.eventTypeCode)?.name ?? '',
+  );
 
   protected readonly badge = computed(() => (this.list()?.status.toLowerCase() ?? 'draft') as CotaiStatus);
   protected readonly activeItems = computed(() => this.list()?.items.filter((i) => !i.archived) ?? []);
@@ -94,6 +103,8 @@ export class ListManageComponent {
 
     if (history.state?.warning) history.replaceState({ ...history.state, warning: undefined }, '');
     this.reload();
+    // Without the catalog the page still works; only the type name and the type select stay empty.
+    inject(EventCatalogService).eventTypes().subscribe({ next: (types) => this.eventTypes.set(types), error: () => {} });
   }
 
   protected totalsFor(itemId: number) {
@@ -240,13 +251,22 @@ export class ListManageComponent {
     const errors: Record<string, string> = {};
     if (this.title.trim().length < 3) errors['title'] = 'Use pelo menos 3 caracteres.';
     if (!this.eventDate) errors['eventDate'] = 'Informe a data do evento.';
+    // Same rule as the API: a new date cannot be in the past, but an old list keeps its date.
+    else if (this.eventDate !== this.list()?.eventDate && this.eventDate < this.today) {
+      errors['eventDate'] = 'A data do evento já passou.';
+    }
     if (this.ttl === null || this.ttl < 10 || this.ttl > 1440) errors['ttl'] = 'Use de 10 a 1440 minutos.';
     this.detailErrors.set(errors);
     this.detailsError.set('');
     if (Object.keys(errors).length > 0) return;
     this.busy.set(true);
     this.organizer
-      .update(this.id, { title: this.title.trim(), eventDate: this.eventDate, reservationTtlMinutes: this.ttl! })
+      .update(this.id, {
+        title: this.title.trim(),
+        eventDate: this.eventDate,
+        reservationTtlMinutes: this.ttl!,
+        eventTypeCode: this.eventTypeCode || undefined,
+      })
       .subscribe({
         next: (l) => {
           this.setList(l);
@@ -309,5 +329,6 @@ export class ListManageComponent {
     this.title = l.title;
     this.eventDate = l.eventDate;
     this.ttl = l.reservationTtlMinutes;
+    this.eventTypeCode = l.eventTypeCode;
   }
 }

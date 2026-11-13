@@ -6,7 +6,10 @@ import { Observable, Subscription, catchError, forkJoin, map, of, switchMap } fr
 import { ORGANIZER_COPY, errorMessage } from '../../core/copy/ui-copy';
 import { EventType } from '../../core/models/event-type.model';
 import { GiftList } from '../../core/models/gift-list.model';
+import { EventCatalogService } from '../../core/services/event-catalog.service';
 import { OrganizerService } from '../../core/services/organizer.service';
+import { titleSuggestionsFor } from '../events/event-titles';
+import { EventTypePickerComponent } from '../events/event-type-picker.component';
 import { ItemEditorComponent } from './item-editor.component';
 import { ItemPhotoComponent } from './item-photo.component';
 import {
@@ -22,34 +25,32 @@ import {
 } from './item-draft';
 import { CotaiButtonComponent, CotaiCardComponent } from '../../shared/cotai-ui';
 
-const TITLE_SUGGESTIONS: Record<string, string[]> = {
-  BARBECUE: ['Churrasco da firma', 'Churras de fim de ano', 'Churrasco de aniversário', 'Resenha do fim de semana'],
-  BABY_SHOWER: ['Chá de bebê da Ana', 'Chá de fraldas', 'Chá revelação', 'Chegada do bebê'],
-  WEDDING: ['Casamento de Ana e Pedro', 'Nosso casamento', 'Lua de mel dos noivos', 'Casa nova dos noivos'],
-  OTHER: ['Aniversário de 30 anos', 'Bodas de prata', 'Formatura da turma', 'Vaquinha da galera'],
-};
-
 function photoWarning(failed: number): string {
   const what = failed === 1 ? '1 foto não foi enviada' : `${failed} fotos não foram enviadas`;
   return `Lista criada, mas ${what}. Adicione de novo no item.`;
 }
 
-function titleSuggestionsFor(type: EventType | null): string[] {
-  return type ? (TITLE_SUGGESTIONS[type.code] ?? TITLE_SUGGESTIONS['OTHER']) : [];
-}
-
 @Component({
   selector: 'app-list-new',
-  imports: [CurrencyPipe, FormsModule, RouterLink, ItemEditorComponent, ItemPhotoComponent, CotaiButtonComponent, CotaiCardComponent],
+  imports: [
+    CurrencyPipe,
+    FormsModule,
+    RouterLink,
+    EventTypePickerComponent,
+    ItemEditorComponent,
+    ItemPhotoComponent,
+    CotaiButtonComponent,
+    CotaiCardComponent,
+  ],
   templateUrl: './list-new.component.html',
   styleUrl: './list-new.component.scss',
 })
 export class ListNewComponent {
   private readonly organizer = inject(OrganizerService);
+  private readonly catalog = inject(EventCatalogService);
   private readonly router = inject(Router);
 
   protected readonly today = new Date().toLocaleDateString('en-CA');
-  protected readonly eventTypes = signal<EventType[]>([]);
   protected readonly selectedType = signal<EventType | null>(null);
   protected readonly items = signal<ItemDraft[]>([]);
   protected readonly itemErrors = signal<ItemErrors[]>([]);
@@ -74,12 +75,7 @@ export class ListNewComponent {
   });
 
   constructor() {
-
     inject(DestroyRef).onDestroy(() => this.releasePhotos());
-    this.organizer.eventTypes().subscribe({
-      next: (types) => this.eventTypes.set(types),
-      error: (e) => this.error.set(errorMessage(e)),
-    });
   }
 
   protected touched(): void {
@@ -94,7 +90,7 @@ export class ListNewComponent {
     this.ttl = type.defaultReservationTtlMinutes;
     this.loadingItems.set(true);
     this.templateRequest?.unsubscribe();
-    this.templateRequest = this.organizer.templateItems(type.code).subscribe({
+    this.templateRequest = this.catalog.suggestedItems(type.code).subscribe({
       next: (templates) => {
         this.loadingItems.set(false);
         this.releasePhotos();

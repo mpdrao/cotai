@@ -75,6 +75,7 @@ export interface UpdateGiftListRequest {
   title?: string;
   eventDate?: string;
   reservationTtlMinutes?: number;
+  eventTypeCode?: string;
 }
 
 export interface PublicItem {
