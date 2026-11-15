@@ -40,10 +40,10 @@ export interface StatusCopy {
 }
 
 export function reservationCopy(view: ReservationView): StatusCopy {
-  if (view.payment.status === 'REFUND_REQUIRED') {
+  if (view.payment.status === 'PAID' && view.status !== 'CONFIRMED') {
     return {
-      badge: 'refund',
-      detail: 'O valor precisa de análise para estorno; a reserva não foi reaberta.',
+      badge: view.status === 'CANCELLED' ? 'cancelled' : 'expired',
+      detail: 'Recebemos o pagamento depois do prazo e a reserva não foi reaberta. Fale com o organizador.',
     };
   }
   switch (view.status) {

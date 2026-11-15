@@ -82,7 +82,6 @@ export interface PublicItem {
   name: string;
   unit: string;
   unitPriceCents: number;
-  totalQuotas: number;
   availableQuotas: number;
   imageUrl?: string;
 }

@@ -1,4 +1,4 @@
-import { Component, ElementRef, Injector, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, Injector, OnInit, afterNextRender, computed, inject, input, signal, viewChild } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,7 +13,7 @@ import { CotaiButtonComponent, CotaiCardComponent, CotaiProgressComponent } from
   templateUrl: './gift-list-detail.component.html',
   styleUrl: './gift-list-detail.component.scss',
 })
-export class GiftListDetailComponent {
+export class GiftListDetailComponent implements OnInit {
   private readonly injector = inject(Injector);
   private readonly reservationForm = viewChild<ElementRef<HTMLFormElement>>('reservationForm');
   private readonly itemsList = viewChild<ElementRef<HTMLUListElement>>('itemsList');
@@ -21,7 +21,8 @@ export class GiftListDetailComponent {
   private readonly giftListService = inject(GiftListService);
   private readonly router = inject(Router);
 
-  private readonly listSlug = location.pathname.split('/').pop() ?? '';
+  /** Bound from the `l/:slug` route parameter. */
+  readonly slug = input.required<string>();
 
   protected readonly list = signal<PublicGiftList | null>(null);
   protected readonly notFound = signal(false);
@@ -39,18 +40,19 @@ export class GiftListDetailComponent {
   protected readonly overall = computed(() => {
     const l = this.list();
     if (!l) return { total: 0, reserved: 0, percent: 0 };
-    const total = l.items.reduce((sum, item) => sum + item.totalQuotas, 0);
-    const reserved = l.items.reduce((sum, item) => sum + (item.totalQuotas - item.availableQuotas), 0);
+    // Each item is one quota: it is reserved and paid as a whole.
+    const total = l.items.length;
+    const reserved = l.items.filter((item) => item.availableQuotas === 0).length;
     const percent = total > 0 ? Math.round((reserved / total) * 100) : 0;
     return { total, reserved, percent };
   });
 
-  constructor() {
+  ngOnInit(): void {
     this.load();
   }
 
   protected reservedPercent(item: PublicItem): number {
-    return item.totalQuotas === 0 ? 0 : ((item.totalQuotas - item.availableQuotas) / item.totalQuotas) * 100;
+    return item.availableQuotas === 0 ? 100 : 0;
   }
 
   protected select(item: PublicItem): void {
@@ -109,7 +111,7 @@ export class GiftListDetailComponent {
   }
 
   private load(): void {
-    this.giftListService.getGiftList(this.listSlug).subscribe({
+    this.giftListService.getGiftList(this.slug()).subscribe({
       next: (l) => this.list.set(l),
       error: () => this.notFound.set(true),
     });

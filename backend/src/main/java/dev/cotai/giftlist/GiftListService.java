@@ -185,7 +185,7 @@ public class GiftListService {
 
         long target = active.stream().mapToLong(Item::totalCents).sum();
         return new GiftListSummaryReport(list.getId(), target, confirmedCents, pendingCents,
-                payments.sumRefundRequired(list.getId()), totals, contributors);
+                payments.sumLatePayments(list.getId()), totals, contributors);
     }
 
     @Transactional(readOnly = true)

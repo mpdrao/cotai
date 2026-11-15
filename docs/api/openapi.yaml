@@ -540,7 +540,7 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/PaymentNotificationPayload' }
       responses:
-        '204': { description: 'Accepted: APPLIED, DUPLICATE, LATE_PAYMENT or REJECTED.' }
+        '204': { description: 'Accepted: applied, duplicate, late payment (recorded as PAID) or ignored (unknown reference or amount mismatch).' }
         '400':
           description: Body is not valid JSON or misses required fields.
           content:
@@ -763,7 +763,7 @@ components:
 
     PaymentStatus:
       type: string
-      enum: [CREATED, PENDING, PAID, DECLINED, EXPIRED, FAILED, REFUND_REQUIRED]
+      enum: [CREATED, PENDING, PAID, DECLINED, EXPIRED, FAILED]
 
     ErrorCode:
       type: string
@@ -944,7 +944,7 @@ components:
         targetCents: { type: integer, format: int64, description: Sum of totalCents of non-archived items. }
         confirmedCents: { type: integer, format: int64 }
         pendingCents: { type: integer, format: int64, description: PENDING reservations whose expiresAt is still in the future. }
-        refundRequiredCents: { type: integer, format: int64, description: Late or post-cancel payments the organizer must refund. }
+        refundRequiredCents: { type: integer, format: int64, description: Payments received after the reservation expired or was cancelled (PAID payment, reservation not CONFIRMED). }
         items:
           type: array
           items:

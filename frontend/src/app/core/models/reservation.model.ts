@@ -14,7 +14,6 @@ export interface ReservationCreated {
   status: string;
   quantity: number;
   amountCents: number;
-  expiresAt: string;
   payment: PaymentInfo;
 }
 

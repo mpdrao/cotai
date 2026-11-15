@@ -12,7 +12,7 @@ import dev.cotai.payment.Payment;
 import dev.cotai.payment.PaymentGateway;
 import dev.cotai.payment.PaymentProperties;
 import dev.cotai.payment.PaymentRepository;
-import dev.cotai.reservation.ReservationDtos.PaymentInfo;
+import dev.cotai.payment.PaymentInfo;
 import dev.cotai.reservation.ReservationDtos.ReservationCreated;
 import dev.cotai.reservation.ReservationDtos.ReservationView;
 import dev.cotai.reservation.ReservationDtos.ReserveRequest;
@@ -21,14 +21,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
+
+    /** Each item is one quota: it is reserved and paid as a whole. */
+    private static final int QUOTAS_PER_ITEM = 1;
 
     private final ItemRepository items;
     private final ReservationRepository reservations;
@@ -45,8 +50,8 @@ public class ReservationService {
 
         var existing = reservations.findByManageTokenHash(manageTokenHash);
         if (existing.isPresent()) {
-            Payment p = payments.findByReservationIdWithDetails(existing.get().getId()).orElseThrow();
-            return new ReservationDtos.ReserveOutcome(toCreated(existing.get(), manageToken, p), true);
+            Reservation replay = reservations.findWithDetailsById(existing.get().getId()).orElseThrow();
+            return new ReservationDtos.ReserveOutcome(toCreated(replay, manageToken), true);
         }
 
         Instant now = clock.instant();
@@ -69,21 +74,20 @@ public class ReservationService {
                     "Too many pending reservations for this e-mail. Pay or cancel one first.");
         }
 
-        int occupied = items.occupiedQuotas(itemId, now);
-        int available = Math.max(1 - occupied, 0);
-        if (cmd.quantity() > available && occupied > 0) {
+        int available = Math.max(QUOTAS_PER_ITEM - items.occupiedQuotas(itemId, now), 0);
+        if (cmd.quantity() > available) {
             throw new BusinessException(ErrorCode.QUOTA_UNAVAILABLE,
                     "Only " + available + " quotas are still available for item " + itemId + ".",
                     Map.of("availableQuotas", available));
         }
 
-        UUID reservationId = UUID.randomUUID();
-        Reservation reservation = reservations.saveAndFlush(new Reservation(
-                reservationId, item, cmd.guestName().trim(), email, cmd.quantity(),
-                manageTokenHash, now));
-        Payment payment = payments.save(new Payment(reservation, gateway.providerName()));
+        Reservation reservation = new Reservation(UUID.randomUUID(), item, cmd.guestName().trim(), email,
+                cmd.quantity(), manageTokenHash, now);
+        Instant expiresAt = now.plus(Duration.ofMinutes(list.getReservationTtlMinutes()));
+        reservation.setPayment(payments.save(new Payment(gateway.providerName(), reservation.getAmountCents(), expiresAt)));
+        reservations.saveAndFlush(reservation);
 
-        return new ReservationDtos.ReserveOutcome(toCreated(reservation, manageToken, payment), false);
+        return new ReservationDtos.ReserveOutcome(toCreated(reservation, manageToken), false);
     }
 
     @Transactional(readOnly = true)
@@ -91,18 +95,18 @@ public class ReservationService {
         String manageToken = manageToken(idempotencyKey);
         String manageTokenHash = Crypto.sha256Hex(manageToken);
         Reservation existing = reservations.findByManageTokenHash(manageTokenHash)
+                .flatMap(r -> reservations.findWithDetailsById(r.getId()))
                 .orElseThrow(() -> new IllegalStateException("Reservation vanished for key " + idempotencyKey));
-        Payment payment = payments.findByReservationIdWithDetails(existing.getId()).orElseThrow();
-        return toCreated(existing, manageToken, payment);
+        return toCreated(existing, manageToken);
     }
 
     @Transactional(readOnly = true)
     public ReservationView get(UUID reservationId, String manageToken) {
         Reservation reservation = findAuthorized(reservationId, manageToken);
-        Payment payment = payments.findByReservationIdWithDetails(reservationId).orElseThrow();
         return new ReservationView(reservation.getId(), reservation.getItem().getName(),
                 reservation.effectiveStatus(clock.instant()), reservation.getQuantity(),
-                reservation.getAmountCents(), reservation.getExpiresAt(), toInfo(payment));
+                reservation.getAmountCents(), reservation.getPayment().getExpiresAt(),
+                PaymentInfo.of(reservation.getPayment()));
     }
 
     @Transactional
@@ -114,6 +118,11 @@ public class ReservationService {
             throw new BusinessException(ErrorCode.INVALID_STATE_TRANSITION,
                     "Only PENDING reservations can be cancelled.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Reservation> findByPaymentReference(String providerReference) {
+        return reservations.findByPaymentProviderReference(providerReference);
     }
 
     @Transactional
@@ -138,19 +147,14 @@ public class ReservationService {
     }
 
     private Reservation findAuthorized(UUID reservationId, String manageToken) {
-        return reservations.findById(reservationId)
+        return reservations.findWithDetailsById(reservationId)
                 .filter(r -> manageToken != null
                         && Crypto.constantTimeEquals(r.getManageTokenHash(), Crypto.sha256Hex(manageToken)))
                 .orElseThrow(() -> BusinessException.notFound("Reservation"));
     }
 
-    private ReservationCreated toCreated(Reservation r, String manageToken, Payment p) {
+    private ReservationCreated toCreated(Reservation r, String manageToken) {
         return new ReservationCreated(r.getId(), manageToken, r.getStatus(), r.getQuantity(),
-                r.getUnitPriceCents(), r.getAmountCents(), r.getExpiresAt(), toInfo(p));
-    }
-
-    public static PaymentInfo toInfo(Payment p) {
-        return new PaymentInfo(p.getId(), p.getStatus(), p.getAmountCents(), p.getProviderReference(),
-                p.getCheckoutUrl(), p.getQrCodePayload(), p.getExpiresAt());
+                r.getUnitPriceCents(), r.getAmountCents(), r.getPayment().getExpiresAt(), PaymentInfo.of(r.getPayment()));
     }
 }

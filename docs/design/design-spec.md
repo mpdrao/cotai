@@ -17,7 +17,7 @@ Este documento descreve o código da branch `develop`. Onde o código ainda não
 - **Confirmação automática.** O pagamento entra por um webhook assinado. A confirmação manual pelo organizador saiu, porque não existe mais Pix fora do sistema.
 - **Prazo de 30 min por padrão.** Agora o pagamento é imediato. A cobrança expira no mesmo instante que a reserva; se expirasse depois, pagamentos atrasados seriam garantidos.
 - **Pagamento recusado cancela a reserva** e libera as cotas na hora. Para tentar de novo, o convidado faz uma nova reserva. Isso dá uma cobrança por reserva (1:1).
-- **Pagamento atrasado não ressuscita a reserva.** O pagamento vira `REFUND_REQUIRED` e aparece no resumo do organizador.
+- **Pagamento atrasado não ressuscita a reserva.** O pagamento vira `PAID` (o dinheiro chegou), a reserva continua EXPIRED ou CANCELLED e o valor aparece no resumo do organizador como pagamento fora do prazo. O fluxo de estorno saiu do modelo.
 - **Token de gerenciamento no header** (`X-Manage-Token`), não na query string, que vai parar em logs. É guardado como hash SHA-256.
 - **`Idempotency-Key` obrigatório** na reserva. Um clique duplo ou um retry de rede não cria duas reservas.
 - **`Clock` injetado.** As queries recebem `now` da aplicação, nunca `CURRENT_TIMESTAMP`. No perfil dev, um `MutableClock` permite reproduzir expirações pela collection.
@@ -181,7 +181,7 @@ flowchart LR
     UC14(["UC14 Cancel own reservation"])
     UC15(["UC15 Process payment notification"])
     UC16(["UC16 Verify signature"])
-    UC17(["UC17 Flag refund for late payment"])
+    UC17(["UC17 Record late payment"])
     UC18(["UC18 Expire overdue reservations"])
   end
 
@@ -223,9 +223,9 @@ flowchart LR
 | UC12 | Pay via QR code / link | Guest, Payment Gateway | Payment PENDING | Charge expired → 410 on the gateway; declined → reservation CANCELLED |
 | UC13 | Track reservation | Guest | Has manage token | Wrong token → 404 |
 | UC14 | Cancel own reservation | Guest | Reservation PENDING | Not PENDING (INVALID_STATE_TRANSITION); wrong token → 404 |
-| UC15 | Process payment notification | Payment Gateway | — | Duplicate event → no-op; unknown reference or amount mismatch → stored as REJECTED, 204 |
+| UC15 | Process payment notification | Payment Gateway | — | Duplicate event → no-op; unknown reference or amount mismatch → ignored and logged, 204 |
 | UC16 | Verify signature | — (included) | Raw body available | Invalid or missing (INVALID_SIGNATURE, 401) |
-| UC17 | Flag refund for late payment | — (extends UC15) | Reservation not PENDING or expired | — |
+| UC17 | Record late payment | — (extends UC15) | Reservation not PENDING or expired | Payment becomes PAID; the reservation is not reopened |
 | UC18 | Expire overdue reservations | Scheduler | Every 60 s | Runs on N instances at once → idempotent, no effect twice |
 
 ### Para o Astah
@@ -322,10 +322,7 @@ classDiagram
     -long amountCents
     -ReservationStatus status
     -String manageTokenHash
-    -String idempotencyKey
-    -String requestHash
     -Instant createdAt
-    -Instant expiresAt
     -Instant closedAt
     +effectiveStatus(Instant now) ReservationStatus
   }
@@ -341,16 +338,6 @@ classDiagram
     -String qrCodePayload
     -Instant expiresAt
     -Instant paidAt
-  }
-
-  class PaymentNotification {
-    <<entity>>
-    -Long id
-    -String providerEventId
-    -String eventType
-    -String rawPayload
-    -NotificationOutcome outcome
-    -Instant receivedAt
   }
 
   class GiftListStatus {
@@ -374,14 +361,6 @@ classDiagram
     DECLINED
     EXPIRED
     FAILED
-    REFUND_REQUIRED
-  }
-  class NotificationOutcome {
-    <<enumeration>>
-    APPLIED
-    DUPLICATE
-    LATE_PAYMENT
-    REJECTED
   }
 
   EventType "1" *-- "0..10" TemplateItem : templateItems
@@ -390,13 +369,11 @@ classDiagram
   GiftList "1" *-- "0..100" Item : items
   Reservation "0..*" --> "1" Item : item
   ItemPhoto "0..1" --> "1" Item : itemId
-  Payment "1" --> "1" Reservation : reservation
-  PaymentNotification "0..*" --> "0..1" Payment : payment
+  Reservation "1" --> "0..1" Payment : payment
 
   GiftList ..> GiftListStatus
   Reservation ..> ReservationStatus
   Payment ..> PaymentStatus
-  PaymentNotification ..> NotificationOutcome
 ```
 
 | Class | Constraint (put as OCL note in Astah) | Enforced by |
@@ -410,9 +387,9 @@ classDiagram
 | Item | inv: /availableQuotas >= 0 | SELECT … FOR UPDATE in reserve() and updateItem() |
 | Reservation | quantity >= 1; amountCents = quantity * unitPriceCents | CHECK |
 | Reservation | unitPriceCents is a snapshot of item.unitPriceCents at creation {readOnly} | No setter; column updatable = false |
-| Reservation | idempotencyKey {unique}; manageTokenHash = sha256(token); token = HMAC-SHA256(MANAGE_TOKEN_SECRET, idempotencyKey) | UNIQUE; o replay recalcula o mesmo token sem guardá-lo |
-| Payment | reservation {unique}; providerReference {unique}; amountCents = reservation.amountCents; expiresAt = reservation.expiresAt | UNIQUE; set in the same transaction |
-| PaymentNotification | providerEventId {unique} | INSERT … ON CONFLICT DO NOTHING |
+| Reservation | manageTokenHash {unique}; manageTokenHash = sha256(token); token = HMAC-SHA256(MANAGE_TOKEN_SECRET, Idempotency-Key) | UNIQUE; a mesma `Idempotency-Key` gera o mesmo hash, então o retry vira replay (regra de negócio, sem atributo) |
+| Reservation | payment {unique}; payment.amountCents = amountCents; payment.expiresAt = createdAt + giftList.reservationTtlMinutes | UNIQUE on `reservation.payment_id`; set in the same transaction |
+| Payment | providerReference {unique} | UNIQUE |
 
 ### Camada de aplicação
 
@@ -443,6 +420,9 @@ classDiagram
   class ReservationFlow {
     <<service>>
     +reserve(Long itemId, ReserveRequest cmd, UUID idempotencyKey) ReserveOutcome
+    +get(UUID id, String manageToken) ReservationView
+    +cancel(UUID id, String manageToken) void
+    +handlePaymentNotification(byte[] rawBody, String signature) void
   }
 
   class ReservationService {
@@ -460,7 +440,9 @@ classDiagram
   class PaymentService {
     <<service>>
     +openCharge(UUID reservationId) PaymentInfo
-    +handleNotification(byte[] rawBody, String signature) NotificationOutcome
+    +verifyNotification(byte[] rawBody, String signature) Optional~NotificationPayload~
+    +markPaid(UUID paymentId) void
+    +decline(UUID paymentId) void
   }
 
   class ItemRepository {
@@ -482,17 +464,11 @@ classDiagram
 
   class PaymentRepository {
     <<repository>>
-    +findByProviderReference(String ref) Optional~Payment~
     +transition(UUID id, PaymentStatus from, PaymentStatus to) int
     +markPending(UUID id, String ref, String url, String qr) int
     +markPaid(UUID id, Instant now) int
     +expireForExpiredReservations() int
-    +sumRefundRequired(UUID giftListId) long
-  }
-
-  class PaymentNotificationRepository {
-    <<repository>>
-    +insertIfAbsent(String eventId, String eventType, String rawPayload, Instant receivedAt) int
+    +sumLatePayments(UUID giftListId) long
   }
 
   class PublicReservationController {
@@ -514,15 +490,12 @@ classDiagram
 
   PaymentGateway <|.. MockPaymentGateway
   PublicReservationController --> ReservationFlow
-  PublicReservationController --> ReservationService
   ReservationFlow --> ReservationService
   ReservationFlow --> PaymentService
-  PaymentWebhookController --> PaymentService
+  PaymentWebhookController --> ReservationFlow
   ReservationExpiryJob --> ReservationService
   PaymentService --> PaymentGateway
-  PaymentService --> ReservationService
   PaymentService --> PaymentRepository
-  PaymentService --> PaymentNotificationRepository
   ReservationService --> PaymentGateway
   ReservationService --> ItemRepository
   ReservationService --> ReservationRepository
@@ -536,7 +509,7 @@ classDiagram
 3. **Nomes de papel nas pontas.** O Mermaid coloca o rótulo no meio da linha. No Astah, os nomes (`items`, `owner`, `eventType`, `item`, `reservation`, `payment`, `templateItems`) vão na ponta oposta à classe dona do atributo.
 4. **Linhas tracejadas até os enums.** Elas existem só porque o Mermaid não liga um atributo ao seu tipo. No Astah, apague essas linhas: o atributo tipado (`status : ReservationStatus`) já expressa a relação.
 5. **Composições** (losango cheio): `GiftList ◆— Item` e `EventType ◆— TemplateItem`. `Organizer — GiftList` é associação simples, não agregação: apagar um organizador não é um caso de uso.
-6. `PaymentNotification → Payment` é **0..1**, porque notificações com referência desconhecida também são gravadas. Não "corrija" para 1.
+6. `Reservation → Payment` é **0..1** e navegável só nesse sentido: a chave fica em `reservation.payment_id` e `Payment` não conhece a reserva.
 7. Na camada de aplicação, as setas cheias representam campos `private final` injetados pelo construtor. Por isso são associações e não dependências «use». Se o professor preferir dependência, troque todas, sem misturar.
 8. Estereótipos «entity», «enumeration», «interface», «service», «repository», «controller» e «component» precisam ser criados como estereótipos personalizados no Astah. A realização de `PaymentGateway` é tracejada com triângulo vazado.
 9. `MutableClock`, `WebhookDispatcher` e os DTOs foram omitidos de propósito. Se o professor pedir completude, coloque-os num diagrama de pacotes separado. `ReservationFlow` entra no diagrama porque é a fronteira entre a transação da reserva e a chamada externa.
@@ -571,23 +544,22 @@ stateDiagram-v2
   PENDING --> PAID : payment.paid [reservation PENDING and not expired]
   PENDING --> DECLINED : payment.declined
   PENDING --> EXPIRED : reservation expired
-  PENDING --> REFUND_REQUIRED : payment.paid [reservation CANCELLED or expired]
-  EXPIRED --> REFUND_REQUIRED : late payment.paid
+  PENDING --> PAID : late payment.paid [reservation CANCELLED or expired] / reservation unchanged
+  EXPIRED --> PAID : late payment.paid / reservation unchanged
   PAID --> [*]
   DECLINED --> [*]
   FAILED --> [*]
-  REFUND_REQUIRED --> [*]
 ```
 
 - **Toda transição é um UPDATE condicional** com `WHERE status = <origem>`. Se afetar 0 linhas, outra transação já mudou o estado.
 - **EXPIRED tem duas origens**: o job, ou a leitura ou o webhook que encontra uma reserva vencida ainda marcada como PENDING. O GET já devolve o *effective status*.
-- **Nenhum estado final tem saída.** Não existe reabrir reserva. Um pagamento atrasado vira REFUND_REQUIRED no *pagamento*, não altera a reserva.
+- **Nenhum estado final tem saída.** Não existe reabrir reserva. Um pagamento atrasado vira PAID no *pagamento* e não altera a reserva.
 - **O job expira reserva e pagamento na mesma transação.** CREATED → EXPIRED cobre o caso de a JVM cair entre o commit da reserva e o `createCharge()`.
 
 ### Para o Astah
 
 1. Escreva as transições no formato UML `event [guard] / action`. O Mermaid trata o rótulo como texto livre, então a sintaxe acima é só aproximada.
-2. No pagamento, a decisão entre PAID e REFUND_REQUIRED após `payment.paid` é um **pseudoestado de escolha** (losango) com as duas guardas. No Mermaid ela virou duas setas paralelas.
+2. No pagamento, `payment.paid` sempre leva a PAID; a guarda decide só se a *reserva* é confirmada. No Astah, use um **pseudoestado de escolha** (losango) no fluxo da reserva.
 3. Desenhe as duas máquinas no mesmo diagrama, como regiões ortogonais de "ReservationLifecycle", ou separadas. Não junte os estados numa máquina só: são ciclos de vida de objetos diferentes.
 
 ## Pagamento por QR code ou link
@@ -638,13 +610,13 @@ sequenceDiagram
   end
 
   MG--)WH: POST /api/webhooks/payments (after ~1.5 s)<br/>X-Signature: sha256=...
-  WH->>PS: handleNotification(rawBody, signature)
+  WH->>PS: ReservationFlow.handlePaymentNotification → verifyNotification(rawBody, signature)
   PS->>PS: verify HMAC over raw bytes
-  PS->>DB: INSERT payment_notification ON CONFLICT (provider_event_id) DO NOTHING
-  PS->>RS: confirmPaid(reservationId)
-  RS->>DB: UPDATE reservation SET status = 'CONFIRMED'<br/>WHERE id = ? AND status = 'PENDING' AND expires_at > now
+  PS->>PS: skip if eventId was already processed
+  PS->>RS: (ReservationFlow) confirmPaid(reservationId)
+  RS->>DB: UPDATE reservation SET status = 'CONFIRMED'<br/>WHERE id = ? AND status = 'PENDING' AND payment.expires_at > now
   DB-->>RS: 1 row
-  PS->>DB: UPDATE payment SET status = 'PAID' WHERE id = ? AND status = 'PENDING'
+  PS->>DB: (ReservationFlow → PaymentService.markPaid) UPDATE payment SET status = 'PAID' WHERE id = ? AND status = 'PENDING'
   WH-->>MG: 204 No Content
   SPA->>RC: GET /api/public/reservations/{id}
   RC-->>SPA: CONFIRMED
@@ -715,7 +687,7 @@ sequenceDiagram
   else expiry wins (or now >= expires_at)
     DB-->>RS: 0 rows
     RS-->>PS: false
-    PS->>DB: payment → REFUND_REQUIRED, outcome LATE_PAYMENT
+    PS->>DB: payment → PAID (late), reservation stays EXPIRED
   end
 
   Note over J,DB: Race 2 · guest cancels while payment.paid is in flight
@@ -728,7 +700,7 @@ sequenceDiagram
   end
   alt cancel wins
     RS-->>G: 204
-    RS-->>PS: false → payment REFUND_REQUIRED
+    RS-->>PS: false → payment PAID (late), reservation stays CANCELLED
   else confirm wins
     RS-->>G: 409 INVALID_STATE_TRANSITION
   end
@@ -760,9 +732,9 @@ A última coluna diz onde cada caso é reproduzido. collection roda no Postman o
 | EC09 | Assinatura inválida ou ausente | 401 INVALID_SIGNATURE | collection 06 |
 | EC10 | Webhook com referência desconhecida | 204 e outcome REJECTED, para o provedor parar de reenviar | collection 06 |
 | EC11 | Webhook com valor diferente do cobrado | 204, REJECTED; a reserva continua PENDING | collection 07 |
-| EC12 | Pagamento chega depois do prazo | Reserva EXPIRED, pagamento REFUND_REQUIRED, valor em `refundRequiredCents` | collection 07 (dev clock) |
+| EC12 | Pagamento chega depois do prazo | Reserva EXPIRED, pagamento PAID, valor em `refundRequiredCents` (pagamentos fora do prazo) | collection 07 (dev clock); JUnit ReservationPaymentFlowIT |
 | EC13 | payment.paid e expiração no mesmo segundo | Exatamente uma transição vence | JUnit ConfirmVsExpireRaceIT |
-| EC14 | Convidado cancela enquanto o pagamento é confirmado | Uma vence; se o cancelamento vencer, o pagamento vira REFUND_REQUIRED | JUnit CancelVsPaidRaceIT |
+| EC14 | Convidado cancela enquanto o pagamento é confirmado | Uma vence; se o cancelamento vencer, o pagamento vira PAID e a reserva continua CANCELLED | JUnit CancelVsPaidRaceIT |
 | EC15 | Job de expiração parado | O disponível continua correto, porque é calculado por `expiresAt` | collection 07 |
 | EC16 | Job rodando em duas instâncias ao mesmo tempo | Idempotente; nenhuma reserva é expirada duas vezes. Não precisa de ShedLock | JUnit |
 | EC17 | Organizador reduz cotas abaixo do ocupado | 409 QUOTAS_BELOW_OCCUPIED | collection 05 |
@@ -841,7 +813,7 @@ A collection do Postman está versionada em [`docs/api/collections/cotai-postman
 | **04 Guest - cancel** | Reserve 1 quota (to cancel) · Cancel with a wrong token is 404 · Cancel reservation · Cancel twice is 409 · Cancelled quota is available again |
 | **05 Edge cases - validation and conflicts** | Login with wrong password is 401 · Organizer endpoint without token is 401 · Quantity 0 is 400 · Missing Idempotency-Key is 400 · More quotas than available is 409 · Reused Idempotency-Key with another body is 422 · Reserve the last quota · Sold out item is 409 · Reduce quotas below occupied is 409 · Archive item with active reservations is 409 · Publish twice is 409 · Decline the last quota's charge · Wait for CANCELLED after decline |
 | **06 Webhooks - signed by the collection** | Paid webhook for an already PAID payment · Exact same webhook again (same eventId) · Summary unchanged after duplicates · Invalid signature is 401 · Unknown reference is accepted and ignored |
-| **07 Edge cases - time (dev clock)** | Reset clock · Reserve 1 quota of the second item · Amount mismatch webhook is ignored · Still PENDING after mismatch · Advance clock 31 minutes · Expired quota is free before the job runs · Approve expired charge is 410 · Late paid webhook · Late payment: EXPIRED + REFUND_REQUIRED · Run expiry job · Summary shows the refund · Close gift list · Reserve on a closed list is 409 · Reset clock (cleanup) |
+| **07 Edge cases - time (dev clock)** | Reset clock · Reserve 1 quota of the second item · Amount mismatch webhook is ignored · Still PENDING after mismatch · Advance clock 31 minutes · Expired quota is free before the job runs · Approve expired charge is 410 · Late paid webhook · Late payment: EXPIRED + PAID · Run expiry job · Summary shows the late payment · Close gift list · Reserve on a closed list is 409 · Reset clock (cleanup) |
 
 ## Front-end e design system
 
@@ -884,4 +856,4 @@ A revisão de composição do frontend não altera os contratos nem resolve as l
 | Ao reabrir `/r/:id`, a tela mostra o status (EC29) | O `manageToken` fica em `sessionStorage`, que some ao fechar a aba |
 | QR code da URL de checkout | A SPA gera o QR em `api.qrserver.com`, que recebe a URL e exige internet |
 | Fora do perfil `dev`, outro adaptador implementa `PaymentGateway` | Não há adaptador; sem `dev` a aplicação não sobe |
-| Testes de integração e collections | Só existem o teste de contexto (`CotaiApiApplicationIT`), o de fotos dos itens (`ItemPhotoIT`) e dois testes unitários; as collections não estão no repositório |
+| Testes de integração e collections | Existem o teste de contexto (`CotaiApiApplicationIT`) e o fluxo de reserva e pagamento (`ReservationPaymentFlowIT`); os testes de corrida (EC14 e similares) ainda não existem |

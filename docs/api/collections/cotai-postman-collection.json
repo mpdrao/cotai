@@ -2847,7 +2847,7 @@
           "response": []
         },
         {
-          "name": "Late payment: EXPIRED + REFUND_REQUIRED",
+          "name": "Late payment: EXPIRED + PAID",
           "event": [
             {
               "listen": "test",
@@ -2858,9 +2858,9 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "const json = pm.response.json();",
-                  "pm.test('Reservation is EXPIRED and payment is REFUND_REQUIRED', function () {",
+                  "pm.test('Reservation is EXPIRED and payment is PAID', function () {",
                   "    pm.expect(json.status).to.eql('EXPIRED');",
-                  "    pm.expect(json.payment.status).to.eql('REFUND_REQUIRED');",
+                  "    pm.expect(json.payment.status).to.eql('PAID');",
                   "});"
                 ]
               }
@@ -2931,7 +2931,7 @@
           "response": []
         },
         {
-          "name": "Summary shows the refund",
+          "name": "Summary shows the late payment",
           "event": [
             {
               "listen": "test",

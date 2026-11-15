@@ -15,7 +15,16 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
     Optional<Reservation> findByManageTokenHash(String manageTokenHash);
 
     @Query("""
-            select count(r) from Payment p join p.reservation r
+            select r from Reservation r join fetch r.payment join fetch r.item i join fetch i.giftList
+            where r.id = :id
+            """)
+    Optional<Reservation> findWithDetailsById(@Param("id") UUID id);
+
+    @Query("select r from Reservation r join fetch r.payment p where p.providerReference = :ref")
+    Optional<Reservation> findByPaymentProviderReference(@Param("ref") String providerReference);
+
+    @Query("""
+            select count(r) from Reservation r join r.payment p
             where r.item.giftList.id = :giftListId
               and r.guestEmail = :email
               and r.status = dev.cotai.reservation.ReservationStatus.PENDING
@@ -25,7 +34,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
                                   @Param("now") Instant now);
 
     @Query("""
-            select count(r) > 0 from Payment p join p.reservation r
+            select count(r) > 0 from Reservation r join r.payment p
             where r.item.id = :itemId
               and (r.status = dev.cotai.reservation.ReservationStatus.CONFIRMED
                    or (r.status = dev.cotai.reservation.ReservationStatus.PENDING and p.expiresAt > :now))
@@ -38,6 +47,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
                set r.status = dev.cotai.reservation.ReservationStatus.CONFIRMED, r.closedAt = :now
              where r.id = :id
                and r.status = dev.cotai.reservation.ReservationStatus.PENDING
+               and r.payment.id in (select p.id from Payment p where p.expiresAt > :now)
             """)
     int markConfirmed(@Param("id") UUID id, @Param("now") Instant now);
 
@@ -55,12 +65,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
             update Reservation r
                set r.status = dev.cotai.reservation.ReservationStatus.EXPIRED, r.closedAt = :now
              where r.status = dev.cotai.reservation.ReservationStatus.PENDING
-               and r.id in (select p.reservation.id from Payment p where p.expiresAt <= :now)
+               and r.payment.id in (select p.id from Payment p where p.expiresAt <= :now)
             """)
     int markExpiredOverdue(@Param("now") Instant now);
 
     @Query("""
-            select r from Reservation r join fetch r.item i
+            select r from Reservation r join fetch r.item i left join fetch r.payment
             where i.giftList.id = :giftListId
             order by r.createdAt
             """)
