@@ -18,7 +18,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     Optional<Item> lockById(@Param("id") Long id);
 
     @Query("""
-            select coalesce(sum(r.quantity), 0) from Payment p join p.reservation r
+            select coalesce(sum(r.quantity), 0) from Reservation r join r.payment p
             where r.item.id = :itemId
               and (r.status = dev.cotai.reservation.ReservationStatus.CONFIRMED
                    or (r.status = dev.cotai.reservation.ReservationStatus.PENDING and p.expiresAt > :now))
@@ -26,7 +26,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     int occupiedQuotas(@Param("itemId") Long itemId, @Param("now") Instant now);
 
     @Query("""
-            select r.item.id, sum(r.quantity) from Payment p join p.reservation r
+            select r.item.id, sum(r.quantity) from Reservation r join r.payment p
             where r.item.giftList.id = :giftListId
               and (r.status = dev.cotai.reservation.ReservationStatus.CONFIRMED
                    or (r.status = dev.cotai.reservation.ReservationStatus.PENDING and p.expiresAt > :now))

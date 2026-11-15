@@ -62,7 +62,8 @@ public class Reservation {
     @Column(name = "closed_at")
     private Instant closedAt;
 
-    @OneToOne(mappedBy = "reservation", fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id", unique = true)
     private Payment payment;
 
     public Reservation(UUID id, Item item, String guestName, String guestEmail, int quantity,
@@ -79,13 +80,8 @@ public class Reservation {
         this.createdAt = createdAt;
     }
 
-    public Instant getExpiresAt() {
-        int ttlMinutes = item != null && item.getGiftList() != null ? item.getGiftList().getReservationTtlMinutes() : 60;
-        return createdAt.plus(java.time.Duration.ofMinutes(ttlMinutes));
-    }
-
     public ReservationStatus effectiveStatus(Instant now) {
-        if (status == ReservationStatus.PENDING && !now.isBefore(getExpiresAt())) {
+        if (status == ReservationStatus.PENDING && payment != null && !now.isBefore(payment.getExpiresAt())) {
             return ReservationStatus.EXPIRED;
         }
         return status;

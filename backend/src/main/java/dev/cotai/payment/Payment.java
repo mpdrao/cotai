@@ -4,16 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import dev.cotai.reservation.Reservation;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -27,10 +23,6 @@ public class Payment {
 
     @Id
     private UUID id;
-
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "reservation_id", updatable = false)
-    private Reservation reservation;
 
     @Column(nullable = false, length = 30)
     private String provider;
@@ -57,12 +49,11 @@ public class Payment {
     @Column(name = "paid_at")
     private Instant paidAt;
 
-    public Payment(Reservation reservation, String provider) {
+    public Payment(String provider, long amountCents, Instant expiresAt) {
         this.id = UUID.randomUUID();
-        this.reservation = reservation;
         this.provider = provider;
-        this.amountCents = reservation.getAmountCents();
-        this.expiresAt = reservation.getExpiresAt();
+        this.amountCents = amountCents;
+        this.expiresAt = expiresAt;
         this.status = PaymentStatus.CREATED;
     }
 
