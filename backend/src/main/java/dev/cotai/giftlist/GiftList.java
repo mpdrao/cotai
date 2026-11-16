@@ -132,6 +132,12 @@ public class GiftList {
         }
     }
 
+    /** Changing the type keeps the items: suggestions are only used when the list is created. */
+    public void changeEvent(Event newEvent) {
+        ensureNotClosed();
+        this.event = newEvent;
+    }
+
     public void ensureNotClosed() {
         if (status == GiftListStatus.CLOSED) {
             throw new BusinessException(ErrorCode.INVALID_STATE_TRANSITION, "Gift list is CLOSED.");

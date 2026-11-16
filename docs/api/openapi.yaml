@@ -201,6 +201,11 @@ paths:
           content:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
+        '422':
+          description: EVENT_DATE_IN_PAST (new event date before today)
+          content:
+            application/problem+json:
+              schema: { $ref: '#/components/schemas/Problem' }
 
   /api/gift-lists/{giftListId}/publish:
     parameters:
@@ -751,7 +756,7 @@ components:
 
     EventTypeCode:
       type: string
-      enum: [WEDDING, BABY_SHOWER, BARBECUE, OTHER]
+      enum: [WEDDING, BABY_SHOWER, BARBECUE, BIRTHDAY, OTHER]
 
     GiftListStatus:
       type: string
@@ -906,9 +911,12 @@ components:
       type: object
       minProperties: 1
       properties:
-        title: { type: string, minLength: 3, maxLength: 80 }
-        eventDate: { type: string, format: date }
+        title: { type: string, minLength: 3, maxLength: 80, description: Trimmed before validation. }
+        eventDate: { type: string, format: date, description: A new date cannot be in the past (EVENT_DATE_IN_PAST). }
         reservationTtlMinutes: { type: integer, minimum: 10, maximum: 1440, description: Applies to new reservations only. }
+        eventTypeCode:
+          $ref: '#/components/schemas/EventTypeCode'
+          description: US-07. Changes the type of the event; the items of the list stay as they are.
 
     GiftList:
       type: object

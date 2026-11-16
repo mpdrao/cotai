@@ -3,27 +3,17 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   CreateGiftListRequest,
-  EventType,
   GiftList,
   GiftListSummary,
   GiftListSummaryReport,
   Item,
   ItemInput,
-  TemplateItem,
   UpdateGiftListRequest,
 } from '../models/organizer.model';
 
 @Injectable({ providedIn: 'root' })
 export class OrganizerService {
   private readonly http = inject(HttpClient);
-
-  eventTypes(): Observable<EventType[]> {
-    return this.http.get<EventType[]>('/api/event-types');
-  }
-
-  templateItems(eventTypeCode: string): Observable<TemplateItem[]> {
-    return this.http.get<TemplateItem[]>(`/api/event-types/${eventTypeCode}/template-items`);
-  }
 
   myLists(): Observable<GiftListSummary[]> {
     return this.http.get<GiftListSummary[]>('/api/gift-lists');

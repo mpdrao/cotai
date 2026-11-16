@@ -1,0 +1,23 @@
+.types { display: grid; gap: 1rem; min-width: 0; margin: 0; padding: 0; border: 0; }
+.section-title { margin: 0; padding: 0; font-size: 1.25rem; font-weight: 700; color: var(--cotai-ink); }
+
+.type-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+.type {
+  position: relative; display: grid; justify-items: center; align-content: center; gap: 0.5rem; min-height: 6.5rem;
+  padding: 1rem 0.5rem; border: 1px solid var(--cotai-border); border-radius: var(--cotai-radius-card);
+  background: var(--cotai-surface); font-weight: 600; text-align: center; cursor: pointer;
+  transition: border-color var(--cotai-motion), background var(--cotai-motion);
+}
+.type:hover { border-color: var(--cotai-secondary); }
+.type input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.type:has(input:focus-visible) { outline: 3px solid var(--cotai-primary); outline-offset: 3px; }
+.type-icon { width: 2.25rem; height: 2.25rem; color: var(--cotai-primary); }
+.type-icon .accent { stroke: var(--cotai-terracotta); }
+.type--selected { border-color: var(--cotai-primary); box-shadow: inset 0 0 0 1px var(--cotai-primary); background: var(--cotai-surface-sage); color: var(--cotai-primary); }
+
+.load-error { display: grid; gap: 0.75rem; justify-items: start; }
+
+@media (min-width: 40rem) {
+  // The catalog can grow, so let the cards fill the row instead of fixing the column count.
+  .type-options { grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); }
+}
