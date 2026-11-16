@@ -51,11 +51,8 @@ public class GiftListService {
     private final Clock clock;
 
     public GiftListResponse create(UUID ownerId, CreateGiftListRequest req) {
-        Event event = eventTypes.findById(req.eventTypeCode())
-                .orElseThrow(() -> BusinessException.notFound("Event type"));
-        if (req.eventDate().isBefore(today())) {
-            throw new BusinessException(ErrorCode.EVENT_DATE_IN_PAST, "Event date is in the past.");
-        }
+        Event event = eventType(req.eventTypeCode());
+        ensureNotInThePast(req.eventDate());
         int ttl = req.reservationTtlMinutes() != null
                 ? req.reservationTtlMinutes() : event.getDefaultReservationTtlMinutes();
 
@@ -80,8 +77,27 @@ public class GiftListService {
 
     public GiftListResponse update(UUID ownerId, UUID id, UpdateGiftListRequest req) {
         GiftList list = owned(ownerId, id);
+        // Check everything before touching the list, so a bad field does not leave half an update behind.
+        Event newEvent = req.eventTypeCode() != null ? eventType(req.eventTypeCode()) : null;
+        // Only a new date is checked: renaming a list whose event already happened must still work.
+        if (req.eventDate() != null && !req.eventDate().equals(list.getEventDate())) {
+            ensureNotInThePast(req.eventDate());
+        }
         list.update(req.title(), req.eventDate(), req.reservationTtlMinutes());
+        if (newEvent != null) {
+            list.changeEvent(newEvent);
+        }
         return GiftListResponse.of(list);
+    }
+
+    private Event eventType(String code) {
+        return eventTypes.findById(code).orElseThrow(() -> BusinessException.notFound("Event type"));
+    }
+
+    private void ensureNotInThePast(LocalDate eventDate) {
+        if (eventDate.isBefore(today())) {
+            throw new BusinessException(ErrorCode.EVENT_DATE_IN_PAST, "Event date is in the past.");
+        }
     }
 
     public GiftListResponse publish(UUID ownerId, UUID id) {

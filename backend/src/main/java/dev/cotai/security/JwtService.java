@@ -19,6 +19,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class JwtService {
 
+    static final String ISSUER = "cotai";
+
     private final JwtEncoder encoder;
     private final AppProperties props;
     private final Clock clock;
@@ -26,7 +28,7 @@ public class JwtService {
     public String issue(Organizer organizer) {
         Instant now = clock.instant();
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer("cotai")
+                .issuer(ISSUER)
                 .subject(organizer.getId().toString())
                 .claim("name", organizer.getName())
                 .issuedAt(now)
