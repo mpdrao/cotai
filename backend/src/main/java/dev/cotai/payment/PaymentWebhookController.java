@@ -1,5 +1,6 @@
 package dev.cotai.payment;
 
+import dev.cotai.reservation.ReservationFlow;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,12 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PaymentWebhookController {
 
-    private final PaymentService paymentService;
+    private final ReservationFlow flow;
 
     @PostMapping("/payments")
     public ResponseEntity<Void> receive(@RequestBody byte[] rawBody,
                                         @RequestHeader(value = "X-Signature", required = false) String signature) {
-        paymentService.handleNotification(rawBody, signature);
+        flow.handlePaymentNotification(rawBody, signature);
         return ResponseEntity.noContent().build();
     }
 }

@@ -50,7 +50,7 @@
                 @if (item.availableQuotas === 0) {
                   Todas as cotas foram reservadas
                 } @else {
-                  {{ item.availableQuotas }} de {{ item.totalQuotas }} cotas disponíveis
+                  {{ item.availableQuotas }} {{ item.availableQuotas === 1 ? 'cota disponível' : 'cotas disponíveis' }}
                 }
               </p>
             </div>

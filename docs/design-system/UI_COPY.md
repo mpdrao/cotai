@@ -20,7 +20,7 @@ Use português do Brasil, frase curta, sem exagerar em termos financeiros ou pro
 - `CONFIRMED`: **Pagamento confirmado** — Sua contribuição foi registrada.
 - `CANCELLED`: **Reserva cancelada** — Essas cotas voltaram a ficar disponíveis.
 - `EXPIRED`: **Tempo esgotado** — Faça uma nova reserva se ainda houver cotas.
-- `REFUND_REQUIRED` (pagamento): **Pagamento fora do prazo** — O valor precisa de análise para estorno; não reabrir a reserva.
+- Pagamento `PAID` com reserva expirada ou cancelada: **Pagamento fora do prazo** — Recebemos o pagamento depois do prazo e a reserva não foi reaberta. Fale com o organizador.
 
 ## Progresso da arrecadação
 
