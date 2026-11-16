@@ -86,6 +86,10 @@
                 <input class="cotai-input" name="guestEmail" type="email" inputmode="email" autocomplete="email" required
                        maxlength="254" [(ngModel)]="guestEmail" />
               </label>
+              <label class="field">
+                <span class="label">Mensagem de carinho (opcional)</span>
+                <textarea class="cotai-input" name="message" rows="3" maxlength="280" [(ngModel)]="message"></textarea>
+              </label>
               <p class="total">
                 Total: <strong>{{ (quantity() * item.unitPriceCents) / 100 | currency: 'BRL' }}</strong>
               </p>

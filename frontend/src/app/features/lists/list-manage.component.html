@@ -66,6 +66,7 @@
     @if (summary(); as s) {
       <section class="block" aria-labelledby="summary-title">
         <h2 id="summary-title" class="section-title">Arrecadação</h2>
+        <a [routerLink]="['/lists', l.id, 'arrecadacao']" class="cotai-link-button">Ver painel de arrecadação</a>
         @if (progress(); as p) {
           <div class="goal-progress">
             <p class="goal-percent"><strong>{{ p.percent }}%</strong> da meta confirmada</p>

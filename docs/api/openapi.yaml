@@ -405,6 +405,44 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /api/gift-lists/{giftListId}/metrics:
+    parameters:
+      - $ref: '#/components/parameters/GiftListId'
+    get:
+      tags: [Gift lists]
+      operationId: getFundraisingMetrics
+      summary: Get fundraising metrics
+      description: Amount raised, goal percentage and quota progress. Only paid money counts as raised.
+      responses:
+        '200':
+          description: Aggregated metrics and per-item progress.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FundraisingMetrics' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/gift-lists/{giftListId}/payments:
+    parameters:
+      - $ref: '#/components/parameters/GiftListId'
+    get:
+      tags: [Gift lists]
+      operationId: listContributions
+      summary: List paid contributions
+      description: Paid contributions, newest first, with the guest message.
+      parameters:
+        - { name: itemId, in: query, required: false, schema: { type: integer, format: int64 } }
+        - { name: page, in: query, required: false, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: size, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 50, default: 10 } }
+      responses:
+        '200':
+          description: One page of contributions.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContributionPage' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /api/public/gift-lists/{slug}:
     get:
       tags: [Public]
@@ -944,6 +982,67 @@ components:
         status: { $ref: '#/components/schemas/GiftListStatus' }
         eventDate: { type: string, format: date }
 
+    ItemProgress:
+      type: object
+      required: [itemId, name, unitPriceCents, totalQuotas, paidQuotas, pendingQuotas, remainingQuotas, paidCents]
+      properties:
+        itemId: { type: integer, format: int64 }
+        name: { type: string }
+        unitPriceCents: { type: integer, format: int64 }
+        totalQuotas: { type: integer }
+        paidQuotas: { type: integer }
+        pendingQuotas: { type: integer }
+        remainingQuotas: { type: integer }
+        paidCents: { type: integer, format: int64 }
+
+    FundraisingMetrics:
+      type: object
+      required: [giftListId, title, status, targetCents, confirmedCents, pendingCents, percentRaised, totalQuotas,
+                 paidQuotas, pendingQuotas, remainingQuotas, contributions, contributors, items]
+      properties:
+        giftListId: { type: string, format: uuid }
+        title: { type: string }
+        status: { type: string, enum: [DRAFT, PUBLISHED, CLOSED] }
+        targetCents: { type: integer, format: int64 }
+        confirmedCents: { type: integer, format: int64 }
+        pendingCents: { type: integer, format: int64 }
+        percentRaised: { type: integer, minimum: 0, maximum: 100 }
+        totalQuotas: { type: integer }
+        paidQuotas: { type: integer }
+        pendingQuotas: { type: integer }
+        remainingQuotas: { type: integer }
+        contributions: { type: integer, format: int64 }
+        contributors: { type: integer, format: int64 }
+        lastContributionAt: { type: string, format: date-time, nullable: true }
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/ItemProgress' }
+
+    Contribution:
+      type: object
+      required: [reservationId, guestName, itemId, itemName, quantity, amountCents, paidAt]
+      properties:
+        reservationId: { type: string, format: uuid }
+        guestName: { type: string }
+        itemId: { type: integer, format: int64 }
+        itemName: { type: string }
+        quantity: { type: integer }
+        amountCents: { type: integer, format: int64 }
+        paidAt: { type: string, format: date-time }
+        message: { type: string, nullable: true }
+
+    ContributionPage:
+      type: object
+      required: [content, page, size, totalElements, totalPages]
+      properties:
+        content:
+          type: array
+          items: { $ref: '#/components/schemas/Contribution' }
+        page: { type: integer }
+        size: { type: integer }
+        totalElements: { type: integer, format: int64 }
+        totalPages: { type: integer }
+
     GiftListSummaryReport:
       type: object
       required: [giftListId, targetCents, confirmedCents, pendingCents, items, contributors]
@@ -1009,6 +1108,10 @@ components:
         guestName: { type: string, minLength: 2, maxLength: 80 }
         guestEmail: { type: string, format: email, maxLength: 254 }
         quantity: { type: integer, minimum: 1, maximum: 1000 }
+        message:
+          type: string
+          maxLength: 280
+          description: Optional note for the organizer, shown on the fundraising dashboard.
 
     PaymentInfo:
       type: object

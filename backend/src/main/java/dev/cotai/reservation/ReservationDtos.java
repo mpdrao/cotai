@@ -18,7 +18,12 @@ public final class ReservationDtos {
     public record ReserveRequest(
             @NotBlank @Size(min = 2, max = 80) String guestName,
             @NotBlank @Email @Size(max = 254) String guestEmail,
-            @Min(1) @Max(1000) int quantity) {
+            @Min(1) @Max(1000) int quantity,
+            @Size(max = 280) String message) {
+
+        public ReserveRequest(String guestName, String guestEmail, int quantity) {
+            this(guestName, guestEmail, quantity, null);
+        }
     }
 
     public record ReservationCreated(UUID reservationId, String manageToken, ReservationStatus status, int quantity,
