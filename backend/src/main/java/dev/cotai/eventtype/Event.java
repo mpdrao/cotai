@@ -11,15 +11,18 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A type of event from the catalog (barbecue, birthday, wedding...). It brings the
+ * suggested items and the default payment window used when a list is created.
+ * The catalog is loaded by the Flyway migrations and is read-only for the app.
+ */
 @Entity
 @Table(name = "event_type")
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Event {
 
@@ -36,7 +39,6 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
     private List<Item> items = new ArrayList<>();
 
     public Event(String code, String name, int defaultReservationTtlMinutes) {
@@ -45,7 +47,11 @@ public class Event {
         this.defaultReservationTtlMinutes = defaultReservationTtlMinutes;
     }
 
-    public List<Item> getItems() {
-        return List.copyOf(items);
+    /** Items offered when an organizer picks this type, in catalog order. */
+    public List<Item> suggestedItems() {
+        return items.stream()
+                .filter(Item::isDefault)
+                .filter(item -> !item.isArchived())
+                .toList();
     }
 }
