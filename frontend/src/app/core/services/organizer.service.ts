@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
+  ContributionPage,
   CreateGiftListRequest,
+  FundraisingMetrics,
   GiftList,
   GiftListSummary,
   GiftListSummaryReport,
@@ -63,5 +65,17 @@ export class OrganizerService {
 
   summary(id: string): Observable<GiftListSummaryReport> {
     return this.http.get<GiftListSummaryReport>(`/api/gift-lists/${id}/summary`);
+  }
+
+  metrics(id: string): Observable<FundraisingMetrics> {
+    return this.http.get<FundraisingMetrics>(`/api/gift-lists/${id}/metrics`);
+  }
+
+  contributions(id: string, page: number, size: number, itemId?: number | null): Observable<ContributionPage> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (itemId != null) {
+      params = params.set('itemId', itemId);
+    }
+    return this.http.get<ContributionPage>(`/api/gift-lists/${id}/payments`, { params });
   }
 }

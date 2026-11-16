@@ -63,6 +63,54 @@ export interface GiftListSummaryReport {
   contributors: Contributor[];
 }
 
+export interface ItemProgress {
+  itemId: number;
+  name: string;
+  unitPriceCents: number;
+  totalQuotas: number;
+  paidQuotas: number;
+  pendingQuotas: number;
+  remainingQuotas: number;
+  paidCents: number;
+}
+
+export interface FundraisingMetrics {
+  giftListId: string;
+  title: string;
+  status: GiftListStatus;
+  targetCents: number;
+  confirmedCents: number;
+  pendingCents: number;
+  percentRaised: number;
+  totalQuotas: number;
+  paidQuotas: number;
+  pendingQuotas: number;
+  remainingQuotas: number;
+  contributions: number;
+  contributors: number;
+  lastContributionAt: string | null;
+  items: ItemProgress[];
+}
+
+export interface PaidContribution {
+  reservationId: string;
+  guestName: string;
+  itemId: number;
+  itemName: string;
+  quantity: number;
+  amountCents: number;
+  paidAt: string;
+  message: string | null;
+}
+
+export interface ContributionPage {
+  content: PaidContribution[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
 export interface CreateGiftListRequest {
   eventTypeCode: string;
   title: string;
