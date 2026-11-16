@@ -26,7 +26,6 @@ import java.util.UUID;
 public class PublicReservationController {
 
     private final ReservationFlow flow;
-    private final ReservationService reservations;
 
     @PostMapping("/items/{itemId}/reservations")
     public ResponseEntity<ReservationCreated> reserve(@PathVariable Long itemId,
@@ -44,13 +43,13 @@ public class PublicReservationController {
     @GetMapping("/reservations/{reservationId}")
     public ReservationView get(@PathVariable UUID reservationId,
                                @RequestHeader("X-Manage-Token") String manageToken) {
-        return reservations.get(reservationId, manageToken);
+        return flow.get(reservationId, manageToken);
     }
 
     @DeleteMapping("/reservations/{reservationId}")
     public ResponseEntity<Void> cancel(@PathVariable UUID reservationId,
                                        @RequestHeader("X-Manage-Token") String manageToken) {
-        reservations.cancel(reservationId, manageToken);
+        flow.cancel(reservationId, manageToken);
         return ResponseEntity.noContent().build();
     }
 }

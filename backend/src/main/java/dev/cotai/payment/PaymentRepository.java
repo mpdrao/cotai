@@ -11,11 +11,15 @@ import java.util.UUID;
 
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
-    @Query("select p from Payment p join fetch p.reservation r join fetch r.item i join fetch i.giftList where r.id = :reservationId")
-    Optional<Payment> findByReservationIdWithDetails(@Param("reservationId") UUID reservationId);
+    @Query("select r.payment from Reservation r where r.id = :reservationId")
+    Optional<Payment> findByReservationId(@Param("reservationId") UUID reservationId);
 
-    @Query("select p from Payment p join fetch p.reservation where p.providerReference = :ref")
-    Optional<Payment> findByProviderReference(@Param("ref") String providerReference);
+    @Query("""
+            select concat(i.name, ' x', cast(r.quantity as String), ' - ', l.title)
+            from Reservation r join r.item i join i.giftList l
+            where r.id = :reservationId
+            """)
+    String chargeDescription(@Param("reservationId") UUID reservationId);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update Payment p set p.status = :to where p.id = :id and p.status = :from")
@@ -31,11 +35,13 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     int markPending(@Param("id") UUID id, @Param("ref") String providerReference,
                     @Param("url") String checkoutUrl, @Param("qr") String qrCodePayload);
 
+    /** PENDING on time, or EXPIRED when the money arrives after the deadline. */
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("""
             update Payment p
                set p.status = dev.cotai.payment.PaymentStatus.PAID, p.paidAt = :now
-             where p.id = :id and p.status = dev.cotai.payment.PaymentStatus.PENDING
+             where p.id = :id
+               and p.status in (dev.cotai.payment.PaymentStatus.PENDING, dev.cotai.payment.PaymentStatus.EXPIRED)
             """)
     int markPaid(@Param("id") UUID id, @Param("now") Instant now);
 
@@ -45,15 +51,17 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
                set p.status = dev.cotai.payment.PaymentStatus.EXPIRED
              where p.status in (dev.cotai.payment.PaymentStatus.CREATED, dev.cotai.payment.PaymentStatus.PENDING)
                and exists (select 1 from Reservation r
-                            where r.id = p.reservation.id
+                            where r.payment = p
                               and r.status = dev.cotai.reservation.ReservationStatus.EXPIRED)
             """)
     int expireForExpiredReservations();
 
+    /** Paid, but the reservation was no longer PENDING: it is not reopened. */
     @Query("""
-            select coalesce(sum(p.amountCents), 0) from Payment p
-            where p.status = dev.cotai.payment.PaymentStatus.REFUND_REQUIRED
-              and p.reservation.item.giftList.id = :giftListId
+            select coalesce(sum(p.amountCents), 0) from Reservation r join r.payment p
+            where p.status = dev.cotai.payment.PaymentStatus.PAID
+              and r.status <> dev.cotai.reservation.ReservationStatus.CONFIRMED
+              and r.item.giftList.id = :giftListId
             """)
-    long sumRefundRequired(@Param("giftListId") UUID giftListId);
+    long sumLatePayments(@Param("giftListId") UUID giftListId);
 }

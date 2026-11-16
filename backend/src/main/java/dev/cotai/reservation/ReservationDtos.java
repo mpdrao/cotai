@@ -1,6 +1,6 @@
 package dev.cotai.reservation;
 
-import dev.cotai.payment.PaymentStatus;
+import dev.cotai.payment.PaymentInfo;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -19,10 +19,6 @@ public final class ReservationDtos {
             @NotBlank @Size(min = 2, max = 80) String guestName,
             @NotBlank @Email @Size(max = 254) String guestEmail,
             @Min(1) @Max(1000) int quantity) {
-    }
-
-    public record PaymentInfo(UUID paymentId, PaymentStatus status, long amountCents, String providerReference,
-                              String checkoutUrl, String qrCodePayload, Instant expiresAt) {
     }
 
     public record ReservationCreated(UUID reservationId, String manageToken, ReservationStatus status, int quantity,
