@@ -81,6 +81,7 @@ export interface FundraisingMetrics {
   targetCents: number;
   confirmedCents: number;
   pendingCents: number;
+  latePaymentsCents: number;
   percentRaised: number;
   totalQuotas: number;
   paidQuotas: number;

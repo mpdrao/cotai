@@ -10,6 +10,7 @@ import dev.cotai.dashboard.DashboardDtos.ItemProgress;
 import dev.cotai.giftlist.GiftList;
 import dev.cotai.giftlist.GiftListRepository;
 import dev.cotai.giftlist.Item;
+import dev.cotai.payment.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +35,7 @@ public class DashboardService {
 
     private final GiftListRepository giftLists;
     private final DashboardRepository dashboard;
+    private final PaymentRepository payments;
     private final Clock clock;
 
     public FundraisingMetrics metrics(UUID ownerId, UUID giftListId) {
@@ -56,8 +58,12 @@ public class DashboardService {
         ContributionTotals totals = dashboard.contributionTotals(list.getId());
 
         return new FundraisingMetrics(list.getId(), list.getTitle(), list.getStatus(), target, confirmed, pending,
-                percent(confirmed, target), items.size() * QUOTAS_PER_ITEM, paid, pendingQuotas, remaining,
+                payments.sumLatePayments(list.getId()), percent(confirmed, target), items.size() * QUOTAS_PER_ITEM, paid, pendingQuotas, remaining,
                 totals.contributions(), totals.contributors(), totals.lastPaidAt(), items);
+    }
+
+    public List<Contribution> allContributions(UUID ownerId, UUID giftListId) {
+        return dashboard.findAllContributions(owned(ownerId, giftListId).getId());
     }
 
     public ContributionPage contributions(UUID ownerId, UUID giftListId, Long itemId, int page, int size) {

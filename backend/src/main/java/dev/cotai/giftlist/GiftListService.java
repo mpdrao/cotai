@@ -3,6 +3,8 @@ package dev.cotai.giftlist;
 import dev.cotai.common.AppProperties;
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
+import dev.cotai.dashboard.DashboardDtos.FundraisingMetrics;
+import dev.cotai.dashboard.DashboardService;
 import dev.cotai.eventtype.Event;
 import dev.cotai.eventtype.EventTypeRepository;
 import dev.cotai.giftlist.GiftListDtos.Contributor;
@@ -17,10 +19,7 @@ import dev.cotai.giftlist.GiftListDtos.PublicGiftList;
 import dev.cotai.giftlist.GiftListDtos.PublicItem;
 import dev.cotai.giftlist.GiftListDtos.UpdateGiftListRequest;
 import dev.cotai.organizer.OrganizerRepository;
-import dev.cotai.payment.PaymentRepository;
-import dev.cotai.reservation.Reservation;
 import dev.cotai.reservation.ReservationRepository;
-import dev.cotai.reservation.ReservationStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +28,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Base64;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +43,7 @@ public class GiftListService {
     private final EventTypeRepository eventTypes;
     private final OrganizerRepository organizers;
     private final ReservationRepository reservations;
-    private final PaymentRepository payments;
+    private final DashboardService dashboard;
     private final SlugGenerator slugGenerator;
     private final AppProperties props;
     private final Clock clock;
@@ -167,41 +165,16 @@ public class GiftListService {
 
     @Transactional(readOnly = true)
     public GiftListSummaryReport summary(UUID ownerId, UUID id) {
-        GiftList list = owned(ownerId, id);
-        Instant now = clock.instant();
-        List<Reservation> all = reservations.findAllByGiftListId(list.getId());
-
-        Map<Long, int[]> perItem = new HashMap<>(); 
-        long confirmedCents = 0;
-        long pendingCents = 0;
-        for (Reservation r : all) {
-            int[] counters = perItem.computeIfAbsent(r.getItem().getId(), k -> new int[2]);
-            if (r.getStatus() == ReservationStatus.CONFIRMED) {
-                counters[0] += r.getQuantity();
-                confirmedCents += r.getAmountCents();
-            } else if (r.effectiveStatus(now) == ReservationStatus.PENDING) {
-                counters[1] += r.getQuantity();
-                pendingCents += r.getAmountCents();
-            }
-        }
-
-        List<Item> active = list.getItems().stream().filter(i -> !i.isArchived()).toList();
-        List<ItemTotals> totals = active.stream().map(i -> {
-            int[] c = perItem.getOrDefault(i.getId(), new int[2]);
-            return new ItemTotals(i.getId(), i.getName(), 1, c[0], c[1],
-                    Math.max(1 - c[0] - c[1], 0));
-        }).toList();
-
-        List<Contributor> contributors = all.stream()
-                .filter(r -> r.getStatus() == ReservationStatus.CONFIRMED)
-                .sorted(Comparator.comparing(Reservation::getClosedAt, Comparator.nullsLast(Comparator.naturalOrder())))
-                .map(r -> new Contributor(r.getGuestName(), r.getItem().getName(), r.getQuantity(),
-                        r.getAmountCents(), r.getClosedAt()))
+        FundraisingMetrics metrics = dashboard.metrics(ownerId, id);
+        List<ItemTotals> totals = metrics.items().stream()
+                .map(i -> new ItemTotals(i.itemId(), i.name(), i.totalQuotas(), i.paidQuotas(), i.pendingQuotas(),
+                        i.remainingQuotas()))
                 .toList();
-
-        long target = active.stream().mapToLong(Item::totalCents).sum();
-        return new GiftListSummaryReport(list.getId(), target, confirmedCents, pendingCents,
-                payments.sumLatePayments(list.getId()), totals, contributors);
+        List<Contributor> contributors = dashboard.allContributions(ownerId, id).stream()
+                .map(c -> new Contributor(c.guestName(), c.itemName(), c.quantity(), c.amountCents(), c.paidAt()))
+                .toList();
+        return new GiftListSummaryReport(metrics.giftListId(), metrics.targetCents(), metrics.confirmedCents(),
+                metrics.pendingCents(), metrics.latePaymentsCents(), totals, contributors);
     }
 
     @Transactional(readOnly = true)

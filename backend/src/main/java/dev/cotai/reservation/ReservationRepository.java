@@ -68,11 +68,4 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
                and r.payment.id in (select p.id from Payment p where p.expiresAt <= :now)
             """)
     int markExpiredOverdue(@Param("now") Instant now);
-
-    @Query("""
-            select r from Reservation r join fetch r.item i left join fetch r.payment
-            where i.giftList.id = :giftListId
-            order by r.createdAt
-            """)
-    List<Reservation> findAllByGiftListId(@Param("giftListId") UUID giftListId);
 }
