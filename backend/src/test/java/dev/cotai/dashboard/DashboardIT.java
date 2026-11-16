@@ -7,6 +7,9 @@ import dev.cotai.dashboard.DashboardDtos.ContributionPage;
 import dev.cotai.dashboard.DashboardDtos.FundraisingMetrics;
 import dev.cotai.devsupport.MutableClock;
 import dev.cotai.eventtype.EventTypeRepository;
+import dev.cotai.giftlist.GiftListDtos.GiftListSummaryReport;
+import dev.cotai.giftlist.GiftListService;
+import dev.cotai.reservation.ReservationService;
 import dev.cotai.giftlist.GiftList;
 import dev.cotai.giftlist.GiftListRepository;
 import dev.cotai.organizer.Organizer;
@@ -39,6 +42,10 @@ class DashboardIT {
 
     @Autowired
     private DashboardService dashboard;
+    @Autowired
+    private GiftListService giftListService;
+    @Autowired
+    private ReservationService reservationService;
     @Autowired
     private ReservationFlow flow;
     @Autowired
@@ -173,5 +180,43 @@ class DashboardIT {
                 .isInstanceOf(BusinessException.class);
         assertThatThrownBy(() -> dashboard.contributions(owner.getId(), list.getId(), -1L, 0, 10))
                 .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("a payment that arrives after the deadline is shown apart and is not counted as raised")
+    void latePayment() {
+        ReservationCreated late = reserve(1, "Caio", "caio@example.com", null);
+        clock.advance(Duration.ofMinutes(31));
+        reservationService.expireOverdue();
+        pay(late);
+
+        FundraisingMetrics m = dashboard.metrics(owner.getId(), list.getId());
+
+        assertThat(m.latePaymentsCents()).isEqualTo(9000);
+        assertThat(m.confirmedCents()).isZero();
+        assertThat(m.contributions()).isZero();
+    }
+
+    @Test
+    @DisplayName("the summary reports the same totals as the metrics, so both screens always agree")
+    void summaryAgreesWithMetrics() {
+        pay(reserve(0, "Bia", "bia@example.com", null));
+        clock.advance(Duration.ofMinutes(1));
+        pay(reserve(2, "Dani", "dani@example.com", null));
+        ReservationCreated late = reserve(1, "Caio", "caio@example.com", null);
+        clock.advance(Duration.ofMinutes(31));
+        reservationService.expireOverdue();
+        pay(late);
+
+        FundraisingMetrics m = dashboard.metrics(owner.getId(), list.getId());
+        GiftListSummaryReport s = giftListService.summary(owner.getId(), list.getId());
+
+        assertThat(s.targetCents()).isEqualTo(m.targetCents());
+        assertThat(s.confirmedCents()).isEqualTo(m.confirmedCents()).isEqualTo(5500);
+        assertThat(s.pendingCents()).isEqualTo(m.pendingCents());
+        assertThat(s.refundRequiredCents()).isEqualTo(m.latePaymentsCents()).isEqualTo(9000);
+        assertThat(s.items()).extracting(i -> i.name() + ":" + i.confirmedQuotas() + "/" + i.availableQuotas())
+                .containsExactly("Carvao:1/0", "Picanha:0/1", "Gelo:1/0");
+        assertThat(s.contributors()).extracting(c -> c.guestName()).containsExactly("Bia", "Dani");
     }
 }
