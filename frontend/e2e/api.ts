@@ -1,4 +1,5 @@
-import { APIRequestContext, expect } from '@playwright/test';
+import { createHmac } from 'node:crypto';
+import { APIRequestContext, PlaywrightWorkerArgs, expect } from '@playwright/test';
 
 export const PASSWORD = 'senha12345';
 
@@ -104,4 +105,35 @@ export async function payAs(
   const r = await reserve(api, scenario.itemIds[itemName], guestName, message);
   await approve(api, r.providerReference);
   await waitConfirmed(api, scenario, expectedTotalCents);
+}
+
+export const API_URL = process.env['E2E_API_URL'] ?? 'http://localhost:8080';
+
+/** Runs `action` with the server clock 31 minutes ahead and the expiry job executed, then puts the clock back. */
+export async function withExpiredReservations(
+  playwright: PlaywrightWorkerArgs['playwright'],
+  action: () => Promise<void>,
+): Promise<void> {
+  const dev = await playwright.request.newContext({ baseURL: API_URL });
+  try {
+    expect((await dev.post('/dev/clock/advance', { data: { minutes: 31 } })).ok()).toBeTruthy();
+    expect((await dev.post('/dev/jobs/expire-reservations')).ok()).toBeTruthy();
+    await action();
+  } finally {
+    await dev.post('/dev/clock/reset');
+    await dev.dispose();
+  }
+}
+
+const WEBHOOK_SECRET = process.env['E2E_WEBHOOK_SECRET'] ?? 'change-me-webhook-secret';
+
+/** The mock gateway refuses to approve an expired charge, so a late payment only arrives as a signed webhook. */
+export async function sendPaidWebhook(api: APIRequestContext, providerReference: string, amountCents: number): Promise<void> {
+  const body = JSON.stringify({ eventId: crypto.randomUUID(), type: 'payment.paid', providerReference, amountCents });
+  const signature = 'sha256=' + createHmac('sha256', WEBHOOK_SECRET).update(body).digest('hex');
+  const response = await api.post('/api/webhooks/payments', {
+    headers: { 'Content-Type': 'application/json', 'X-Signature': signature },
+    data: body,
+  });
+  expect(response.status()).toBe(204);
 }

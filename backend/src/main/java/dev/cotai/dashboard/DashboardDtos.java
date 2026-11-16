@@ -23,7 +23,7 @@ public final class DashboardDtos {
     }
 
     public record FundraisingMetrics(UUID giftListId, String title, GiftListStatus status, long targetCents,
-                                     long confirmedCents, long pendingCents, int percentRaised, int totalQuotas,
+                                     long confirmedCents, long pendingCents, long latePaymentsCents, int percentRaised, int totalQuotas,
                                      int paidQuotas, int pendingQuotas, int remainingQuotas, long contributions,
                                      long contributors, Instant lastContributionAt, List<ItemProgress> items) {
     }

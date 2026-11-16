@@ -63,7 +63,19 @@ const EXPORT_PAGE_SIZE = 50;
               <dd class="sub">última em {{ m.lastContributionAt | date: 'short' }}</dd>
             }
           </div>
+          @if (m.latePaymentsCents > 0) {
+            <div class="late">
+              <dt>Pagamentos fora do prazo</dt>
+              <dd>{{ m.latePaymentsCents / 100 | currency: 'BRL' }}</dd>
+              <dd class="sub">não entram no total arrecadado</dd>
+            </div>
+          }
         </dl>
+        @if (m.latePaymentsCents > 0) {
+          <p class="cotai-alert cotai-alert--warning" role="status">
+            Chegaram pagamentos depois do prazo da reserva. Esse valor precisa ser estornado; as reservas não foram reabertas.
+          </p>
+        }
 
         <section class="block" aria-labelledby="items-title">
           <h2 id="items-title" class="section-title">Progresso por item</h2>
@@ -162,6 +174,7 @@ const EXPORT_PAGE_SIZE = 50;
     .kpis div { padding: 1rem; border-left: 2px solid var(--cotai-border); min-width: 0; }
     .kpis dt { font-size: .875rem; color: var(--cotai-muted); }
     .kpis dd { margin: .5rem 0 0; font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .kpis .late { background: var(--cotai-warning-bg); }
     .kpis dd.sub { margin: .25rem 0 0; font-size: .875rem; font-weight: 400; color: var(--cotai-muted); }
     .block { display: grid; gap: 1rem; }
     .section-title { margin: 0; font-size: 1.25rem; color: var(--cotai-primary); }
