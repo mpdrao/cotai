@@ -83,6 +83,7 @@ public class ReservationService {
 
         Reservation reservation = new Reservation(UUID.randomUUID(), item, cmd.guestName().trim(), email,
                 cmd.quantity(), manageTokenHash, now);
+        reservation.setMessage(cleanMessage(cmd.message()));
         Instant expiresAt = now.plus(Duration.ofMinutes(list.getReservationTtlMinutes()));
         reservation.setPayment(payments.save(new Payment(gateway.providerName(), reservation.getAmountCents(), expiresAt)));
         reservations.saveAndFlush(reservation);
@@ -140,6 +141,11 @@ public class ReservationService {
         int expired = reservations.markExpiredOverdue(clock.instant());
         payments.expireForExpiredReservations();
         return expired;
+    }
+
+    private static String cleanMessage(String message) {
+        String trimmed = message == null ? "" : message.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
     private String manageToken(UUID idempotencyKey) {

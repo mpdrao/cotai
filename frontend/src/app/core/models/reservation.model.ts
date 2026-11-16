@@ -31,4 +31,5 @@ export interface ReserveRequest {
   guestName: string;
   guestEmail: string;
   quantity: number;
+  message?: string;
 }

@@ -62,6 +62,9 @@ public class Reservation {
     @Column(name = "closed_at")
     private Instant closedAt;
 
+    @Column(length = 280)
+    private String message;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id", unique = true)
     private Payment payment;

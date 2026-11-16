@@ -37,6 +37,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/lists/list-new.component').then((m) => m.ListNewComponent),
   },
   {
+    path: 'lists/:id/arrecadacao',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/fundraising/fundraising-dashboard.component').then((m) => m.FundraisingDashboardComponent),
+  },
+  {
     path: 'lists/:id',
     canActivate: [authGuard],
     loadComponent: () => import('./features/lists/list-manage.component').then((m) => m.ListManageComponent),

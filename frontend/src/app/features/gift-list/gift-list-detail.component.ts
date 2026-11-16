@@ -36,6 +36,7 @@ export class GiftListDetailComponent implements OnInit {
 
   protected guestName = '';
   protected guestEmail = '';
+  protected message = '';
 
   protected readonly overall = computed(() => {
     const l = this.list();
@@ -84,7 +85,11 @@ export class GiftListDetailComponent implements OnInit {
     this.submitting.set(true);
     this.error.set('');
     this.giftListService
-      .reserve(item.id, { guestName: this.guestName, guestEmail: this.guestEmail, quantity: this.quantity() }, key)
+      .reserve(
+        item.id,
+        { guestName: this.guestName, guestEmail: this.guestEmail, quantity: this.quantity(), message: this.message },
+        key,
+      )
       .subscribe({
         next: (r) => {
           sessionStorage.setItem(`manage:${r.reservationId}`, r.manageToken);
