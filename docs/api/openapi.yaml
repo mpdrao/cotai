@@ -997,7 +997,7 @@ components:
 
     FundraisingMetrics:
       type: object
-      required: [giftListId, title, status, targetCents, confirmedCents, pendingCents, percentRaised, totalQuotas,
+      required: [giftListId, title, status, targetCents, confirmedCents, pendingCents, latePaymentsCents, percentRaised, totalQuotas,
                  paidQuotas, pendingQuotas, remainingQuotas, contributions, contributors, items]
       properties:
         giftListId: { type: string, format: uuid }
@@ -1006,6 +1006,10 @@ components:
         targetCents: { type: integer, format: int64 }
         confirmedCents: { type: integer, format: int64 }
         pendingCents: { type: integer, format: int64 }
+        latePaymentsCents:
+          type: integer
+          format: int64
+          description: Money received after the reservation deadline. It is not counted as raised.
         percentRaised: { type: integer, minimum: 0, maximum: 100 }
         totalQuotas: { type: integer }
         paidQuotas: { type: integer }

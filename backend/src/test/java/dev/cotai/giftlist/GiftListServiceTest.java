@@ -12,7 +12,7 @@ import dev.cotai.giftlist.GiftListDtos.ItemResponse;
 import dev.cotai.giftlist.GiftListDtos.UpdateGiftListRequest;
 import dev.cotai.organizer.Organizer;
 import dev.cotai.organizer.OrganizerRepository;
-import dev.cotai.payment.PaymentRepository;
+import dev.cotai.dashboard.DashboardService;
 import dev.cotai.reservation.ReservationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,7 +50,7 @@ class GiftListServiceTest {
     @Mock
     private ReservationRepository reservations;
     @Mock
-    private PaymentRepository payments;
+    private DashboardService dashboard;
     @Mock
     private SlugGenerator slugGenerator;
 
@@ -69,7 +69,7 @@ class GiftListServiceTest {
                 "test-manage-secret"
         );
         service = new GiftListService(
-                giftLists, items, eventTypes, organizers, reservations, payments, slugGenerator, props, clock
+                giftLists, items, eventTypes, organizers, reservations, dashboard, slugGenerator, props, clock
         );
 
         organizer = new Organizer("Mario", "mario@example.com", "hash", now);

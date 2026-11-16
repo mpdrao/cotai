@@ -80,4 +80,15 @@ public interface DashboardRepository extends JpaRepository<Reservation, UUID> {
             """)
     Page<Contribution> findContributionsByItem(@Param("giftListId") UUID giftListId, @Param("itemId") Long itemId,
                                                Pageable pageable);
+
+    @Query("""
+            select new dev.cotai.dashboard.DashboardDtos$Contribution(
+                   r.id, r.guestName, i.id, i.name, r.quantity, p.amountCents, p.paidAt, r.message)
+            from Reservation r join r.item i join r.payment p
+            where i.giftList.id = :giftListId
+              and r.status = dev.cotai.reservation.ReservationStatus.CONFIRMED
+              and p.status = dev.cotai.payment.PaymentStatus.PAID
+            order by p.paidAt, r.id
+            """)
+    List<Contribution> findAllContributions(@Param("giftListId") UUID giftListId);
 }

@@ -1,5 +1,15 @@
 import { Page, expect, test } from '@playwright/test';
-import { PASSWORD, Scenario, createPublishedList, payAs, registerOrganizer, reserve, waitConfirmed } from './api';
+import {
+  PASSWORD,
+  Scenario,
+  createPublishedList,
+  payAs,
+  registerOrganizer,
+  reserve,
+  sendPaidWebhook,
+  waitConfirmed,
+  withExpiredReservations,
+} from './api';
 
 const ITEMS = [
   { name: 'Carvao', unitPriceCents: 4500 },
@@ -193,5 +203,46 @@ test.describe('US-02 mensagem do convidado até o painel', () => {
     await expect(feed.first()).toContainText('Fernanda Costa');
     await expect(feed.first().locator('blockquote')).toHaveText('Boa festa! Com carinho, Fê');
     await expect(page.getByText('100% da meta confirmada')).toBeVisible();
+  });
+});
+
+test.describe('US-02 pagamentos fora do prazo', () => {
+  test('aparecem à parte no painel e na tela da lista, sem entrar no total arrecadado', async ({
+    page,
+    playwright,
+    baseURL,
+  }) => {
+    const api = await playwright.request.newContext({ baseURL });
+    const organizer = await registerOrganizer(api, 'atrasado');
+    const scenario = await createPublishedList(api, organizer, [
+      { name: 'Carvao', unitPriceCents: 4500 },
+      { name: 'Picanha', unitPriceCents: 9000 },
+    ]);
+    await payAs(api, scenario, 'Carvao', 'Bia Souza', undefined, 4500);
+
+    const late = await reserve(api, scenario.itemIds['Picanha'], 'Caio Lima');
+    await withExpiredReservations(playwright, async () => {
+      await sendPaidWebhook(api, late.providerReference, 9000);
+      await expect
+        .poll(async () => {
+          const response = await api.get(`/api/gift-lists/${scenario.listId}/metrics`, {
+            headers: { Authorization: `Bearer ${organizer.token}` },
+          });
+          return (await response.json()).latePaymentsCents;
+        }, { timeout: 15_000 })
+        .toBe(9000);
+    });
+    await api.dispose();
+
+    await loginAs(page, organizer.email, `/lists/${scenario.listId}/arrecadacao`);
+    const kpis = page.locator('dl.kpis');
+    await expect(kpis.locator('div', { hasText: /^Total arrecadado/ })).toContainText(money('45,00'));
+    await expect(kpis.locator('div', { hasText: 'Pagamentos fora do prazo' })).toContainText(money('90,00'));
+    await expect(page.getByText('Chegaram pagamentos depois do prazo da reserva.')).toBeVisible();
+    await expect(page.locator('ul.feed > li')).toHaveCount(1);
+    await expect(page.getByText('Caio Lima')).toHaveCount(0);
+
+    await page.goto(`/lists/${scenario.listId}`);
+    await expect(page.locator('.tiles .refund')).toContainText(money('90,00'));
   });
 });
