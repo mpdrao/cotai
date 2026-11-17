@@ -1,4 +1,4 @@
-package dev.cotai.common;
+package dev.cotai.security;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

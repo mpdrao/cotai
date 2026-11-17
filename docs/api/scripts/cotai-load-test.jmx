@@ -148,7 +148,7 @@
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
                 <stringProp name="Argument.value">{&#xd;
-  &quot;eventTypeCode&quot;: &quot;BARBECUE&quot;,&#xd;
+  &quot;eventCode&quot;: &quot;BARBECUE&quot;,&#xd;
   &quot;title&quot;: &quot;Churrasco Teste de Carga&quot;,&#xd;
   &quot;eventDate&quot;: &quot;2027-12-20&quot;,&#xd;
   &quot;reservationTtlMinutes&quot;: 30,&#xd;

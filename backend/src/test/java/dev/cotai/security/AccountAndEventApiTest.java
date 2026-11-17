@@ -1,7 +1,6 @@
 package dev.cotai.security;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
-import dev.cotai.common.AppProperties;
 import dev.cotai.common.ClockConfig;
 import dev.cotai.event.Event;
 import dev.cotai.event.EventController;

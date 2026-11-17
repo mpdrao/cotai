@@ -3,6 +3,7 @@ package dev.cotai.event;
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
 import dev.cotai.giftlist.GiftListDtos.ItemResponse;
+import dev.cotai.giftlist.Item;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +37,9 @@ public class EventController {
         Event event = events.findById(eventCode.trim().toUpperCase(Locale.ROOT))
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "Event not found: " + eventCode));
 
-        return event.suggestedItems().stream()
+        return event.getItems().stream()
+                .filter(Item::isDefault)
+                .filter(item -> !item.isArchived())
                 .map(ItemResponse::of)
                 .toList();
     }

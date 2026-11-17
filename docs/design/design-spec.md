@@ -59,7 +59,7 @@ cotai/
 │   ├── docker-compose.yml               # postgres:17
 │   └── src/
 │       ├── main/java/dev/cotai/
-│       │   ├── security/                # SecurityConfig, JwtService, AuthController, AuthDtos
+│       │   ├── security/                # SecurityConfig, JwtService, AuthController, AuthDtos, AppProperties
 │       │   ├── organizer/               # Organizer, OrganizerRepository
 │       │   ├── event/                   # Event, EventController
 │       │   ├── giftlist/                # GiftList, Item, GiftListService, GiftListController,
@@ -69,7 +69,7 @@ cotai/
 │       │   ├── mockgateway/             # @Profile("dev"): MockPaymentGateway, MockGatewayController, WebhookDispatcher
 │       │   ├── devsupport/              # @Profile("dev"): MutableClock, DevController
 │       │   └── common/                  # GlobalExceptionHandler, ErrorCode, BusinessException,
-│       │                                #   ClockConfig, AppProperties, Crypto, SpaForwardController
+│       │                                #   ClockConfig, Crypto, SpaForwardController
 │       ├── main/resources/
 │       │   ├── application.yml
 │       │   ├── application-dev.yml      # mock-gateway.*
@@ -313,6 +313,7 @@ classDiagram
     -String manageTokenHash
     -Instant createdAt
     -Instant closedAt
+    -String message
     +effectiveStatus(Instant now) ReservationStatus
   }
 
@@ -352,7 +353,7 @@ classDiagram
     FAILED
   }
 
-  Event o--> Item
+  Event "0..1" o--> "0..*" Item : item
   Event --> "1" GiftList : giftList
   Event "0..1" --> "0..1" Event : event
   Organizer "1" <-- "0..*" GiftList : owner
