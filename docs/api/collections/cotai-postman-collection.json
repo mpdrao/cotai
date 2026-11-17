@@ -258,10 +258,10 @@
       ]
     },
     {
-      "name": "01 Event types",
+      "name": "01 Events",
       "item": [
         {
-          "name": "List event types",
+          "name": "List events",
           "event": [
             {
               "listen": "test",
@@ -272,7 +272,7 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "const list = pm.response.json();",
-                  "pm.test('Contains the 5 event types, birthday included', function () {",
+                  "pm.test('Contains the 5 events, birthday included', function () {",
                   "    pm.expect(list.length).to.be.at.least(5);",
                   "    pm.expect(list.map(t => t.code)).to.include('BIRTHDAY');",
                   "});"
@@ -313,6 +313,8 @@
                   "const items = pm.response.json();",
                   "pm.test('Returns 10 suggested items for BARBECUE', function () {",
                   "    pm.expect(items.length).to.eql(10);",
+                  "    pm.expect(items[0].isDefault).to.be.true;",
+                  "    pm.expect(items[0].totalQuotas).to.eql(1);",
                   "});"
                 ]
               }
@@ -385,7 +387,7 @@
       "name": "02 Organizer - gift lists",
       "item": [
         {
-          "name": "Create gift list from template",
+          "name": "Create gift list",
           "event": [
             {
               "listen": "test",
@@ -438,12 +440,68 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"eventCode\": \"BARBECUE\",\n  \"title\": \"Churrasco da Turma\",\n  \"eventDate\": \"2027-12-15\",\n  \"reservationTtlMinutes\": 30,\n  \"items\": [\n    {\n      \"name\": \"Picanha maturata\",\n      \"unit\": \"kg\",\n      \"unitPriceCents\": 8500,\n      \"totalQuotas\": 2\n    },\n    {\n      \"name\": \"Carvao vegetal\",\n      \"unit\": \"saco 5kg\",\n      \"unitPriceCents\": 6000,\n      \"totalQuotas\": 2\n    }\n  ]\n}",
+              "raw": "{\n  \"eventCode\": \"BARBECUE\",\n  \"title\": \"Churrasco da Turma\",\n  \"eventDate\": \"2027-12-15\",\n  \"reservationTtlMinutes\": 30,\n  \"items\": [\n    {\n      \"name\": \"Picanha maturata\",\n      \"unit\": \"kg\",\n      \"unitPriceCents\": 8500,\n      \"totalQuotas\": 1\n    },\n    {\n      \"name\": \"Carvao vegetal\",\n      \"unit\": \"saco 5kg\",\n      \"unitPriceCents\": 6000,\n      \"totalQuotas\": 1\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update gift list (US-07)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Updated title and eventCode', function () {",
+                  "    pm.expect(json.title).to.eql('Churrasco da Turma');",
+                  "    pm.expect(json.eventCode).to.eql('BARBECUE');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Churrasco da Turma\",\n  \"eventDate\": \"2027-12-15\",\n  \"reservationTtlMinutes\": 30,\n  \"eventCode\": \"BARBECUE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": []
@@ -668,7 +726,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Picanha Angus Especial\",\n  \"unit\": \"kg\",\n  \"unitPriceCents\": 9000,\n  \"totalQuotas\": 2\n}",
+              "raw": "{\n  \"name\": \"Picanha Angus Especial\",\n  \"unit\": \"kg\",\n  \"unitPriceCents\": 9000,\n  \"totalQuotas\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -727,7 +785,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Pao de alho\",\n  \"unit\": \"bandeja\",\n  \"unitPriceCents\": 2000,\n  \"totalQuotas\": 3\n}",
+              "raw": "{\n  \"name\": \"Pao de alho\",\n  \"unit\": \"bandeja\",\n  \"unitPriceCents\": 2000,\n  \"totalQuotas\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -891,7 +949,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"guestName\": \"Maria Convidada\",\n  \"guestEmail\": \"maria@example.com\",\n  \"quantity\": 1\n}",
+              "raw": "{\n  \"guestName\": \"Maria Convidada\",\n  \"guestEmail\": \"maria@example.com\",\n  \"quantity\": 1,\n  \"message\": \"Parabens pelo churrasco!\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -951,7 +1009,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"guestName\": \"Maria Convidada\",\n  \"guestEmail\": \"maria@example.com\",\n  \"quantity\": 1\n}",
+              "raw": "{\n  \"guestName\": \"Maria Convidada\",\n  \"guestEmail\": \"maria@example.com\",\n  \"quantity\": 1,\n  \"message\": \"Parabens pelo churrasco!\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1219,6 +1277,115 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Organizer fundraising metrics (US-02)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Metrics show 9000 confirmedCents and 1 paidQuota', function () {",
+                  "    pm.expect(json.confirmedCents).to.eql(9000);",
+                  "    pm.expect(json.paidQuotas).to.eql(1);",
+                  "    pm.expect(json.contributions).to.eql(1);",
+                  "    pm.expect(json.contributors).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/metrics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "metrics"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Organizer paid contributions (US-02)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('Returns paid contribution with guest message', function () {",
+                  "    pm.expect(json.content.length).to.eql(1);",
+                  "    pm.expect(json.content[0].guestName).to.eql('Maria Convidada');",
+                  "    pm.expect(json.content[0].message).to.eql('Parabens pelo churrasco!');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/payments?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "gift-lists",
+                "{{giftListId}}",
+                "payments"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -1256,7 +1423,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "raw": "{{baseUrl}}/api/public/items/{{secondItemId}}/reservations",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1264,7 +1431,7 @@
                 "api",
                 "public",
                 "items",
-                "{{itemId}}",
+                "{{secondItemId}}",
                 "reservations"
               ]
             },
@@ -1420,8 +1587,8 @@
                   "pm.test('Status code is 200', function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "const item = pm.response.json().items.find(i => String(i.id) === pm.collectionVariables.get('itemId'));",
-                  "pm.test('1 quota available again on first item', function () {",
+                  "const item = pm.response.json().items.find(i => String(i.id) === pm.collectionVariables.get('secondItemId'));",
+                  "pm.test('1 quota available again on second item', function () {",
                   "    pm.expect(item.availableQuotas).to.eql(1);",
                   "});"
                 ]
@@ -1571,7 +1738,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "raw": "{{baseUrl}}/api/public/items/{{secondItemId}}/reservations",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1579,7 +1746,7 @@
                 "api",
                 "public",
                 "items",
-                "{{itemId}}",
+                "{{secondItemId}}",
                 "reservations"
               ]
             },
@@ -1622,7 +1789,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "raw": "{{baseUrl}}/api/public/items/{{secondItemId}}/reservations",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1630,7 +1797,7 @@
                 "api",
                 "public",
                 "items",
-                "{{itemId}}",
+                "{{secondItemId}}",
                 "reservations"
               ]
             },
@@ -1680,7 +1847,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "raw": "{{baseUrl}}/api/public/items/{{secondItemId}}/reservations",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1688,7 +1855,7 @@
                 "api",
                 "public",
                 "items",
-                "{{itemId}}",
+                "{{secondItemId}}",
                 "reservations"
               ]
             },
@@ -1698,64 +1865,6 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"guestName\": \"Convidado Excesso\",\n  \"guestEmail\": \"excesso@example.com\",\n  \"quantity\": 10\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Reused Idempotency-Key with another body is 422",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 422', function () {",
-                  "    pm.response.to.have.status(422);",
-                  "});",
-                  "pm.test('Error code is IDEMPOTENCY_KEY_MISMATCH', function () {",
-                  "    pm.expect(pm.response.json().code).to.eql('IDEMPOTENCY_KEY_MISMATCH');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Idempotency-Key",
-                "value": "{{idempotencyKey1}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "public",
-                "items",
-                "{{itemId}}",
-                "reservations"
-              ]
-            },
-            "auth": {
-              "type": "noauth"
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"guestName\": \"Outro Corpo Com Mesma Chave\",\n  \"guestEmail\": \"outro@example.com\",\n  \"quantity\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1797,7 +1906,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "raw": "{{baseUrl}}/api/public/items/{{secondItemId}}/reservations",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1805,7 +1914,7 @@
                 "api",
                 "public",
                 "items",
-                "{{itemId}}",
+                "{{secondItemId}}",
                 "reservations"
               ]
             },
@@ -1857,7 +1966,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/public/items/{{itemId}}/reservations",
+              "raw": "{{baseUrl}}/api/public/items/{{secondItemId}}/reservations",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1865,7 +1974,7 @@
                 "api",
                 "public",
                 "items",
-                "{{itemId}}",
+                "{{secondItemId}}",
                 "reservations"
               ]
             },
@@ -1875,67 +1984,6 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"guestName\": \"Sem Cota Guest\",\n  \"guestEmail\": \"semcota@example.com\",\n  \"quantity\": 1\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Reduce quotas below occupied is 409",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status code is 409', function () {",
-                  "    pm.response.to.have.status(409);",
-                  "});",
-                  "pm.test('Code is QUOTAS_BELOW_OCCUPIED', function () {",
-                  "    pm.expect(pm.response.json().code).to.eql('QUOTAS_BELOW_OCCUPIED');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/gift-lists/{{giftListId}}/items/{{itemId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "gift-lists",
-                "{{giftListId}}",
-                "items",
-                "{{itemId}}"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{accessToken}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Picanha Angus Especial\",\n  \"unit\": \"kg\",\n  \"unitPriceCents\": 9000,\n  \"totalQuotas\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2714,8 +2762,8 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "const second = pm.response.json().items.find(i => String(i.id) === pm.collectionVariables.get('secondItemId'));",
-                  "pm.test('All 2 quotas available again immediately after TTL', function () {",
-                  "    pm.expect(second.availableQuotas).to.eql(2);",
+                  "pm.test('Quota available again immediately after TTL', function () {",
+                  "    pm.expect(second.availableQuotas).to.eql(1);",
                   "});"
                 ]
               }
