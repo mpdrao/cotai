@@ -20,8 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An event from the catalog (barbecue, birthday, wedding...). It brings the
- * suggested items and the default payment window used when a list is created.
+ * Event of a gift list (cotai - modelo de objeto).
+ *
+ * <p>Catalog Events (barbecue, birthday, wedding...) have no parent {@code event}: each one belongs to a
+ * template list owned by the system and offers the suggested {@code item}s. When an organizer creates a
+ * list (US-07), the list gets its own Event, whose {@code event} points to the catalog Event it was based on
+ * and whose {@code code} is the list slug.</p>
  */
 @Entity
 @Table(name = "event")
@@ -31,7 +35,7 @@ import java.util.List;
 public class Event {
 
     @Id
-    @Column(length = 30)
+    @Column(length = 100)
     private String code;
 
     @Column(nullable = false, length = 60)
@@ -44,22 +48,20 @@ public class Event {
     @JoinColumn(name = "event_code")
     private Event event;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gift_list_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "gift_list_id", nullable = false)
     private GiftList giftList;
 
-    @OneToMany(mappedBy = "event")
+    @OneToMany
+    @JoinColumn(name = "event_code")
     @OrderBy("id ASC")
-    private List<Item> items = new ArrayList<>();
+    private List<Item> item = new ArrayList<>();
 
-    public Event(String code, String name, int defaultReservationTtlMinutes) {
+    public Event(String code, String name, int defaultReservationTtlMinutes, Event event, GiftList giftList) {
         this.code = code;
         this.name = name;
         this.defaultReservationTtlMinutes = defaultReservationTtlMinutes;
-    }
-
-    public Event(String code, String name, int defaultReservationTtlMinutes, Event event) {
-        this(code, name, defaultReservationTtlMinutes);
         this.event = event;
+        this.giftList = giftList;
     }
 }

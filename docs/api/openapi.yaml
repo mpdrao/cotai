@@ -134,10 +134,7 @@ paths:
             schema: { $ref: '#/components/schemas/CreateGiftListRequest' }
       responses:
         '201':
-          description: Created.
-          headers:
-            Location:
-              schema: { type: string, example: /api/gift-lists/0f8b2c9e-6c1d-4a51-9a39-2d7f7e3b1c11 }
+          description: Created. The list gets its own Event, based on the catalog Event in `eventCode`.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/GiftList' }
@@ -868,8 +865,8 @@ components:
         code: { $ref: '#/components/schemas/EventCode' }
         name: { type: string, example: Churrasco }
         defaultReservationTtlMinutes: { type: integer, example: 30 }
-        eventCode: { type: [string, 'null'], description: Optional parent event code (self-relationship). }
-        giftListId: { type: [string, 'null'], format: uuid, description: Optional associated gift list id. }
+        eventCode: { type: [string, 'null'], description: 'Event this one is based on (Event - event 0..1). Always null in the catalog.' }
+        giftListId: { type: string, format: uuid, description: 'List the Event belongs to (Event - giftList 1). For a catalog Event, its template list.' }
 
     ItemInput:
       type: object
@@ -1052,10 +1049,10 @@ components:
 
     PublicGiftList:
       type: object
-      required: [title, eventCode, eventDate, status, acceptsReservations, items]
+      required: [title, eventTypeCode, eventDate, status, acceptsReservations, items]
       properties:
         title: { type: string }
-        eventCode: { $ref: '#/components/schemas/EventCode' }
+        eventTypeCode: { $ref: '#/components/schemas/EventCode' }
         eventDate: { type: string, format: date }
         status: { $ref: '#/components/schemas/GiftListStatus' }
         acceptsReservations: { type: boolean, description: 'status = PUBLISHED and eventDate >= today (app.zone).' }

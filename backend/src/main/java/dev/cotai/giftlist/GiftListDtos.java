@@ -72,8 +72,9 @@ public final class GiftListDtos {
     public record GiftListResponse(UUID id, String title, String slug, String eventCode, LocalDate eventDate,
                                    GiftListStatus status, int reservationTtlMinutes, List<ItemResponse> items,
                                    Instant createdAt) {
-        public static GiftListResponse of(GiftList l) {
-            return new GiftListResponse(l.getId(), l.getTitle(), l.getSlug(), l.getEvent().getCode(),
+        /** {@code eventCode} is the catalog Event the list's own Event is based on. */
+        public static GiftListResponse of(GiftList l, String eventCode) {
+            return new GiftListResponse(l.getId(), l.getTitle(), l.getSlug(), eventCode,
                     l.getEventDate(), l.getStatus(), l.getReservationTtlMinutes(),
                     l.getItems().stream().map(ItemResponse::of).toList(), l.getCreatedAt());
         }
@@ -102,7 +103,7 @@ public final class GiftListDtos {
                              int availableQuotas, String imageUrl) {
     }
 
-    public record PublicGiftList(String title, String eventCode, LocalDate eventDate, GiftListStatus status,
+    public record PublicGiftList(String title, String eventTypeCode, LocalDate eventDate, GiftListStatus status,
                                  boolean acceptsReservations, List<PublicItem> items) {
     }
 }

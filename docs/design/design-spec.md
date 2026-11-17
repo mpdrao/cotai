@@ -36,6 +36,17 @@ Este documento descreve o código da branch `develop`. Onde o código ainda não
 - **Sem classe `Money`:** dinheiro é sempre `long` em centavos.
 - **Front em `core/`, `features/` e `shared/`**, com o design system Cota Ae! (seção [Front-end e design system](#front-end-e-design-system)).
 
+### O que mudou na v0.4 (1:1 com o modelo Astah validado)
+
+O diagrama de objetos validado pelo professor não muda; o código passou a segui-lo:
+
+- **Cada lista tem o seu `Event`** (`Event - giftList 1`). O código desse Event é o slug da lista, e o `event` dele (`Event - event 0..1`) aponta para o Event do catálogo em que foi baseado. Trocar o tipo na edição (US-07) atualiza esse Event e mantém os itens.
+- **Catálogo em listas-modelo.** Os tipos de evento (Churrasco, Casamento...) são os Events sem `event`. Cada um pertence a uma lista-modelo (`catalogo-<tipo>`, DRAFT, data 2099-12-31) de um organizador de sistema (`catalogo@cotai.local`, sem senha válida). Os itens sugeridos ficam nessa lista com `isDefault = true`, então todo `Item` tem lista (`Item - giftList 1`).
+- **`GiftList` não aponta mais para `Event`** e `Item` não aponta para `Event`: no diagrama só o Event navega (`- giftList`, `- item`). A migration `V8__event_per_gift_list.sql` cria os Events das listas existentes e remove `gift_list.event_code`.
+- **Cada item continua valendo 1 cota.** O `Item` do diagrama não tem `totalQuotas`; o US-03 reserva o item inteiro (quantidade 1) e o US-02 mostra 0 ou 1 cota por item.
+- **`POST /api/gift-lists` e `POST /api/gift-lists/{id}/items`** devolvem o DTO direto com 201, como as operações `create` e `addItem` do diagrama de arquitetura API; o header `Location` saiu.
+- **`PublicGiftList.eventTypeCode`**, como no diagrama de arquitetura WEB do US-03.
+
 ## Monorepo
 
 Um repositório, um JAR. O Maven fica em `backend/` e, por padrão, builda também o Angular de `../frontend` (`-DskipWeb` pula); em produção o build do Angular vai para `static/` dentro do JAR, então não existe CORS em produção.
@@ -745,7 +756,7 @@ A última coluna diz onde cada caso é reproduzido. collection roda no Postman o
 
 ## Itens padrão por tipo de evento
 
-São 10 sugestões por evento, gravadas na migration `V2__event_seed.sql`, para `BARBECUE` (Churrasco), `BABY_SHOWER` (Chá de bebê), `WEDDING` (Casamento) e `BIRTHDAY` (Aniversário); `OTHER` (Outro) não tem sugestões. As sugestões ficam na tabela `item`, com `is_default = true` e o `event_code` do evento. O organizador edita tudo antes de criar a lista. Os códigos são em inglês, e os nomes dos itens ficam em português porque são dados exibidos ao usuário. Os preços são exemplos. Todos os eventos usam 30 min de prazo por padrão.
+São 10 sugestões por evento, gravadas na migration `V2__event_seed.sql`, para `BARBECUE` (Churrasco), `BABY_SHOWER` (Chá de bebê), `WEDDING` (Casamento) e `BIRTHDAY` (Aniversário); `OTHER` (Outro) não tem sugestões. As sugestões ficam na tabela `item`, com `is_default = true`, o `event_code` do evento e, desde a `V8__event_per_gift_list.sql`, o `gift_list_id` da lista-modelo daquele tipo. O organizador edita tudo antes de criar a lista. Os códigos são em inglês, e os nomes dos itens ficam em português porque são dados exibidos ao usuário. Os preços são exemplos. Todos os eventos usam 30 min de prazo por padrão.
 
 Cada sugestão aceita uma foto de banco de imagens (`item.image_url`, coluna criada na `V1__schema.sql`), que é copiada para o item quando a lista é criada. As fotos ainda não foram adicionadas: a coluna está vazia e as sugestões aparecem sem foto. Para adicionar, coloque os arquivos em `frontend/public/suggestions/` com nomes no formato `barbecue-1.jpg` (código do tipo em minúsculas, `_` vira `-`, e a posição) e crie uma migration que preencha `image_url` com `/suggestions/<arquivo>`. A API só aceita `imageUrl` nesse formato (`^/suggestions/[a-z0-9-]+\.jpg$`).
 

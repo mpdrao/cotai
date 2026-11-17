@@ -50,19 +50,23 @@ public class GiftListService {
     private final AppProperties props;
     private final Clock clock;
 
+    /** US-07: the list gets its own Event, based on the catalog Event the organizer picked. */
     public GiftListResponse create(UUID ownerId, CreateGiftListRequest req) {
-        Event event = event(req.eventCode());
+        Event catalogEvent = catalogEvent(req.eventCode());
         ensureNotInThePast(req.eventDate());
         int ttl = req.reservationTtlMinutes() != null
-                ? req.reservationTtlMinutes() : event.getDefaultReservationTtlMinutes();
+                ? req.reservationTtlMinutes() : catalogEvent.getDefaultReservationTtlMinutes();
 
-        GiftList list = new GiftList(organizers.getReferenceById(ownerId), event, req.title().trim(),
+        GiftList list = new GiftList(organizers.getReferenceById(ownerId), req.title().trim(),
                 uniqueSlug(req.title()), req.eventDate(), ttl, clock.instant());
         for (ItemInput in : req.items()) {
             Item item = list.addItem(in.name().trim(), in.unit().trim(), in.unitPriceCents());
             item.setImageUrl(in.imageUrl());
         }
-        return GiftListResponse.of(giftLists.save(list));
+        giftLists.save(list);
+        events.save(new Event(list.getSlug(), catalogEvent.getName(),
+                catalogEvent.getDefaultReservationTtlMinutes(), catalogEvent, list));
+        return GiftListResponse.of(list, catalogEvent.getCode());
     }
 
     @Transactional(readOnly = true)
@@ -72,26 +76,39 @@ public class GiftListService {
 
     @Transactional(readOnly = true)
     public GiftListResponse get(UUID ownerId, UUID id) {
-        return GiftListResponse.of(owned(ownerId, id));
+        return response(owned(ownerId, id));
     }
 
     public GiftListResponse update(UUID ownerId, UUID id, UpdateGiftListRequest req) {
         GiftList list = owned(ownerId, id);
         // Check everything before touching the list, so a bad field does not leave half an update behind.
-        Event newEvent = req.eventCode() != null ? event(req.eventCode()) : null;
+        Event newCatalogEvent = req.eventCode() != null ? catalogEvent(req.eventCode()) : null;
         // Only a new date is checked: renaming a list whose event already happened must still work.
         if (req.eventDate() != null && !req.eventDate().equals(list.getEventDate())) {
             ensureNotInThePast(req.eventDate());
         }
         list.update(req.title(), req.eventDate(), req.reservationTtlMinutes());
-        if (newEvent != null) {
-            list.changeEvent(newEvent);
+        Event listEvent = eventOf(list);
+        if (newCatalogEvent != null) {
+            // Changing the event keeps the items: suggestions are only used when the list is created.
+            listEvent.setEvent(newCatalogEvent);
+            listEvent.setName(newCatalogEvent.getName());
+            listEvent.setDefaultReservationTtlMinutes(newCatalogEvent.getDefaultReservationTtlMinutes());
         }
-        return GiftListResponse.of(list);
+        return GiftListResponse.of(list, listEvent.getEvent().getCode());
     }
 
-    private Event event(String code) {
-        return events.findById(code).orElseThrow(() -> BusinessException.notFound("Event"));
+    private Event catalogEvent(String code) {
+        return events.findCatalogEvent(code).orElseThrow(() -> BusinessException.notFound("Event"));
+    }
+
+    /** The list's own Event (Event - giftList 1). */
+    private Event eventOf(GiftList list) {
+        return events.findByGiftListId(list.getId()).orElseThrow(() -> BusinessException.notFound("Event"));
+    }
+
+    private GiftListResponse response(GiftList list) {
+        return GiftListResponse.of(list, eventOf(list).getEvent().getCode());
     }
 
     private void ensureNotInThePast(LocalDate eventDate) {
@@ -103,13 +120,13 @@ public class GiftListService {
     public GiftListResponse publish(UUID ownerId, UUID id) {
         GiftList list = owned(ownerId, id);
         list.publish(today());
-        return GiftListResponse.of(list);
+        return response(list);
     }
 
     public GiftListResponse close(UUID ownerId, UUID id) {
         GiftList list = owned(ownerId, id);
         list.close();
-        return GiftListResponse.of(list);
+        return response(list);
     }
 
     public ItemResponse addItem(UUID ownerId, UUID id, ItemInput in) {
@@ -220,7 +237,7 @@ public class GiftListService {
                         1, Math.max(1 - occupied.getOrDefault(i.getId(), 0), 0),
                         i.getImageUrl()))
                 .toList();
-        return new PublicGiftList(list.getTitle(), list.getEvent().getCode(), list.getEventDate(),
+        return new PublicGiftList(list.getTitle(), eventOf(list).getEvent().getCode(), list.getEventDate(),
                 list.getStatus(), list.acceptsReservations(today()), publicItems);
     }
 

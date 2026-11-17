@@ -1,7 +1,9 @@
 package dev.cotai.event;
 
+import dev.cotai.giftlist.GiftList;
 import dev.cotai.giftlist.GiftListDtos;
 import dev.cotai.giftlist.Item;
+import dev.cotai.organizer.Organizer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,6 +11,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +28,11 @@ class EventControllerTest {
 
     private EventController controller;
 
+    private static GiftList catalogList() {
+        Organizer system = new Organizer("Cota Ae! (catálogo)", "catalogo@cotai.local", "!", Instant.now());
+        return new GiftList(system, "Catálogo", "catalogo", LocalDate.of(2099, 12, 31), 30, Instant.now());
+    }
+
     @BeforeEach
     void setUp() {
         controller = new EventController(events);
@@ -31,9 +40,9 @@ class EventControllerTest {
 
     @Test
     void listReturnsAllEvents() {
-        Event wedding = new Event("WEDDING", "Casamento", 30);
-        Event barbecue = new Event("BARBECUE", "Churrasco", 30);
-        when(events.findAllByOrderByNameAsc()).thenReturn(List.of(wedding, barbecue));
+        Event wedding = new Event("WEDDING", "Casamento", 30, null, catalogList());
+        Event barbecue = new Event("BARBECUE", "Churrasco", 30, null, catalogList());
+        when(events.findAllByEventIsNullOrderByNameAsc()).thenReturn(List.of(wedding, barbecue));
 
         List<EventController.EventResponse> response = controller.list();
 
@@ -44,10 +53,12 @@ class EventControllerTest {
 
     @Test
     void itemsReturnsItemsForEvent() {
-        Event event = new Event("BARBECUE", "Churrasco", 30);
-        Item item = new Item(event, "Picanha", "kg", 9000, null);
-        ReflectionTestUtils.setField(event, "items", new ArrayList<>(List.of(item)));
-        when(events.findById("BARBECUE")).thenReturn(Optional.of(event));
+        GiftList catalog = catalogList();
+        Event event = new Event("BARBECUE", "Churrasco", 30, null, catalog);
+        Item item = new Item(catalog, "Picanha", "kg", 9000, null);
+        item.setDefault(true);
+        ReflectionTestUtils.setField(event, "item", new ArrayList<>(List.of(item)));
+        when(events.findCatalogEvent("BARBECUE")).thenReturn(Optional.of(event));
 
         List<GiftListDtos.ItemResponse> response = controller.items("barbecue");
 

@@ -138,7 +138,7 @@ export interface PublicItem {
 
 export interface PublicGiftList {
   title: string;
-  eventCode: string;
+  eventTypeCode: string;
   eventDate: string;
   status: GiftListStatus;
   acceptsReservations: boolean;

@@ -8,6 +8,7 @@ import dev.cotai.event.EventRepository;
 import dev.cotai.giftlist.GiftListController;
 import dev.cotai.giftlist.GiftListDtos.UpdateGiftListRequest;
 import dev.cotai.giftlist.GiftListService;
+import dev.cotai.giftlist.GiftList;
 import dev.cotai.giftlist.Item;
 import dev.cotai.giftlist.PublicGiftListController;
 import dev.cotai.organizer.Organizer;
@@ -36,6 +37,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -225,7 +227,7 @@ class AccountAndEventApiTest {
         @Test
         @DisplayName("sign up, login and the event catalog are open to everyone")
         void publicEndpoints() throws Exception {
-            when(events.findAllByOrderByNameAsc()).thenReturn(List.of());
+            when(events.findAllByEventIsNullOrderByNameAsc()).thenReturn(List.of());
 
             mvc.perform(get("/api/events")).andExpect(status().isOk());
         }
@@ -240,12 +242,17 @@ class AccountAndEventApiTest {
         @Test
         @DisplayName("the catalog has the event types with the suggested items of each one")
         void catalogWithSuggestions() throws Exception {
-            Event birthday = new Event("BIRTHDAY", "Aniversário", 30);
-            ReflectionTestUtils.setField(birthday, "items", new ArrayList<>(List.of(
-                    new Item(birthday, "Bolo", "unidade", 15000, null),
-                    new Item(birthday, "Docinhos", "cento", 9000, null))));
-            when(events.findAllByOrderByNameAsc()).thenReturn(List.of(birthday));
-            when(events.findById("BIRTHDAY")).thenReturn(Optional.of(birthday));
+            GiftList catalog = new GiftList(new Organizer("Cota Ae! (catálogo)", "catalogo@cotai.local", "!",
+                    Instant.now()), "Catálogo: Aniversário", "catalogo-birthday", LocalDate.of(2099, 12, 31), 30,
+                    Instant.now());
+            Event birthday = new Event("BIRTHDAY", "Aniversário", 30, null, catalog);
+            Item bolo = new Item(catalog, "Bolo", "unidade", 15000, null);
+            Item docinhos = new Item(catalog, "Docinhos", "cento", 9000, null);
+            bolo.setDefault(true);
+            docinhos.setDefault(true);
+            ReflectionTestUtils.setField(birthday, "item", new ArrayList<>(List.of(bolo, docinhos)));
+            when(events.findAllByEventIsNullOrderByNameAsc()).thenReturn(List.of(birthday));
+            when(events.findCatalogEvent("BIRTHDAY")).thenReturn(Optional.of(birthday));
 
             mvc.perform(get("/api/events"))
                     .andExpect(jsonPath("$[0].code").value("BIRTHDAY"))

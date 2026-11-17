@@ -26,7 +26,7 @@ public class EventController {
 
     @GetMapping
     public List<EventResponse> list() {
-        return events.findAllByOrderByNameAsc().stream()
+        return events.findAllByEventIsNullOrderByNameAsc().stream()
                 .map(EventResponse::of)
                 .toList();
     }
@@ -34,10 +34,10 @@ public class EventController {
     @GetMapping("/{eventCode}/items")
     @Transactional(readOnly = true)
     public List<ItemResponse> items(@PathVariable String eventCode) {
-        Event event = events.findById(eventCode.trim().toUpperCase(Locale.ROOT))
+        Event event = events.findCatalogEvent(eventCode.trim().toUpperCase(Locale.ROOT))
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "Event not found: " + eventCode));
 
-        return event.getItems().stream()
+        return event.getItem().stream()
                 .filter(Item::isDefault)
                 .filter(item -> !item.isArchived())
                 .map(ItemResponse::of)

@@ -1,6 +1,5 @@
 package dev.cotai.giftlist;
 
-import dev.cotai.event.Event;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -13,8 +12,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
-
-    List<Item> findByEventAndIsDefaultTrue(Event event);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select i from Item i join fetch i.giftList where i.id = :id")
