@@ -131,9 +131,14 @@ export class ReservationDetailComponent implements OnDestroy {
   protected cancel(): void {
     this.cancelling.set(true);
     this.reservationService.cancelReservation(this.id, this.token).subscribe({
-      next: () => this.refresh(),
-      error: () => this.refresh(),
-      complete: () => this.cancelling.set(false),
+      next: () => {
+        this.cancelling.set(false);
+        this.refresh();
+      },
+      error: () => {
+        this.cancelling.set(false);
+        this.refresh();
+      },
     });
   }
 

@@ -24,9 +24,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -140,11 +142,36 @@ public class GiftListService {
         item.archive();
     }
 
+    private static final int MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+
     public ItemResponse uploadPhoto(UUID ownerId, UUID id, Long itemId, byte[] data) {
+        String contentType = photoContentType(data);
         Item item = photoTarget(ownerId, id, itemId);
         String base64 = Base64.getEncoder().encodeToString(data);
-        item.setImageUrl("data:image/jpeg;base64," + base64);
+        item.setImageUrl("data:" + contentType + ";base64," + base64);
         return ItemResponse.of(item);
+    }
+
+    private static String photoContentType(byte[] data) {
+        if (data.length > MAX_PHOTO_BYTES) {
+            throw new BusinessException(ErrorCode.PHOTO_TOO_LARGE, "Photo is larger than 5 MB.");
+        }
+        if (startsWith(data, 0, new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF})) {
+            return "image/jpeg";
+        }
+        if (startsWith(data, 0, new byte[]{(byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1A, '\n'})) {
+            return "image/png";
+        }
+        if (startsWith(data, 0, "RIFF".getBytes(StandardCharsets.US_ASCII))
+                && startsWith(data, 8, "WEBP".getBytes(StandardCharsets.US_ASCII))) {
+            return "image/webp";
+        }
+        throw new BusinessException(ErrorCode.PHOTO_INVALID, "Photo must be a JPEG, PNG or WebP image.");
+    }
+
+    private static boolean startsWith(byte[] data, int offset, byte[] prefix) {
+        return data.length >= offset + prefix.length
+                && Arrays.equals(data, offset, offset + prefix.length, prefix, 0, prefix.length);
     }
 
     public ItemResponse removePhoto(UUID ownerId, UUID id, Long itemId) {
