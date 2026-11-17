@@ -3,9 +3,9 @@ package dev.cotai.security;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import dev.cotai.common.AppProperties;
 import dev.cotai.common.ClockConfig;
-import dev.cotai.eventtype.Event;
-import dev.cotai.eventtype.EventTypeController;
-import dev.cotai.eventtype.EventTypeRepository;
+import dev.cotai.event.Event;
+import dev.cotai.event.EventController;
+import dev.cotai.event.EventRepository;
 import dev.cotai.giftlist.GiftListController;
 import dev.cotai.giftlist.GiftListDtos.UpdateGiftListRequest;
 import dev.cotai.giftlist.GiftListService;
@@ -62,7 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * gift list service are mocked, so no database is needed.
  */
 @WebMvcTest(controllers = {
-        AuthController.class, EventTypeController.class, GiftListController.class, PublicGiftListController.class})
+        AuthController.class, EventController.class, GiftListController.class, PublicGiftListController.class})
 @Import({SecurityConfig.class, JwtService.class, ClockConfig.class})
 @EnableConfigurationProperties(AppProperties.class)
 class AccountAndEventApiTest {
@@ -77,7 +77,7 @@ class AccountAndEventApiTest {
     @MockitoBean
     private OrganizerRepository organizers;
     @MockitoBean
-    private EventTypeRepository eventTypes;
+    private EventRepository events;
     @MockitoBean
     private GiftListService giftListService;
 
@@ -226,9 +226,9 @@ class AccountAndEventApiTest {
         @Test
         @DisplayName("sign up, login and the event catalog are open to everyone")
         void publicEndpoints() throws Exception {
-            when(eventTypes.findAllByOrderByNameAsc()).thenReturn(List.of());
+            when(events.findAllByOrderByNameAsc()).thenReturn(List.of());
 
-            mvc.perform(get("/api/event-types")).andExpect(status().isOk());
+            mvc.perform(get("/api/events")).andExpect(status().isOk());
         }
     }
 
@@ -245,14 +245,14 @@ class AccountAndEventApiTest {
             ReflectionTestUtils.setField(birthday, "items", new ArrayList<>(List.of(
                     new Item(birthday, "Bolo", "unidade", 15000, null),
                     new Item(birthday, "Docinhos", "cento", 9000, null))));
-            when(eventTypes.findAllByOrderByNameAsc()).thenReturn(List.of(birthday));
-            when(eventTypes.findById("BIRTHDAY")).thenReturn(Optional.of(birthday));
+            when(events.findAllByOrderByNameAsc()).thenReturn(List.of(birthday));
+            when(events.findById("BIRTHDAY")).thenReturn(Optional.of(birthday));
 
-            mvc.perform(get("/api/event-types"))
+            mvc.perform(get("/api/events"))
                     .andExpect(jsonPath("$[0].code").value("BIRTHDAY"))
                     .andExpect(jsonPath("$[0].name").value("Aniversário"))
                     .andExpect(jsonPath("$[0].defaultReservationTtlMinutes").value(30));
-            mvc.perform(get("/api/event-types/birthday/template-items"))
+            mvc.perform(get("/api/events/birthday/items"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[*].name", containsInAnyOrder("Bolo", "Docinhos")));
         }
@@ -263,7 +263,7 @@ class AccountAndEventApiTest {
             UUID listId = UUID.randomUUID();
 
             mvc.perform(json(patch("/api/gift-lists/" + listId),
-                            "{\"title\":\" Niver da Ana \",\"eventDate\":\"2099-12-20\",\"eventTypeCode\":\"birthday\"}")
+                            "{\"title\":\" Niver da Ana \",\"eventDate\":\"2099-12-20\",\"eventCode\":\"birthday\"}")
                             .header("Authorization", bearer(ana)))
                     .andExpect(status().isOk());
 
@@ -271,7 +271,7 @@ class AccountAndEventApiTest {
             verify(giftListService).update(eq(ana.getId()), eq(listId), sent.capture());
             assertThat(sent.getValue().title()).isEqualTo("Niver da Ana");
             assertThat(sent.getValue().eventDate()).hasToString("2099-12-20");
-            assertThat(sent.getValue().eventTypeCode()).isEqualTo("BIRTHDAY");
+            assertThat(sent.getValue().eventCode()).isEqualTo("BIRTHDAY");
         }
 
         @Test

@@ -6,7 +6,7 @@
       <cotai-status-badge [status]="badge()" />
       <h1 class="cotai-page-title">{{ l.title }}</h1>
       <p class="meta">
-        @if (eventTypeName()) { {{ eventTypeName() }} · }{{ l.eventDate | date: 'longDate' }} · prazo para pagar: {{ l.reservationTtlMinutes }} min
+        @if (eventName()) { {{ eventName() }} · }{{ l.eventDate | date: 'longDate' }} · prazo para pagar: {{ l.reservationTtlMinutes }} min
       </p>
     </header>
 
@@ -206,10 +206,10 @@
             </label>
             <label class="cotai-field">
               <span class="cotai-label">Tipo de evento</span>
-              <select class="cotai-input" id="edit-type" name="eventTypeCode" [(ngModel)]="eventTypeCode"
+              <select class="cotai-input" id="edit-event" name="eventCode" [(ngModel)]="eventCode"
                       aria-describedby="edit-type-hint">
-                @for (type of eventTypes(); track type.code) {
-                  <option [value]="type.code">{{ type.name }}</option>
+                @for (event of events(); track event.code) {
+                  <option [value]="event.code">{{ event.name }}</option>
                 }
               </select>
               <span class="cotai-hint" id="edit-type-hint">Os itens da lista continuam os mesmos.</span>

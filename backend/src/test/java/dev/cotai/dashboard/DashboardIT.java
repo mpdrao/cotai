@@ -6,7 +6,7 @@ import dev.cotai.common.Crypto;
 import dev.cotai.dashboard.DashboardDtos.ContributionPage;
 import dev.cotai.dashboard.DashboardDtos.FundraisingMetrics;
 import dev.cotai.devsupport.MutableClock;
-import dev.cotai.eventtype.EventTypeRepository;
+import dev.cotai.event.EventRepository;
 import dev.cotai.giftlist.GiftListDtos.GiftListSummaryReport;
 import dev.cotai.giftlist.GiftListService;
 import dev.cotai.reservation.ReservationService;
@@ -51,7 +51,7 @@ class DashboardIT {
     @Autowired
     private OrganizerRepository organizers;
     @Autowired
-    private EventTypeRepository events;
+    private EventRepository events;
     @Autowired
     private GiftListRepository giftLists;
     @Autowired

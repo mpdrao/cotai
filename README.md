@@ -27,7 +27,7 @@ cotai/
 │   └── src/main/java/dev/cotai/
 │       ├── security/        # SecurityConfig, JwtService, AuthController, AuthDtos
 │       ├── organizer/       # Organizer, OrganizerRepository
-│       ├── eventtype/       # EventType, TemplateItem, EventTypeController
+│       ├── event/           # Event, EventController
 │       ├── giftlist/        # GiftList, Item, GiftListService, controllers
 │       ├── reservation/     # Reservation, ReservationService, ReservationExpiryJob
 │       ├── payment/         # Payment, PaymentGateway (porta), PaymentService, webhook

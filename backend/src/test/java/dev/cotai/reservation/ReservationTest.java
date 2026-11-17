@@ -1,6 +1,6 @@
 package dev.cotai.reservation;
 
-import dev.cotai.eventtype.Event;
+import dev.cotai.event.Event;
 import dev.cotai.giftlist.GiftList;
 import dev.cotai.giftlist.Item;
 import dev.cotai.organizer.Organizer;

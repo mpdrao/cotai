@@ -4,5 +4,5 @@ export interface TokenResponse {
   expiresIn: number;
 }
 
-export * from './event-type.model';
+export * from './event.model';
 export * from './gift-list.model';

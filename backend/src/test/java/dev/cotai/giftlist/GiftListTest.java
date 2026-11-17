@@ -2,7 +2,7 @@ package dev.cotai.giftlist;
 
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
-import dev.cotai.eventtype.Event;
+import dev.cotai.event.Event;
 import dev.cotai.organizer.Organizer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
