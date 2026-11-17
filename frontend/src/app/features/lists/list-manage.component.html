@@ -138,7 +138,7 @@
                                 [error]="photoErrorId() === item.id ? photoError() : ''"
                                 (picked)="uploadPhoto(item, $event)" (removed)="removePhoto(item)" />
                 <h3>{{ item.name }}</h3>
-                <p class="muted">{{ item.unit }} · {{ item.unitPriceCents / 100 | currency: 'BRL' }} por cota · {{ item.totalQuotas }} {{ item.totalQuotas === 1 ? 'cota' : 'cotas' }}</p>
+                <p class="muted">{{ item.unit }} · {{ item.unitPriceCents / 100 | currency: 'BRL' }} por cota</p>
                 @if (totalsFor(item.id); as t) {
                   <cotai-progress [value]="((t.confirmedQuotas + t.pendingQuotas) / t.totalQuotas) * 100"
                                   [label]="'Cotas reservadas de ' + item.name" />

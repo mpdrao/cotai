@@ -9,7 +9,7 @@ Use português do Brasil, frase curta, sem exagerar em termos financeiros ou pro
 | Criar | Criar minha lista |
 | Convidar | Compartilhar lista |
 | Ver lista | Ver cotas |
-| Reservar | Reservar minhas cotas |
+| Reservar | Reservar esta cota (cada item é uma cota) |
 | Pagar | Ir para pagamento |
 | Ver reserva | Acompanhar minha reserva |
 | Encerrar | Encerrar lista |

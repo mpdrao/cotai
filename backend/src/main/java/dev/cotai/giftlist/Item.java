@@ -1,6 +1,5 @@
 package dev.cotai.giftlist;
 
-import dev.cotai.event.Event;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -26,8 +25,8 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "gift_list_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "gift_list_id", nullable = false)
     private GiftList giftList;
 
     @Column(nullable = false, length = 80)
@@ -48,10 +47,6 @@ public class Item {
     @Column(name = "is_default", nullable = false)
     private boolean isDefault;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_code")
-    private Event event;
-
     public Item(GiftList giftList, String name, String unit, long unitPriceCents, String imageUrl) {
         this.giftList = giftList;
         this.name = name;
@@ -59,15 +54,6 @@ public class Item {
         this.unitPriceCents = unitPriceCents;
         this.imageUrl = imageUrl;
         this.isDefault = false;
-    }
-
-    public Item(Event event, String name, String unit, long unitPriceCents, String imageUrl) {
-        this.event = event;
-        this.name = name;
-        this.unit = unit;
-        this.unitPriceCents = unitPriceCents;
-        this.imageUrl = imageUrl;
-        this.isDefault = true;
     }
 
     Item(GiftList giftList, String name, String unit, long unitPriceCents) {

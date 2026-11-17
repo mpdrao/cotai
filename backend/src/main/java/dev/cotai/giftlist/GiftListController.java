@@ -23,12 +23,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,11 +40,9 @@ public class GiftListController {
     private final GiftListService service;
 
     @PostMapping
-    public ResponseEntity<GiftListResponse> create(@AuthenticationPrincipal Jwt jwt,
-                                                   @Valid @RequestBody CreateGiftListRequest body) {
-        GiftListResponse created = service.create(JwtService.organizerId(jwt), body);
-        return ResponseEntity.status(HttpStatus.CREATED).location(URI.create("/api/gift-lists/" + created.id()))
-                .body(created);
+    @ResponseStatus(HttpStatus.CREATED)
+    public GiftListResponse create(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody CreateGiftListRequest body) {
+        return service.create(JwtService.organizerId(jwt), body);
     }
 
     @GetMapping
@@ -74,10 +72,10 @@ public class GiftListController {
     }
 
     @PostMapping("/{giftListId}/items")
-    public ResponseEntity<ItemResponse> addItem(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID giftListId,
-                                                @Valid @RequestBody ItemInput body) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(service.addItem(JwtService.organizerId(jwt), giftListId, body));
+    @ResponseStatus(HttpStatus.CREATED)
+    public ItemResponse addItem(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID giftListId,
+                                @Valid @RequestBody ItemInput body) {
+        return service.addItem(JwtService.organizerId(jwt), giftListId, body);
     }
 
     @PutMapping("/{giftListId}/items/{itemId}")

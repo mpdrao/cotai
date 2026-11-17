@@ -13,7 +13,6 @@ const ERROR_COPY: Record<string, string> = {
   INVALID_CREDENTIALS: 'E-mail ou senha incorretos.',
   EVENT_DATE_IN_PAST: 'A data do evento já passou. Escolha hoje ou uma data futura.',
   LIST_HAS_NO_ITEMS: 'Adicione pelo menos um item antes de publicar.',
-  QUOTAS_BELOW_OCCUPIED: 'Esse item já tem mais cotas reservadas do que o novo total.',
   ITEM_HAS_ACTIVE_RESERVATIONS: 'Esse item tem reservas ativas e não pode ser removido.',
   NOT_FOUND: 'Não encontramos o que você procurou.',
   PHOTO_INVALID: 'Use uma foto JPG, PNG ou WebP.',

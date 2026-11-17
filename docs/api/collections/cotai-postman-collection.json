@@ -314,7 +314,6 @@
                   "pm.test('Returns 10 suggested items for BARBECUE', function () {",
                   "    pm.expect(items.length).to.eql(10);",
                   "    pm.expect(items[0].isDefault).to.be.true;",
-                  "    pm.expect(items[0].totalQuotas).to.eql(1);",
                   "});"
                 ]
               }
@@ -440,7 +439,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"eventCode\": \"BARBECUE\",\n  \"title\": \"Churrasco da Turma\",\n  \"eventDate\": \"2027-12-15\",\n  \"reservationTtlMinutes\": 30,\n  \"items\": [\n    {\n      \"name\": \"Picanha maturata\",\n      \"unit\": \"kg\",\n      \"unitPriceCents\": 8500,\n      \"totalQuotas\": 1\n    },\n    {\n      \"name\": \"Carvao vegetal\",\n      \"unit\": \"saco 5kg\",\n      \"unitPriceCents\": 6000,\n      \"totalQuotas\": 1\n    }\n  ]\n}",
+              "raw": "{\n  \"eventCode\": \"BARBECUE\",\n  \"title\": \"Churrasco da Turma\",\n  \"eventDate\": \"2027-12-15\",\n  \"reservationTtlMinutes\": 30,\n  \"items\": [\n    {\n      \"name\": \"Picanha maturata\",\n      \"unit\": \"kg\",\n      \"unitPriceCents\": 8500\n    },\n    {\n      \"name\": \"Carvao vegetal\",\n      \"unit\": \"saco 5kg\",\n      \"unitPriceCents\": 6000\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -726,7 +725,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Picanha Angus Especial\",\n  \"unit\": \"kg\",\n  \"unitPriceCents\": 9000,\n  \"totalQuotas\": 1\n}",
+              "raw": "{\n  \"name\": \"Picanha Angus Especial\",\n  \"unit\": \"kg\",\n  \"unitPriceCents\": 9000\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -785,7 +784,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Pao de alho\",\n  \"unit\": \"bandeja\",\n  \"unitPriceCents\": 2000,\n  \"totalQuotas\": 1\n}",
+              "raw": "{\n  \"name\": \"Pao de alho\",\n  \"unit\": \"bandeja\",\n  \"unitPriceCents\": 2000\n}",
               "options": {
                 "raw": {
                   "language": "json"

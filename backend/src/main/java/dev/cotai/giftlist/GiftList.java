@@ -2,7 +2,6 @@ package dev.cotai.giftlist;
 
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
-import dev.cotai.event.Event;
 import dev.cotai.organizer.Organizer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -43,10 +42,6 @@ public class GiftList {
     @JoinColumn(name = "owner_id")
     private Organizer owner;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "event_code")
-    private Event event;
-
     @Column(nullable = false, length = 80)
     private String title;
 
@@ -72,11 +67,10 @@ public class GiftList {
     @Setter(AccessLevel.NONE)
     private List<Item> items = new ArrayList<>();
 
-    public GiftList(Organizer owner, Event event, String title, String slug, LocalDate eventDate,
+    public GiftList(Organizer owner, String title, String slug, LocalDate eventDate,
                     int reservationTtlMinutes, Instant createdAt) {
         this.id = UUID.randomUUID();
         this.owner = owner;
-        this.event = event;
         this.title = title;
         this.slug = slug;
         this.eventDate = eventDate;
@@ -130,12 +124,6 @@ public class GiftList {
         if (newTtlMinutes != null) {
             this.reservationTtlMinutes = newTtlMinutes;
         }
-    }
-
-    /** Changing the event keeps the items: suggestions are only used when the list is created. */
-    public void changeEvent(Event newEvent) {
-        ensureNotClosed();
-        this.event = newEvent;
     }
 
     public void ensureNotClosed() {

@@ -3,7 +3,6 @@ package dev.cotai.reservation;
 import dev.cotai.TestcontainersConfiguration;
 import dev.cotai.common.Crypto;
 import dev.cotai.devsupport.MutableClock;
-import dev.cotai.event.EventRepository;
 import dev.cotai.giftlist.GiftList;
 import dev.cotai.giftlist.GiftListRepository;
 import dev.cotai.organizer.Organizer;
@@ -45,8 +44,6 @@ class ReservationPaymentFlowIT {
     @Autowired
     private OrganizerRepository organizers;
     @Autowired
-    private EventRepository events;
-    @Autowired
     private GiftListRepository giftLists;
     @Autowired
     private PaymentProperties paymentProperties;
@@ -60,7 +57,7 @@ class ReservationPaymentFlowIT {
         Organizer owner = organizers.save(new Organizer("Ana", "ana-" + UUID.randomUUID() + "@example.com",
                 "hash", clock.instant()));
         LocalDate today = LocalDate.ofInstant(clock.instant(), java.time.ZoneOffset.UTC);
-        GiftList draft = new GiftList(owner, events.findById("BARBECUE").orElseThrow(), "Churrasco",
+        GiftList draft = new GiftList(owner, "Churrasco",
                 "churrasco-" + UUID.randomUUID(), today.plusDays(30), 30, clock.instant());
         draft.addItem("Carvao", "saco", 4500);
         draft.addItem("Picanha", "kg", 9000);

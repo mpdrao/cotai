@@ -25,7 +25,7 @@ class ReservationTest {
     @BeforeEach
     void setUp() {
         Organizer organizer = new Organizer("Ana", "ana@example.com", "hash", now);
-        GiftList list = new GiftList(organizer, new Event("BARBECUE", "Churrasco", 30), "Churrasco",
+        GiftList list = new GiftList(organizer, "Churrasco",
                 "churrasco", LocalDate.of(2026, 12, 1), 30, now);
         item = list.addItem("Carvao", "saco", 4500);
     }

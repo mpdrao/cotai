@@ -22,7 +22,6 @@ public final class GiftListDtos {
             @NotBlank @Size(max = 80) String name,
             @NotBlank @Size(max = 30) String unit,
             @Min(1) @Max(100_000_000) long unitPriceCents,
-            Integer totalQuotas,
             String imageUrl) {
     }
 
@@ -61,19 +60,21 @@ public final class GiftListDtos {
         return code == null ? null : code.trim().toUpperCase(Locale.ROOT);
     }
 
-    public record ItemResponse(Long id, String name, String unit, long unitPriceCents, int totalQuotas,
+    /** Each item is one quota (the Item of the object model has no quota count). */
+    public record ItemResponse(Long id, String name, String unit, long unitPriceCents,
                                long totalCents, boolean archived, String imageUrl, boolean isDefault) {
         public static ItemResponse of(Item i) {
             return new ItemResponse(i.getId(), i.getName(), i.getUnit(), i.getUnitPriceCents(),
-                    1, i.totalCents(), i.isArchived(), i.getImageUrl(), i.isDefault());
+                    i.totalCents(), i.isArchived(), i.getImageUrl(), i.isDefault());
         }
     }
 
     public record GiftListResponse(UUID id, String title, String slug, String eventCode, LocalDate eventDate,
                                    GiftListStatus status, int reservationTtlMinutes, List<ItemResponse> items,
                                    Instant createdAt) {
-        public static GiftListResponse of(GiftList l) {
-            return new GiftListResponse(l.getId(), l.getTitle(), l.getSlug(), l.getEvent().getCode(),
+        /** {@code eventCode} is the catalog Event the list's own Event is based on. */
+        public static GiftListResponse of(GiftList l, String eventCode) {
+            return new GiftListResponse(l.getId(), l.getTitle(), l.getSlug(), eventCode,
                     l.getEventDate(), l.getStatus(), l.getReservationTtlMinutes(),
                     l.getItems().stream().map(ItemResponse::of).toList(), l.getCreatedAt());
         }
@@ -98,11 +99,12 @@ public final class GiftListDtos {
                                         List<Contributor> contributors) {
     }
 
-    public record PublicItem(Long id, String name, String unit, long unitPriceCents, int totalQuotas,
+    /** {@code availableQuotas} is 1 while the item's only quota is free, 0 once it is reserved. */
+    public record PublicItem(Long id, String name, String unit, long unitPriceCents,
                              int availableQuotas, String imageUrl) {
     }
 
-    public record PublicGiftList(String title, String eventCode, LocalDate eventDate, GiftListStatus status,
+    public record PublicGiftList(String title, String eventTypeCode, LocalDate eventDate, GiftListStatus status,
                                  boolean acceptsReservations, List<PublicItem> items) {
     }
 }

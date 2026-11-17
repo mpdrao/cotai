@@ -66,7 +66,7 @@ class ReservationServiceTest {
                 new PaymentProperties("webhook-secret", 3000, 3), clock);
 
         Organizer organizer = new Organizer("Ana", "ana@example.com", "hash", now);
-        list = new GiftList(organizer, new Event("BARBECUE", "Churrasco", 30), "Churrasco", "churrasco",
+        list = new GiftList(organizer, "Churrasco", "churrasco",
                 LocalDate.of(2026, 12, 1), 30, now);
         item = list.addItem("Carvao", "saco", 4500);
         item.setId(10L);

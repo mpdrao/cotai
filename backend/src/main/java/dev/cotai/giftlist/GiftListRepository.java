@@ -11,10 +11,10 @@ public interface GiftListRepository extends JpaRepository<GiftList, UUID> {
 
     List<GiftList> findByOwnerIdOrderByCreatedAtDesc(UUID ownerId);
 
-    @EntityGraph(attributePaths = {"items", "event"})
+    @EntityGraph(attributePaths = "items")
     Optional<GiftList> findWithItemsById(UUID id);
 
-    @EntityGraph(attributePaths = {"items", "event"})
+    @EntityGraph(attributePaths = "items")
     Optional<GiftList> findBySlug(String slug);
 
     boolean existsBySlug(String slug);

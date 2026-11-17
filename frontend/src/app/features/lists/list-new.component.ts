@@ -96,7 +96,7 @@ export class ListNewComponent {
         this.releasePhotos();
         this.items.set(
           suggested.map((i) =>
-            draftFrom({ name: i.name, unit: i.unit, unitPriceCents: i.unitPriceCents, totalQuotas: i.totalQuotas, imageUrl: i.imageUrl }),
+            draftFrom({ name: i.name, unit: i.unit, unitPriceCents: i.unitPriceCents, imageUrl: i.imageUrl }),
           ),
         );
         this.itemErrors.set([]);

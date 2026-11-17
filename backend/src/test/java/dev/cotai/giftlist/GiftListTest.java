@@ -2,7 +2,6 @@ package dev.cotai.giftlist;
 
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
-import dev.cotai.event.Event;
 import dev.cotai.organizer.Organizer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,19 +17,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class GiftListTest {
 
     private Organizer organizer;
-    private Event event;
     private GiftList giftList;
     private final LocalDate today = LocalDate.of(2026, 11, 11);
 
     @BeforeEach
     void setUp() {
         organizer = new Organizer("Mario", "mario@example.com", "hash", Instant.now());
-        event = new Event("BARBECUE", "Churrasco", 60);
 
-        giftList = new GiftList(
-                organizer,
-                event,
-                "Churrasco de Aniversario",
+        giftList = new GiftList(organizer, "Churrasco de Aniversario",
                 "churrasco-aniversario",
                 today.plusDays(7),
                 60,

@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -73,7 +74,12 @@ class GiftListServiceTest {
         );
 
         organizer = new Organizer("Mario", "mario@example.com", "hash", now);
-        event = new Event("BARBECUE", "Churrasco", 60);
+        GiftList catalogList = new GiftList(organizer, "Catálogo: Churrasco", "catalogo-barbecue",
+                LocalDate.of(2099, 12, 31), 60, now);
+        event = new Event("BARBECUE", "Churrasco", 60, null, catalogList);
+        // Every list has its own Event (Event - giftList 1), based on a catalog Event.
+        lenient().when(events.findByGiftListId(any())).thenAnswer(inv ->
+                Optional.of(new Event("lista", event.getName(), 60, event, null)));
     }
 
     @Test
@@ -86,10 +92,10 @@ class GiftListServiceTest {
                 "Churrasco de Sabado",
                 eventDate,
                 60,
-                List.of(new ItemInput("Carvao", "saco", 3000, 1, null))
+                List.of(new ItemInput("Carvao", "saco", 3000, null))
         );
 
-        when(events.findById("BARBECUE")).thenReturn(Optional.of(event));
+        when(events.findCatalogEvent("BARBECUE")).thenReturn(Optional.of(event));
         when(organizers.getReferenceById(ownerId)).thenReturn(organizer);
         when(slugGenerator.generate("Churrasco de Sabado")).thenReturn("churrasco-de-sabado");
         when(giftLists.existsBySlug("churrasco-de-sabado")).thenReturn(false);
@@ -110,12 +116,12 @@ class GiftListServiceTest {
     @DisplayName("addItem adds item to gift list and returns ItemResponse")
     void addItemSuccess() {
         UUID ownerId = organizer.getId();
-        GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        GiftList list = new GiftList(organizer, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         UUID listId = list.getId();
 
         when(giftLists.findWithItemsById(listId)).thenReturn(Optional.of(list));
 
-        ItemInput input = new ItemInput("Picanha", "kg", 8500, 1, null);
+        ItemInput input = new ItemInput("Picanha", "kg", 8500, null);
         ItemResponse response = service.addItem(ownerId, listId, input);
 
         assertThat(response).isNotNull();
@@ -129,7 +135,7 @@ class GiftListServiceTest {
     @DisplayName("archiveItem throws when item has active reservations")
     void archiveItemWithActiveReservations() {
         UUID ownerId = organizer.getId();
-        GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        GiftList list = new GiftList(organizer, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         Item item = list.addItem("Picanha", "kg", 8500);
         UUID listId = list.getId();
 
@@ -147,7 +153,7 @@ class GiftListServiceTest {
     @DisplayName("archiveItem successfully marks item as archived when no active reservations")
     void archiveItemSuccess() {
         UUID ownerId = organizer.getId();
-        GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        GiftList list = new GiftList(organizer, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         Item item = list.addItem("Picanha", "kg", 8500);
         UUID listId = list.getId();
 
@@ -164,7 +170,7 @@ class GiftListServiceTest {
     @DisplayName("update modifies list details")
     void updateListSuccess() {
         UUID ownerId = organizer.getId();
-        GiftList list = new GiftList(organizer, event, "Lista Antiga", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        GiftList list = new GiftList(organizer, "Lista Antiga", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         UUID listId = list.getId();
 
         when(giftLists.findWithItemsById(listId)).thenReturn(Optional.of(list));
@@ -182,11 +188,11 @@ class GiftListServiceTest {
     @Test
     @DisplayName("update changes the event and keeps the items (US-07)")
     void updateChangesEvent() {
-        GiftList list = new GiftList(organizer, event, "Niver do Mario", "niver", LocalDate.now(clock).plusDays(5), 60, now);
+        GiftList list = new GiftList(organizer, "Niver do Mario", "niver", LocalDate.now(clock).plusDays(5), 60, now);
         list.addItem("Carvao", "saco", 3000);
-        Event birthday = new Event("BIRTHDAY", "Aniversário", 30);
+        Event birthday = new Event("BIRTHDAY", "Aniversário", 30, null, list);
         when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
-        when(events.findById("BIRTHDAY")).thenReturn(Optional.of(birthday));
+        when(events.findCatalogEvent("BIRTHDAY")).thenReturn(Optional.of(birthday));
 
         GiftListResponse response = service.update(organizer.getId(), list.getId(),
                 new UpdateGiftListRequest(null, null, null, " birthday "));
@@ -199,22 +205,22 @@ class GiftListServiceTest {
     @Test
     @DisplayName("update refuses an unknown event")
     void updateWithUnknownEvent() {
-        GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        GiftList list = new GiftList(organizer, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
-        when(events.findById("GRADUATION")).thenReturn(Optional.empty());
+        when(events.findCatalogEvent("GRADUATION")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.update(organizer.getId(), list.getId(),
                 new UpdateGiftListRequest(null, null, null, "GRADUATION")))
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).code())
                 .isEqualTo(ErrorCode.NOT_FOUND);
-        assertThat(list.getEvent()).isSameAs(event);
+        assertThat(list.getTitle()).isEqualTo("Lista");
     }
 
     @Test
     @DisplayName("update refuses moving the event to a past date, like create does")
     void updateWithPastDate() {
-        GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        GiftList list = new GiftList(organizer, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
 
         assertThatThrownBy(() -> service.update(organizer.getId(), list.getId(),
@@ -229,7 +235,7 @@ class GiftListServiceTest {
     @DisplayName("a list whose event already happened can still be renamed")
     void renameAfterTheEvent() {
         LocalDate lastWeek = LocalDate.now(clock).minusDays(7);
-        GiftList list = new GiftList(organizer, event, "Churras", "churras", lastWeek, 60, now);
+        GiftList list = new GiftList(organizer, "Churras", "churras", lastWeek, 60, now);
         when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
 
         GiftListResponse response = service.update(organizer.getId(), list.getId(),
@@ -241,19 +247,19 @@ class GiftListServiceTest {
     @Test
     @DisplayName("a closed list cannot have its event changed")
     void closedListKeepsEvent() {
-        GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
+        GiftList list = new GiftList(organizer, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         list.addItem("Carvao", "saco", 3000);
         list.publish(LocalDate.now(clock));
         list.close();
         when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
-        when(events.findById("BIRTHDAY")).thenReturn(Optional.of(new Event("BIRTHDAY", "Aniversário", 30)));
+        when(events.findCatalogEvent("BIRTHDAY")).thenReturn(Optional.of(new Event("BIRTHDAY", "Aniversário", 30, null, list)));
 
         assertThatThrownBy(() -> service.update(organizer.getId(), list.getId(),
                 new UpdateGiftListRequest(null, null, null, "BIRTHDAY")))
                 .isInstanceOf(BusinessException.class)
                 .extracting(e -> ((BusinessException) e).code())
                 .isEqualTo(ErrorCode.INVALID_STATE_TRANSITION);
-        assertThat(list.getEvent()).isSameAs(event);
+        assertThat(list.getStatus()).isEqualTo(GiftListStatus.CLOSED);
     }
 
     @Test

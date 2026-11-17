@@ -4,7 +4,6 @@ export interface ItemInput {
   name: string;
   unit: string;
   unitPriceCents: number;
-  totalQuotas: number;
 
   imageUrl?: string;
 }
@@ -138,7 +137,7 @@ export interface PublicItem {
 
 export interface PublicGiftList {
   title: string;
-  eventCode: string;
+  eventTypeCode: string;
   eventDate: string;
   status: GiftListStatus;
   acceptsReservations: boolean;

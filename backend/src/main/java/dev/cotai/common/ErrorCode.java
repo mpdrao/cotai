@@ -12,7 +12,6 @@ public enum ErrorCode {
     LIST_HAS_NO_ITEMS(HttpStatus.UNPROCESSABLE_CONTENT, "Gift list has no items"),
     LIST_NOT_ACCEPTING_RESERVATIONS(HttpStatus.CONFLICT, "Gift list is not accepting reservations"),
     QUOTA_UNAVAILABLE(HttpStatus.CONFLICT, "Quota unavailable"),
-    QUOTAS_BELOW_OCCUPIED(HttpStatus.CONFLICT, "Quotas below occupied"),
     ITEM_HAS_ACTIVE_RESERVATIONS(HttpStatus.CONFLICT, "Item has active reservations"),
     INVALID_STATE_TRANSITION(HttpStatus.CONFLICT, "Invalid state transition"),
     IDEMPOTENCY_KEY_MISMATCH(HttpStatus.UNPROCESSABLE_CONTENT, "Idempotency key mismatch"),
