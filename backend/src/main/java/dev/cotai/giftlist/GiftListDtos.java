@@ -22,7 +22,6 @@ public final class GiftListDtos {
             @NotBlank @Size(max = 80) String name,
             @NotBlank @Size(max = 30) String unit,
             @Min(1) @Max(100_000_000) long unitPriceCents,
-            Integer totalQuotas,
             String imageUrl) {
     }
 
@@ -61,11 +60,12 @@ public final class GiftListDtos {
         return code == null ? null : code.trim().toUpperCase(Locale.ROOT);
     }
 
-    public record ItemResponse(Long id, String name, String unit, long unitPriceCents, int totalQuotas,
+    /** Each item is one quota (the Item of the object model has no quota count). */
+    public record ItemResponse(Long id, String name, String unit, long unitPriceCents,
                                long totalCents, boolean archived, String imageUrl, boolean isDefault) {
         public static ItemResponse of(Item i) {
             return new ItemResponse(i.getId(), i.getName(), i.getUnit(), i.getUnitPriceCents(),
-                    1, i.totalCents(), i.isArchived(), i.getImageUrl(), i.isDefault());
+                    i.totalCents(), i.isArchived(), i.getImageUrl(), i.isDefault());
         }
     }
 
@@ -99,7 +99,8 @@ public final class GiftListDtos {
                                         List<Contributor> contributors) {
     }
 
-    public record PublicItem(Long id, String name, String unit, long unitPriceCents, int totalQuotas,
+    /** {@code availableQuotas} is 1 while the item's only quota is free, 0 once it is reserved. */
+    public record PublicItem(Long id, String name, String unit, long unitPriceCents,
                              int availableQuotas, String imageUrl) {
     }
 

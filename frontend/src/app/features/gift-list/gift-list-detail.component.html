@@ -27,7 +27,7 @@
     <div class="collection-heading">
       <h2>{{ l.acceptsReservations ? 'Escolha como contribuir' : 'Itens do encontro' }}</h2>
       @if (l.acceptsReservations) {
-        <p class="meta">Reserve suas cotas e finalize o pagamento dentro do prazo.</p>
+        <p class="meta">Reserve uma cota e finalize o pagamento dentro do prazo.</p>
       }
     </div>
   }
@@ -48,7 +48,7 @@
                 [label]="'Cotas reservadas de ' + item.name" />
               <p class="availability">
                 @if (item.availableQuotas === 0) {
-                  Todas as cotas foram reservadas
+                  Cota reservada
                 } @else {
                   {{ item.availableQuotas }} {{ item.availableQuotas === 1 ? 'cota disponível' : 'cotas disponíveis' }}
                 }
@@ -60,22 +60,24 @@
                 [fullWidth]="true"
                 [disabled]="!l.acceptsReservations || item.availableQuotas === 0"
                 (pressed)="select(item)">
-                Reservar minhas cotas
+                Reservar esta cota
               </cotai-button>
             }
           </div>
 
           @if (selected()?.id === item.id) {
             <form #reservationForm class="reserve" (ngSubmit)="reserve(item)" #form="ngForm">
-              <h3 tabindex="-1">Suas cotas para este encontro</h3>
-              <div class="field">
-                <span class="label" id="qty-label-{{ item.id }}">Quantidade de cotas</span>
-                <div class="stepper" role="group" [attr.aria-labelledby]="'qty-label-' + item.id">
-                  <button type="button" aria-label="Diminuir" [disabled]="quantity() <= 1" (click)="step(-1, item)">−</button>
-                  <output aria-live="polite">{{ quantity() }}</output>
-                  <button type="button" aria-label="Aumentar" [disabled]="quantity() >= item.availableQuotas" (click)="step(1, item)">+</button>
+              <h3 tabindex="-1">Sua cota para este encontro</h3>
+              @if (item.availableQuotas > 1) {
+                <div class="field">
+                  <span class="label" id="qty-label-{{ item.id }}">Quantidade de cotas</span>
+                  <div class="stepper" role="group" [attr.aria-labelledby]="'qty-label-' + item.id">
+                    <button type="button" aria-label="Diminuir" [disabled]="quantity() <= 1" (click)="step(-1, item)">−</button>
+                    <output aria-live="polite">{{ quantity() }}</output>
+                    <button type="button" aria-label="Aumentar" [disabled]="quantity() >= item.availableQuotas" (click)="step(1, item)">+</button>
+                  </div>
                 </div>
-              </div>
+              }
               <label class="field">
                 <span class="label">Seu nome</span>
                 <input class="cotai-input" name="guestName" autocomplete="name" required minlength="2" maxlength="80"

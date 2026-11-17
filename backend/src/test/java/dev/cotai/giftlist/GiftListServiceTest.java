@@ -92,7 +92,7 @@ class GiftListServiceTest {
                 "Churrasco de Sabado",
                 eventDate,
                 60,
-                List.of(new ItemInput("Carvao", "saco", 3000, 1, null))
+                List.of(new ItemInput("Carvao", "saco", 3000, null))
         );
 
         when(events.findCatalogEvent("BARBECUE")).thenReturn(Optional.of(event));
@@ -121,7 +121,7 @@ class GiftListServiceTest {
 
         when(giftLists.findWithItemsById(listId)).thenReturn(Optional.of(list));
 
-        ItemInput input = new ItemInput("Picanha", "kg", 8500, 1, null);
+        ItemInput input = new ItemInput("Picanha", "kg", 8500, null);
         ItemResponse response = service.addItem(ownerId, listId, input);
 
         assertThat(response).isNotNull();

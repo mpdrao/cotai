@@ -29,13 +29,13 @@ import { CotaiCardComponent, CotaiProgressComponent } from '../../shared/cotai-u
           <p class="demo-title">Encontro da galera</p>
           <p class="demo-intro">Um pouco de cada um, um encontro de todos.</p>
           <ul class="demo-items">
-            <li><div><p class="demo-name">Comes e bebes</p><p class="demo-price">R$ 35,00 <span>por cota</span></p></div><span class="demo-quantity">20 cotas</span></li>
-            <li><div><p class="demo-name">Som e diversão</p><p class="demo-price">R$ 25,00 <span>por cota</span></p></div><span class="demo-quantity">10 cotas</span></li>
-            <li><div><p class="demo-name">O toque final</p><p class="demo-price">R$ 15,00 <span>por cota</span></p></div><span class="demo-quantity">10 cotas</span></li>
+            <li><div><p class="demo-name">Comes e bebes</p><p class="demo-price">R$ 35,00 <span>por cota</span></p></div><span class="demo-quantity">Reservada</span></li>
+            <li><div><p class="demo-name">Som e diversão</p><p class="demo-price">R$ 25,00 <span>por cota</span></p></div><span class="demo-quantity">Disponível</span></li>
+            <li><div><p class="demo-name">O toque final</p><p class="demo-price">R$ 15,00 <span>por cota</span></p></div><span class="demo-quantity">Disponível</span></li>
           </ul>
           <div class="demo-progress">
-            <div><span>Cotas reservadas</span><strong>16 de 40</strong></div>
-            <cotai-progress [value]="40" label="Exemplo ilustrativo: cotas reservadas" />
+            <div><span>Cotas reservadas</span><strong>1 de 3</strong></div>
+            <cotai-progress [value]="33" label="Exemplo ilustrativo: cotas reservadas" />
             <p>Valores e progresso ilustrativos.</p>
           </div>
         </cotai-card>
@@ -62,8 +62,8 @@ import { CotaiCardComponent, CotaiProgressComponent } from '../../shared/cotai-u
 })
 export class HomeComponent {
   protected readonly steps = [
-    { title: 'Monte a lista', text: 'Escolha o tipo de evento, ajuste as sugestões de itens e defina as cotas.' },
-    { title: 'Compartilhe o link', text: 'Cada pessoa escolhe como contribuir e reserva suas cotas, sem precisar criar conta.' },
+    { title: 'Monte a lista', text: 'Escolha o tipo de evento, ajuste as sugestões de itens e o valor de cada cota.' },
+    { title: 'Compartilhe o link', text: 'Cada pessoa escolhe com que item contribuir e reserva a cota, sem precisar criar conta.' },
     { title: 'Acompanhe tudo', text: 'O pagamento é feito por QR code ou link. Você acompanha as reservas e os pagamentos confirmados.' },
   ];
 }

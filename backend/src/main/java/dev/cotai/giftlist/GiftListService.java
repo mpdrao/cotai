@@ -235,7 +235,7 @@ public class GiftListService {
         List<PublicItem> publicItems = list.getItems().stream()
                 .filter(i -> !i.isArchived())
                 .map(i -> new PublicItem(i.getId(), i.getName(), i.getUnit(), i.getUnitPriceCents(),
-                        1, Math.max(1 - occupied.getOrDefault(i.getId(), 0), 0),
+                        Math.max(1 - occupied.getOrDefault(i.getId(), 0), 0),
                         i.getImageUrl()))
                 .toList();
         return new PublicGiftList(list.getTitle(), eventOf(list).getEvent().getCode(), list.getEventDate(),

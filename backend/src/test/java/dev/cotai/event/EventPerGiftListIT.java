@@ -70,7 +70,7 @@ class EventPerGiftListIT {
         LocalDate eventDate = LocalDate.ofInstant(clock.instant(), ZoneOffset.UTC).plusDays(20);
 
         GiftListResponse created = giftLists.create(owner.getId(), new CreateGiftListRequest("barbecue",
-                "Churrasco da firma", eventDate, null, List.of(new ItemInput("Picanha", "kg", 9000, null, null))));
+                "Churrasco da firma", eventDate, null, List.of(new ItemInput("Picanha", "kg", 9000, null))));
 
         assertThat(created.items()).singleElement().satisfies(item -> assertThat(item.id()).isNotNull());
 

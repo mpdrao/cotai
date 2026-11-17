@@ -2,7 +2,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
 import { collectionProgress } from '../../core/copy/progress-copy';
 import { ORGANIZER_COPY, errorCode, errorMessage } from '../../core/copy/ui-copy';
 import { Event } from '../../core/models/event.model';
@@ -152,7 +151,7 @@ export class ListManageComponent {
       },
       error: (e) => {
         this.busy.set(false);
-        this.itemError.set(this.itemMessage(e));
+        this.itemError.set(errorMessage(e, ORGANIZER_COPY));
       },
     });
   }
@@ -172,7 +171,7 @@ export class ListManageComponent {
       },
       error: (e) => {
         this.busy.set(false);
-        this.itemError.set(this.itemMessage(e));
+        this.itemError.set(errorMessage(e, ORGANIZER_COPY));
       },
     });
   }
@@ -307,13 +306,6 @@ export class ListManageComponent {
       this.busy.set(false);
       this.notice.set(message);
     } });
-  }
-
-  private itemMessage(e: unknown): string {
-    if (errorCode(e) === 'QUOTAS_BELOW_OCCUPIED' && e instanceof HttpErrorResponse && e.error?.occupiedQuotas != null) {
-      return `Esse item já tem ${e.error.occupiedQuotas} cotas reservadas. O total não pode ser menor que isso.`;
-    }
-    return errorMessage(e, ORGANIZER_COPY);
   }
 
   private reload(options: { keepForm?: boolean; done?: () => void } = {}): void {

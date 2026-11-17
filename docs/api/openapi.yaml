@@ -795,7 +795,6 @@ components:
         - LIST_HAS_NO_ITEMS
         - LIST_NOT_ACCEPTING_RESERVATIONS
         - QUOTA_UNAVAILABLE
-        - QUOTAS_BELOW_OCCUPIED
         - ITEM_HAS_ACTIVE_RESERVATIONS
         - INVALID_STATE_TRANSITION
         - IDEMPOTENCY_KEY_MISMATCH
@@ -874,22 +873,20 @@ components:
       properties:
         name: { type: string, minLength: 1, maxLength: 80 }
         unit: { type: string, minLength: 1, maxLength: 30, example: saco de 5 kg }
-        unitPriceCents: { $ref: '#/components/schemas/Cents' }
-        totalQuotas: { type: integer, minimum: 1, maximum: 1000, default: 1 }
+        unitPriceCents: { $ref: '#/components/schemas/Cents', description: 'Value of the item''s only quota.' }
         imageUrl:
           type: string
           description: Optional stock photo (/suggestions/...) or base64 data URI.
 
     Item:
       type: object
-      required: [id, name, unit, unitPriceCents, totalQuotas, totalCents, archived, isDefault]
+      required: [id, name, unit, unitPriceCents, totalCents, archived, isDefault]
       properties:
         id: { type: integer, format: int64 }
         name: { type: string }
         unit: { type: string }
         unitPriceCents: { $ref: '#/components/schemas/Cents' }
-        totalQuotas: { type: integer, const: 1 }
-        totalCents: { type: integer, format: int64, description: 'Derived: unitPriceCents.' }
+        totalCents: { type: integer, format: int64, description: 'Derived: unitPriceCents (each item is one quota).' }
         archived: { type: boolean }
         imageUrl: { type: [string, 'null'], description: 'Stock photo (/suggestions/...) or uploaded photo (data:image/jpeg;base64,...).' }
         isDefault: { type: boolean }
@@ -1062,14 +1059,13 @@ components:
 
     PublicItem:
       type: object
-      required: [id, name, unit, unitPriceCents, totalQuotas, availableQuotas]
+      required: [id, name, unit, unitPriceCents, availableQuotas]
       properties:
         id: { type: integer, format: int64 }
         name: { type: string }
         unit: { type: string }
         unitPriceCents: { $ref: '#/components/schemas/Cents' }
-        totalQuotas: { type: integer }
-        availableQuotas: { type: integer, minimum: 0, description: Snapshot at read time; may be stale by the time the guest submits. }
+        availableQuotas: { type: integer, minimum: 0, maximum: 1, description: 'Each item is one quota: 1 while it is free, 0 once reserved. Snapshot at read time; may be stale by the time the guest submits.' }
         imageUrl: { type: string, description: 'Stock photo (/suggestions/...) or uploaded photo (/api/item-photos/{photoId}). Absent when the item has no photo.' }
 
     ReserveRequest:

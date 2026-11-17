@@ -40,6 +40,30 @@ describe('GiftListDetailComponent', () => {
 
     expect(requested).toEqual(['churrasco-da-firma']);
     expect(harness.routeNativeElement?.textContent).toContain('1 de 2 cotas reservadas');
-    expect(harness.routeNativeElement?.textContent).toContain('Todas as cotas foram reservadas');
+    expect(harness.routeNativeElement?.textContent).toContain('Cota reservada');
+  });
+
+  it('reserves the single quota of an item without a quantity control', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter(
+          [{ path: 'l/:slug', loadChildren: () => import('./gift-list.routes').then((m) => m.GIFT_LIST_ROUTES) }],
+          withComponentInputBinding(),
+        ),
+        { provide: GiftListService, useValue: { getGiftList: () => of(LIST), reserve: () => of() } },
+      ],
+    });
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/l/churrasco-da-firma', GiftListDetailComponent);
+    harness.detectChanges();
+
+    const free = harness.routeNativeElement!.querySelector<HTMLElement>('[data-item-id="1"]')!;
+    expect(free.textContent).toContain('1 cota disponível');
+    free.querySelector<HTMLButtonElement>('cotai-button button')!.click();
+    harness.detectChanges();
+
+    expect(free.textContent).toContain('Sua cota para este encontro');
+    expect(free.textContent).not.toContain('Quantidade de cotas');
+    expect(free.querySelector('.stepper')).toBeNull();
   });
 });

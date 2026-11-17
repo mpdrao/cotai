@@ -5,7 +5,6 @@ export interface ItemDraft {
   name: string;
   unit: string;
   price: string;
-  totalQuotas: number | null;
 
   imageUrl?: string;
 
@@ -14,16 +13,15 @@ export interface ItemDraft {
   preview?: string;
 }
 
-export type ItemErrors = Partial<Record<'name' | 'unit' | 'price' | 'totalQuotas', string>>;
+export type ItemErrors = Partial<Record<'name' | 'unit' | 'price', string>>;
 
 export function draftFrom(item: {
   name: string;
   unit: string;
   unitPriceCents: number;
-  totalQuotas: number;
   imageUrl?: string;
 }): ItemDraft {
-  const draft: ItemDraft = { name: item.name, unit: item.unit, price: centsToInput(item.unitPriceCents), totalQuotas: item.totalQuotas };
+  const draft: ItemDraft = { name: item.name, unit: item.unit, price: centsToInput(item.unitPriceCents) };
   if (item.imageUrl) draft.imageUrl = item.imageUrl;
   return draft;
 }
@@ -40,7 +38,7 @@ export function setDraftPhoto(d: ItemDraft, file: File | null): void {
 }
 
 export function emptyDraft(): ItemDraft {
-  return { name: '', unit: '', price: '', totalQuotas: 1 };
+  return { name: '', unit: '', price: '' };
 }
 
 export function validateDraft(d: ItemDraft): ItemErrors {
@@ -52,19 +50,17 @@ export function validateDraft(d: ItemDraft): ItemErrors {
   const cents = parseReais(d.price);
   if (cents === null || cents < 1) errors.price = 'Informe um valor como 90,00.';
   else if (cents > 100_000_000) errors.price = 'O valor máximo por cota é R$ 1.000.000,00.';
-  const q = d.totalQuotas;
-  if (q === null || !Number.isInteger(q) || q < 1 || q > 1000) errors.totalQuotas = 'Use de 1 a 1000 cotas.';
   return errors;
 }
 
 export function toItemInput(d: ItemDraft): ItemInput {
-  const input: ItemInput = { name: d.name.trim(), unit: d.unit.trim(), unitPriceCents: parseReais(d.price)!, totalQuotas: d.totalQuotas! };
+  const input: ItemInput = { name: d.name.trim(), unit: d.unit.trim(), unitPriceCents: parseReais(d.price)! };
 
   if (!d.photo && d.imageUrl?.startsWith('/suggestions/')) input.imageUrl = d.imageUrl;
   return input;
 }
 
+/** Each item is one quota, so its total is the quota value. */
 export function draftTotalCents(d: ItemDraft): number {
-  const cents = parseReais(d.price);
-  return cents !== null && d.totalQuotas ? cents * d.totalQuotas : 0;
+  return parseReais(d.price) ?? 0;
 }

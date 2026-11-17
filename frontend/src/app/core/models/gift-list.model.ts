@@ -4,7 +4,6 @@ export interface ItemInput {
   name: string;
   unit: string;
   unitPriceCents: number;
-  totalQuotas: number;
 
   imageUrl?: string;
 }
