@@ -72,6 +72,8 @@ class EventPerGiftListIT {
         GiftListResponse created = giftLists.create(owner.getId(), new CreateGiftListRequest("barbecue",
                 "Churrasco da firma", eventDate, null, List.of(new ItemInput("Picanha", "kg", 9000, null, null))));
 
+        assertThat(created.items()).singleElement().satisfies(item -> assertThat(item.id()).isNotNull());
+
         Event own = events.findByGiftListId(created.id()).orElseThrow();
         assertThat(own.getCode()).isEqualTo(created.slug());
         assertThat(own.getEvent().getCode()).isEqualTo("BARBECUE");

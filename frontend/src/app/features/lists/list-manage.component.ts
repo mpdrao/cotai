@@ -298,10 +298,15 @@ export class ListManageComponent {
     });
   }
 
+  /**
+   * After an item change: refresh the items without touching the list form (title, date and event do not
+   * change here), and only then free the buttons and show the notice.
+   */
   private afterChange(message: string): void {
-    this.busy.set(false);
-    this.notice.set(message);
-    this.reload();
+    this.reload({ keepForm: true, done: () => {
+      this.busy.set(false);
+      this.notice.set(message);
+    } });
   }
 
   private itemMessage(e: unknown): string {
@@ -311,11 +316,20 @@ export class ListManageComponent {
     return errorMessage(e, ORGANIZER_COPY);
   }
 
-  private reload(): void {
+  private reload(options: { keepForm?: boolean; done?: () => void } = {}): void {
     this.organizer.get(this.id).subscribe({
-      next: (l) => this.setList(l),
-      error: (e) =>
-        this.loadError.set(errorCode(e) === 'NOT_FOUND' ? 'Lista não encontrada' : errorMessage(e, ORGANIZER_COPY)),
+      next: (l) => {
+        if (options.keepForm) {
+          this.list.set(l);
+        } else {
+          this.setList(l);
+        }
+        options.done?.();
+      },
+      error: (e) => {
+        this.busy.set(false);
+        this.loadError.set(errorCode(e) === 'NOT_FOUND' ? 'Lista não encontrada' : errorMessage(e, ORGANIZER_COPY));
+      },
     });
     this.loadSummary();
   }

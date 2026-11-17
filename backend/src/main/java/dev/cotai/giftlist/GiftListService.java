@@ -63,7 +63,8 @@ public class GiftListService {
             Item item = list.addItem(in.name().trim(), in.unit().trim(), in.unitPriceCents());
             item.setImageUrl(in.imageUrl());
         }
-        giftLists.save(list);
+        // The id is assigned in the constructor, so save() merges: the item ids are on the returned copy.
+        list = giftLists.save(list);
         events.save(new Event(list.getSlug(), catalogEvent.getName(),
                 catalogEvent.getDefaultReservationTtlMinutes(), catalogEvent, list));
         return GiftListResponse.of(list, catalogEvent.getCode());
