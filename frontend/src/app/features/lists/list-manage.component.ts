@@ -1,0 +1,340 @@
+import { Component, computed, inject, signal } from '@angular/core';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { collectionProgress } from '../../core/copy/progress-copy';
+import { ORGANIZER_COPY, errorCode, errorMessage } from '../../core/copy/ui-copy';
+import { Event } from '../../core/models/event.model';
+import { GiftList, GiftListSummaryReport, Item } from '../../core/models/gift-list.model';
+import { EventCatalogService } from '../../core/services/event-catalog.service';
+import { OrganizerService } from '../../core/services/organizer.service';
+import { ItemEditorComponent } from './item-editor.component';
+import { ItemPhotoComponent } from './item-photo.component';
+import {
+  ItemDraft,
+  ItemErrors,
+  draftFrom,
+  draftPhotoSrc,
+  emptyDraft,
+  setDraftPhoto,
+  toItemInput,
+  validateDraft,
+} from './item-draft';
+import {
+  CotaiButtonComponent,
+  CotaiCardComponent,
+  CotaiProgressComponent,
+  CotaiStatus,
+  CotaiStatusBadgeComponent,
+} from '../../shared/cotai-ui';
+
+@Component({
+  selector: 'app-list-manage',
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    FormsModule,
+    RouterLink,
+    ItemEditorComponent,
+    ItemPhotoComponent,
+    CotaiButtonComponent,
+    CotaiCardComponent,
+    CotaiProgressComponent,
+    CotaiStatusBadgeComponent,
+  ],
+  templateUrl: './list-manage.component.html',
+  styleUrl: './list-manage.component.scss',
+})
+export class ListManageComponent {
+  private readonly organizer = inject(OrganizerService);
+  private readonly id = inject(ActivatedRoute).snapshot.paramMap.get('id') ?? '';
+
+  protected readonly list = signal<GiftList | null>(null);
+  protected readonly summary = signal<GiftListSummaryReport | null>(null);
+  protected readonly loadError = signal('');
+  protected readonly notice = signal('');
+  protected readonly actionError = signal('');
+  protected readonly busy = signal(false);
+  protected readonly copied = signal(false);
+  protected readonly confirmClose = signal(false);
+
+  protected readonly editingId = signal<number | null>(null);
+  protected readonly editDraft = signal<ItemDraft | null>(null);
+  protected readonly editErrors = signal<ItemErrors>({});
+  protected readonly itemError = signal('');
+  protected readonly confirmRemoveId = signal<number | null>(null);
+  protected readonly newDraft = signal<ItemDraft | null>(null);
+  protected readonly newErrors = signal<ItemErrors>({});
+  protected readonly newError = signal('');
+  protected readonly newPhotoSrc = computed(() => {
+    const d = this.newDraft();
+    return d ? draftPhotoSrc(d) : undefined;
+  });
+  protected readonly photoBusyId = signal<number | null>(null);
+  protected readonly photoErrorId = signal<number | null>(null);
+  protected readonly photoError = signal('');
+
+  protected readonly warning = signal<string>(history.state?.warning ?? '');
+
+  protected readonly detailErrors = signal<Record<string, string>>({});
+  protected readonly detailsError = signal('');
+  protected title = '';
+  protected eventDate = '';
+  protected ttl: number | null = null;
+  protected eventCode = '';
+
+  protected readonly today = new Date().toLocaleDateString('en-CA');
+  protected readonly events = signal<Event[]>([]);
+  protected readonly eventName = computed(
+    () => this.events().find((t) => t.code === this.list()?.eventCode)?.name ?? '',
+  );
+
+  protected readonly badge = computed(() => (this.list()?.status.toLowerCase() ?? 'draft') as CotaiStatus);
+  protected readonly activeItems = computed(() => this.list()?.items.filter((i) => !i.archived) ?? []);
+  protected readonly publicUrl = computed(() => `${location.origin}/l/${this.list()?.slug ?? ''}`);
+  protected readonly progress = computed(() => {
+    const s = this.summary();
+    return s ? collectionProgress(s.confirmedCents, s.targetCents, this.id) : null;
+  });
+  protected readonly recentContributors = computed(() => [...(this.summary()?.contributors ?? [])].reverse().slice(0, 10));
+
+  constructor() {
+
+    if (history.state?.warning) history.replaceState({ ...history.state, warning: undefined }, '');
+    this.reload();
+    // Without the catalog the page still works; only the type name and the type select stay empty.
+    inject(EventCatalogService).events().subscribe({ next: (events) => this.events.set(events), error: () => {} });
+  }
+
+  protected totalsFor(itemId: number) {
+    return this.summary()?.items.find((t) => t.itemId === itemId) ?? null;
+  }
+
+  protected publish(): void {
+    this.run(this.organizer.publish(this.id), 'Lista publicada. Agora é só compartilhar o link.');
+  }
+
+  protected close(): void {
+    this.run(this.organizer.close(this.id), 'Lista encerrada.');
+  }
+
+  protected copyLink(): void {
+    navigator.clipboard?.writeText(this.publicUrl()).then(
+      () => this.copied.set(true),
+      () => this.copied.set(false),
+    );
+  }
+
+  protected startEdit(item: Item): void {
+    this.editingId.set(item.id);
+    this.editDraft.set(draftFrom(item));
+    this.editErrors.set({});
+    this.itemError.set('');
+    this.confirmRemoveId.set(null);
+  }
+
+  protected cancelEdit(): void {
+    this.editingId.set(null);
+    this.editDraft.set(null);
+  }
+
+  protected saveItem(item: Item): void {
+    const draft = this.editDraft()!;
+    const errors = validateDraft(draft);
+    this.editErrors.set(errors);
+    if (Object.keys(errors).length > 0) return;
+    this.busy.set(true);
+    this.organizer.updateItem(this.id, item.id, toItemInput(draft)).subscribe({
+      next: () => {
+        this.cancelEdit();
+        this.afterChange('Item salvo.');
+      },
+      error: (e) => {
+        this.busy.set(false);
+        this.itemError.set(errorMessage(e, ORGANIZER_COPY));
+      },
+    });
+  }
+
+  protected askRemove(item: Item): void {
+    this.confirmRemoveId.set(item.id);
+    this.itemError.set('');
+    this.cancelEdit();
+  }
+
+  protected removeItem(item: Item): void {
+    this.busy.set(true);
+    this.organizer.archiveItem(this.id, item.id).subscribe({
+      next: () => {
+        this.confirmRemoveId.set(null);
+        this.afterChange('Item removido.');
+      },
+      error: (e) => {
+        this.busy.set(false);
+        this.itemError.set(errorMessage(e, ORGANIZER_COPY));
+      },
+    });
+  }
+
+  protected openNewItem(): void {
+    this.newDraft.set(emptyDraft());
+    this.newErrors.set({});
+    this.newError.set('');
+  }
+
+  protected uploadPhoto(item: Item, file: File): void {
+    this.photoAction(item, this.organizer.uploadPhoto(this.id, item.id, file), 'Foto salva.');
+  }
+
+  protected removePhoto(item: Item): void {
+    this.photoAction(item, this.organizer.removePhoto(this.id, item.id), 'Foto removida.');
+  }
+
+  private photoAction(item: Item, action: ReturnType<OrganizerService['uploadPhoto']>, success: string): void {
+    this.photoBusyId.set(item.id);
+    this.photoErrorId.set(null);
+    action.subscribe({
+      next: () => {
+        this.photoBusyId.set(null);
+        this.warning.set('');
+        this.afterChange(success);
+      },
+      error: (e) => {
+        this.photoBusyId.set(null);
+        this.photoErrorId.set(item.id);
+        this.photoError.set(errorMessage(e, ORGANIZER_COPY));
+      },
+    });
+  }
+
+  protected cancelNewItem(): void {
+    const draft = this.newDraft();
+    if (draft) setDraftPhoto(draft, null);
+    this.newDraft.set(null);
+  }
+
+  protected setNewPhoto(file: File | null): void {
+    const current = this.newDraft();
+    if (!current) return;
+    setDraftPhoto(current, file);
+    this.newDraft.set({ ...current });
+  }
+
+  protected saveNewItem(): void {
+    const draft = this.newDraft()!;
+    const errors = validateDraft(draft);
+    this.newErrors.set(errors);
+    if (Object.keys(errors).length > 0) return;
+    this.busy.set(true);
+    this.organizer.addItem(this.id, toItemInput(draft)).subscribe({
+      next: (item) => {
+        this.newDraft.set(null);
+        if (!draft.photo) return this.afterChange('Item adicionado.');
+        this.organizer.uploadPhoto(this.id, item.id, draft.photo).subscribe({
+          next: () => this.afterChange('Item adicionado.'),
+          error: (e) => {
+            this.warning.set(`Item adicionado, mas a foto não foi enviada: ${errorMessage(e, ORGANIZER_COPY)}`);
+            this.afterChange('');
+          },
+        });
+        setDraftPhoto(draft, null);
+      },
+      error: (e) => {
+        this.busy.set(false);
+        this.newError.set(errorMessage(e, ORGANIZER_COPY));
+      },
+    });
+  }
+
+  protected saveDetails(): void {
+    const errors: Record<string, string> = {};
+    if (this.title.trim().length < 3) errors['title'] = 'Use pelo menos 3 caracteres.';
+    if (!this.eventDate) errors['eventDate'] = 'Informe a data do evento.';
+    // Same rule as the API: a new date cannot be in the past, but an old list keeps its date.
+    else if (this.eventDate !== this.list()?.eventDate && this.eventDate < this.today) {
+      errors['eventDate'] = 'A data do evento já passou.';
+    }
+    if (this.ttl === null || this.ttl < 10 || this.ttl > 1440) errors['ttl'] = 'Use de 10 a 1440 minutos.';
+    this.detailErrors.set(errors);
+    this.detailsError.set('');
+    if (Object.keys(errors).length > 0) return;
+    this.busy.set(true);
+    this.organizer
+      .update(this.id, {
+        title: this.title.trim(),
+        eventDate: this.eventDate,
+        reservationTtlMinutes: this.ttl!,
+        eventCode: this.eventCode || undefined,
+      })
+      .subscribe({
+        next: (l) => {
+          this.setList(l);
+          this.busy.set(false);
+          this.notice.set('Dados da lista salvos.');
+        },
+        error: (e) => {
+          this.busy.set(false);
+          this.detailsError.set(errorMessage(e, ORGANIZER_COPY));
+        },
+      });
+  }
+
+  private run(action: ReturnType<OrganizerService['publish']>, success: string): void {
+    this.busy.set(true);
+    this.actionError.set('');
+    action.subscribe({
+      next: (l) => {
+        this.setList(l);
+        this.busy.set(false);
+        this.confirmClose.set(false);
+        this.notice.set(success);
+        this.loadSummary();
+      },
+      error: (e) => {
+        this.busy.set(false);
+        this.actionError.set(errorMessage(e, ORGANIZER_COPY));
+      },
+    });
+  }
+
+  /**
+   * After an item change: refresh the items without touching the list form (title, date and event do not
+   * change here), and only then free the buttons and show the notice.
+   */
+  private afterChange(message: string): void {
+    this.reload({ keepForm: true, done: () => {
+      this.busy.set(false);
+      this.notice.set(message);
+    } });
+  }
+
+  private reload(options: { keepForm?: boolean; done?: () => void } = {}): void {
+    this.organizer.get(this.id).subscribe({
+      next: (l) => {
+        if (options.keepForm) {
+          this.list.set(l);
+        } else {
+          this.setList(l);
+        }
+        options.done?.();
+      },
+      error: (e) => {
+        this.busy.set(false);
+        this.loadError.set(errorCode(e) === 'NOT_FOUND' ? 'Lista não encontrada' : errorMessage(e, ORGANIZER_COPY));
+      },
+    });
+    this.loadSummary();
+  }
+
+  private loadSummary(): void {
+    this.organizer.summary(this.id).subscribe({ next: (s) => this.summary.set(s), error: () => this.summary.set(null) });
+  }
+
+  private setList(l: GiftList): void {
+    this.list.set(l);
+    this.title = l.title;
+    this.eventDate = l.eventDate;
+    this.ttl = l.reservationTtlMinutes;
+    this.eventCode = l.eventCode;
+  }
+}

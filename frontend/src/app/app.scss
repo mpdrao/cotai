@@ -1,0 +1,62 @@
+:host {
+  display: block;
+}
+
+.shell {
+  min-height: 100vh;
+}
+
+.topbar {
+  background: var(--cotai-background);
+  border-bottom: 1px solid var(--cotai-border);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 4.5rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--cotai-tap-target);
+}
+
+.brand img {
+  display: block;
+  height: 2.25rem;
+  width: auto;
+}
+
+.organizer-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--cotai-tap-target);
+  padding: 0 1rem;
+  border: 1px solid var(--cotai-primary);
+  border-radius: var(--cotai-radius-pill);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.content {
+  padding-block: 1.5rem 3rem;
+}
+
+@media (min-width: 48rem) {
+  .brand img {
+    height: 2.75rem;
+  }
+
+  .content {
+    padding-block: 3rem 5rem;
+  }
+}
+
+.organizer-link { transition: background var(--cotai-motion); }
+.organizer-link:hover { background: var(--cotai-surface-sage); }

@@ -1,0 +1,110 @@
+package dev.cotai.giftlist;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+
+public final class GiftListDtos {
+
+    private GiftListDtos() {
+    }
+
+    public record ItemInput(
+            @NotBlank @Size(max = 80) String name,
+            @NotBlank @Size(max = 30) String unit,
+            @Min(1) @Max(100_000_000) long unitPriceCents,
+            String imageUrl) {
+    }
+
+    // Title and event code are cleaned before validation, so "   ab " does not pass as a 3+ letter title.
+    public record CreateGiftListRequest(
+            @NotBlank String eventCode,
+            @NotBlank @Size(min = 3, max = 80) String title,
+            @NotNull LocalDate eventDate,
+            @Min(10) @Max(1440) Integer reservationTtlMinutes,
+            @NotNull @Size(max = 100) List<@Valid ItemInput> items) {
+
+        public CreateGiftListRequest {
+            eventCode = normalizedCode(eventCode);
+            title = trim(title);
+        }
+    }
+
+    /** The organizer can edit title, date and event while the list is not closed. */
+    public record UpdateGiftListRequest(
+            @Size(min = 3, max = 80) String title,
+            LocalDate eventDate,
+            @Min(10) @Max(1440) Integer reservationTtlMinutes,
+            @Size(min = 1, max = 30) String eventCode) {
+
+        public UpdateGiftListRequest {
+            eventCode = normalizedCode(eventCode);
+            title = trim(title);
+        }
+    }
+
+    private static String trim(String value) {
+        return value == null ? null : value.trim();
+    }
+
+    private static String normalizedCode(String code) {
+        return code == null ? null : code.trim().toUpperCase(Locale.ROOT);
+    }
+
+    /** Each item is one quota (the Item of the object model has no quota count). */
+    public record ItemResponse(Long id, String name, String unit, long unitPriceCents,
+                               long totalCents, boolean archived, String imageUrl, boolean isDefault) {
+        public static ItemResponse of(Item i) {
+            return new ItemResponse(i.getId(), i.getName(), i.getUnit(), i.getUnitPriceCents(),
+                    i.totalCents(), i.isArchived(), i.getImageUrl(), i.isDefault());
+        }
+    }
+
+    public record GiftListResponse(UUID id, String title, String slug, String eventCode, LocalDate eventDate,
+                                   GiftListStatus status, int reservationTtlMinutes, List<ItemResponse> items,
+                                   Instant createdAt) {
+        /** {@code eventCode} is the catalog Event the list's own Event is based on. */
+        public static GiftListResponse of(GiftList l, String eventCode) {
+            return new GiftListResponse(l.getId(), l.getTitle(), l.getSlug(), eventCode,
+                    l.getEventDate(), l.getStatus(), l.getReservationTtlMinutes(),
+                    l.getItems().stream().map(ItemResponse::of).toList(), l.getCreatedAt());
+        }
+    }
+
+    public record GiftListSummary(UUID id, String title, String slug, GiftListStatus status, LocalDate eventDate) {
+        public static GiftListSummary of(GiftList l) {
+            return new GiftListSummary(l.getId(), l.getTitle(), l.getSlug(), l.getStatus(), l.getEventDate());
+        }
+    }
+
+    public record ItemTotals(Long itemId, String name, int totalQuotas, int confirmedQuotas, int pendingQuotas,
+                             int availableQuotas) {
+    }
+
+    public record Contributor(String guestName, String itemName, int quantity, long amountCents,
+                              Instant confirmedAt) {
+    }
+
+    public record GiftListSummaryReport(UUID giftListId, long targetCents, long confirmedCents, long pendingCents,
+                                        long refundRequiredCents, List<ItemTotals> items,
+                                        List<Contributor> contributors) {
+    }
+
+    /** {@code availableQuotas} is 1 while the item's only quota is free, 0 once it is reserved. */
+    public record PublicItem(Long id, String name, String unit, long unitPriceCents,
+                             int availableQuotas, String imageUrl) {
+    }
+
+    public record PublicGiftList(String title, String eventTypeCode, LocalDate eventDate, GiftListStatus status,
+                                 boolean acceptsReservations, List<PublicItem> items) {
+    }
+}

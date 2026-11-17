@@ -1,9 +1,11 @@
-# Cotai
+# Cota Ae!
 
 Lista de presentes **com cotas** para qualquer evento (casamento, chá de bebê, churrasco…).
 
 O organizador parte de 10 itens sugeridos por tipo de evento, ajusta nome, unidade, preço e número de cotas e publica um link. O convidado reserva cotas e paga por **QR code / link** num gateway simulado; um **webhook assinado** confirma a reserva automaticamente.
 
+> A interface segue o design system Cota Ae! ([`docs/design-system/`](docs/design-system/)), mobile-first.
+>
 > Projeto de partida gerado a partir do design em [`docs/design/design-spec.md`](docs/design/design-spec.md) (diagramas de arquitetura, casos de uso, classes, estados, concorrência e edge cases) e do contrato [`docs/api/openapi.yaml`](docs/api/openapi.yaml).
 
 ## Stack
@@ -13,31 +15,35 @@ O organizador parte de 10 itens sugeridos por tipo de evento, ajusta nome, unida
 | Backend | Java 21 · Spring Boot 4 · Spring Web MVC · Spring Data JPA · Spring Security (JWT) |
 | Banco | PostgreSQL 17 · Flyway |
 | Frontend | Angular 22 (standalone components, signals) |
-| Contrato | OpenAPI 3.1 · erros em RFC 9457 (Problem Details) |
-| Testes | JUnit 5 · Testcontainers (PostgreSQL real, não H2) |
-| Build | Maven multi-módulo (`api/` + `web/`), um único JAR em produção |
+| Contrato | OpenAPI 3.1 (`/openapi.yaml` e `/swagger-ui`) · erros em RFC 9457 (Problem Details) |
+| Testes | JUnit 5 · Testcontainers · Postman Collection · JMeter (`.jmx`) · Vitest |
+| Build | Maven em `backend/` (builda o Angular de `frontend/` junto), um único JAR em produção |
 
 ## Estrutura
 
 ```
 cotai/
-├── pom.xml                  # parent: módulos api e web
-├── docker-compose.yml       # postgres:17
-├── docs/
-│   ├── api/openapi.yaml     # contrato da API
-│   ├── api/scripts/         # race-last-quota.sh (concorrência real)
-│   └── design/design-spec.md
-├── api/                     # Spring Boot
+├── backend/                 # Spring Boot: pom.xml, mvnw, docker-compose.yml (postgres:17)
 │   └── src/main/java/dev/cotai/
-│       ├── organizer/       # Organizer, AuthController, JwtService
-│       ├── eventtype/       # EventType, TemplateItem, EventTypeController
+│       ├── security/        # SecurityConfig, JwtService, AuthController, AuthDtos
+│       ├── organizer/       # Organizer, OrganizerRepository
+│       ├── event/           # Event, EventController
 │       ├── giftlist/        # GiftList, Item, GiftListService, controllers
 │       ├── reservation/     # Reservation, ReservationService, ReservationExpiryJob
 │       ├── payment/         # Payment, PaymentGateway (porta), PaymentService, webhook
 │       ├── mockgateway/     # @Profile("dev"): MockPaymentGateway, checkout com QR
 │       ├── devsupport/      # @Profile("dev"): MutableClock, DevController
-│       └── common/          # erros, segurança, Clock, helpers de hash
-└── web/                     # Angular (build empacotado em /static no JAR)
+│       └── common/          # erros, OpenApiDocController (/swagger-ui), Clock, helpers de hash
+├── frontend/                # Angular (build empacotado em /static no JAR)
+│   └── src/app/
+│       ├── core/            # auth, models, services (ApiService, OrganizerService), copy, money
+│       ├── features/        # uma pasta por tela: home, gift-list, reservation, auth, dashboard, lists
+│       └── shared/cotai-ui/ # componentes do design system
+└── docs/
+    ├── api/                 # openapi.yaml, collections/cotai-postman-collection.json, scripts/ (race-last-quota.sh + cotai-load-test.jmx)
+    ├── design/              # design-spec.md
+    ├── design-system/       # marca, mobile-first, componentes, textos, a11y
+    └── modelagem/           # modelo Astah (.asta)
 ```
 
 ## Como rodar (desenvolvimento)
@@ -46,13 +52,17 @@ Pré-requisitos: **Java 21**, **Node 24.15+** (para o Angular 22) e **Docker**.
 
 ```bash
 # 1. Banco
-docker compose up -d
+cd backend && docker compose up -d
 
 # 2. API (perfil dev: gateway simulado + relógio controlável) em http://localhost:8080
-./mvnw -DskipWeb -pl api spring-boot:run
+./mvnw -DskipWeb spring-boot:run
 
-# 3. Frontend com proxy para a API em http://localhost:4200
-cd web && npm install && npm start
+# 3. Swagger UI e contrato OpenAPI 3.1
+#    Swagger UI: http://localhost:8080/swagger-ui
+#    OpenAPI YAML: http://localhost:8080/openapi.yaml
+
+# 4. Frontend com proxy para a API em http://localhost:4200 (outro terminal, a partir da raiz)
+cd frontend && npm install && npm start
 ```
 
 Para o QR code funcionar no celular, aponte `PUBLIC_BASE_URL` para o IP da sua rede local (ex.: `http://192.168.0.10:8080`); com `localhost` a página não abre no aparelho.
@@ -69,11 +79,20 @@ Para reproduzir expirações sem esperar 30 minutos: `POST /dev/clock/advance {"
 ## Build e testes
 
 ```bash
-./mvnw -DskipWeb -pl api test      # testes unitários
-./mvnw -DskipWeb -pl api verify    # + integração (*IT) com Testcontainers (requer Docker)
-./mvnw clean package               # JAR único com o Angular em /static
-java -Dspring.profiles.active=dev -jar api/target/cotai.jar
+cd backend
+./mvnw -DskipWeb test      # testes unitários
+./mvnw -DskipWeb verify    # + integração (*IT) com Testcontainers (requer Docker)
+./mvnw clean package       # JAR único com o Angular de ../frontend em /static
+java -Dspring.profiles.active=dev -jar target/cotai.jar
 ```
+
+### Postman Collection e JMeter
+
+- **Postman Collection:** importe [`docs/api/collections/cotai-postman-collection.json`](docs/api/collections/cotai-postman-collection.json) (59 requisições em 8 pastas com asserções automatizadas e assinatura HMAC-SHA256 de webhooks).
+- **Plano de Carga e Concorrência JMeter:** abra [`docs/api/scripts/cotai-load-test.jmx`](docs/api/scripts/cotai-load-test.jmx) no Apache JMeter 5.6+ ou execute via CLI:
+  ```bash
+  jmeter -n -t docs/api/scripts/cotai-load-test.jmx -l jmeter-results.jtl
+  ```
 
 ## Configuração
 
@@ -103,7 +122,6 @@ Variáveis de ambiente (valores padrão servem **apenas** para desenvolvimento):
 Esta é a base inicial: o backend implementa os casos de uso do design (auth, listas, itens, reservas, pagamento simulado, webhook, expiração, resumo). Falta:
 
 - [ ] Testes de integração de concorrência e webhook do design (`ReservationConcurrencyIT`, `IdempotencyRaceIT`, `ConfirmVsExpireRaceIT`, `CancelVsPaidRaceIT`, `PaymentWebhookIT`, `GatewayFailureIT`)
-- [ ] Telas do organizador (login, criar lista a partir do tipo de evento, itens, resumo)
 - [ ] Gerar os tipos do Angular a partir do `openapi.yaml`
-- [ ] Collections Postman/Insomnia (`docs/api/collections/`)
+- [x] Collections Postman (`docs/api/collections/cotai-postman-collection.json`) e plano de carga JMeter (`docs/api/scripts/cotai-load-test.jmx`)
 - [ ] Rate limit por IP e verificação de e-mail (fora do escopo do design atual)

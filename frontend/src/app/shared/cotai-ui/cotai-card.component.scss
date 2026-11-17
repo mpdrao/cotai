@@ -1,0 +1,14 @@
+:host { display: block; min-width: 0; }
+.cotai-card {
+  box-sizing: border-box; min-width: 0; height: 100%;
+  padding: var(--cotai-card-padding, var(--cotai-space-6));
+  background: var(--cotai-surface);
+  border: 1px solid var(--cotai-card-border, var(--cotai-border));
+  border-radius: var(--cotai-card-radius, var(--cotai-radius-card));
+  box-shadow: var(--cotai-shadow-base);
+  color: var(--cotai-ink); overflow-wrap: anywhere;
+}
+.cotai-card--tinted { background: var(--cotai-surface-sage); border-color: transparent; }
+.cotai-card--soft { box-shadow: var(--cotai-shadow-card); }
+.cotai-card--raised { box-shadow: var(--cotai-shadow-raised); border-radius: var(--cotai-radius-lg); }
+@media (min-width: 40rem) { .cotai-card { padding: var(--cotai-card-padding, var(--cotai-space-8)); } }

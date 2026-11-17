@@ -1,0 +1,142 @@
+package dev.cotai.giftlist;
+
+import dev.cotai.common.BusinessException;
+import dev.cotai.common.ErrorCode;
+import dev.cotai.organizer.Organizer;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Entity
+@Table(name = "gift_list")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class GiftList {
+
+    public static final int MAX_ITEMS = 100;
+
+    @Id
+    private UUID id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "owner_id")
+    private Organizer owner;
+
+    @Column(nullable = false, length = 80)
+    private String title;
+
+    @Column(nullable = false, unique = true, length = 100)
+    private String slug;
+
+    @Column(name = "event_date", nullable = false)
+    private LocalDate eventDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private GiftListStatus status;
+
+    @Column(name = "reservation_ttl_minutes", nullable = false)
+    private int reservationTtlMinutes;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @OneToMany(mappedBy = "giftList", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("id ASC")
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private List<Item> items = new ArrayList<>();
+
+    public GiftList(Organizer owner, String title, String slug, LocalDate eventDate,
+                    int reservationTtlMinutes, Instant createdAt) {
+        this.id = UUID.randomUUID();
+        this.owner = owner;
+        this.title = title;
+        this.slug = slug;
+        this.eventDate = eventDate;
+        this.reservationTtlMinutes = reservationTtlMinutes;
+        this.createdAt = createdAt;
+        this.status = GiftListStatus.DRAFT;
+    }
+
+    public Item addItem(String name, String unit, long unitPriceCents) {
+        ensureNotClosed();
+        if (items.size() >= MAX_ITEMS) {
+            throw new BusinessException(ErrorCode.VALIDATION_FAILED, "A gift list has at most " + MAX_ITEMS + " items.");
+        }
+        Item item = new Item(this, name, unit, unitPriceCents);
+        items.add(item);
+        return item;
+    }
+
+    public void publish(LocalDate today) {
+        if (status != GiftListStatus.DRAFT) {
+            throw new BusinessException(ErrorCode.INVALID_STATE_TRANSITION, "Only DRAFT lists can be published.");
+        }
+        if (eventDate.isBefore(today)) {
+            throw new BusinessException(ErrorCode.EVENT_DATE_IN_PAST, "Event date is in the past.");
+        }
+        if (items.stream().allMatch(Item::isArchived)) {
+            throw new BusinessException(ErrorCode.LIST_HAS_NO_ITEMS, "Add at least one item before publishing.");
+        }
+        status = GiftListStatus.PUBLISHED;
+    }
+
+    public void close() {
+        if (status != GiftListStatus.PUBLISHED) {
+            throw new BusinessException(ErrorCode.INVALID_STATE_TRANSITION, "Only PUBLISHED lists can be closed.");
+        }
+        status = GiftListStatus.CLOSED;
+    }
+
+    public boolean acceptsReservations(LocalDate today) {
+        return status == GiftListStatus.PUBLISHED && !eventDate.isBefore(today);
+    }
+
+    public void update(String newTitle, LocalDate newEventDate, Integer newTtlMinutes) {
+        ensureNotClosed();
+        if (newTitle != null) {
+            this.title = newTitle;
+        }
+        if (newEventDate != null) {
+            this.eventDate = newEventDate;
+        }
+        if (newTtlMinutes != null) {
+            this.reservationTtlMinutes = newTtlMinutes;
+        }
+    }
+
+    public void ensureNotClosed() {
+        if (status == GiftListStatus.CLOSED) {
+            throw new BusinessException(ErrorCode.INVALID_STATE_TRANSITION, "Gift list is CLOSED.");
+        }
+    }
+
+    public boolean isOwnedBy(UUID organizerId) {
+        return owner.getId().equals(organizerId);
+    }
+
+    public List<Item> getItems() {
+        return List.copyOf(items);
+    }
+}
