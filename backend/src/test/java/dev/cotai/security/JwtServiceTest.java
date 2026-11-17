@@ -1,6 +1,5 @@
 package dev.cotai.security;
 
-import dev.cotai.common.AppProperties;
 import dev.cotai.organizer.Organizer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

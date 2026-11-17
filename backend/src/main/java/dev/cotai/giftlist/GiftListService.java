@@ -1,12 +1,12 @@
 package dev.cotai.giftlist;
 
-import dev.cotai.common.AppProperties;
+import dev.cotai.security.AppProperties;
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
 import dev.cotai.dashboard.DashboardDtos.FundraisingMetrics;
 import dev.cotai.dashboard.DashboardService;
-import dev.cotai.eventtype.Event;
-import dev.cotai.eventtype.EventTypeRepository;
+import dev.cotai.event.Event;
+import dev.cotai.event.EventRepository;
 import dev.cotai.giftlist.GiftListDtos.Contributor;
 import dev.cotai.giftlist.GiftListDtos.CreateGiftListRequest;
 import dev.cotai.giftlist.GiftListDtos.GiftListResponse;
@@ -24,9 +24,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +42,7 @@ public class GiftListService {
 
     private final GiftListRepository giftLists;
     private final ItemRepository items;
-    private final EventTypeRepository eventTypes;
+    private final EventRepository events;
     private final OrganizerRepository organizers;
     private final ReservationRepository reservations;
     private final DashboardService dashboard;
@@ -49,7 +51,7 @@ public class GiftListService {
     private final Clock clock;
 
     public GiftListResponse create(UUID ownerId, CreateGiftListRequest req) {
-        Event event = eventType(req.eventTypeCode());
+        Event event = event(req.eventCode());
         ensureNotInThePast(req.eventDate());
         int ttl = req.reservationTtlMinutes() != null
                 ? req.reservationTtlMinutes() : event.getDefaultReservationTtlMinutes();
@@ -76,7 +78,7 @@ public class GiftListService {
     public GiftListResponse update(UUID ownerId, UUID id, UpdateGiftListRequest req) {
         GiftList list = owned(ownerId, id);
         // Check everything before touching the list, so a bad field does not leave half an update behind.
-        Event newEvent = req.eventTypeCode() != null ? eventType(req.eventTypeCode()) : null;
+        Event newEvent = req.eventCode() != null ? event(req.eventCode()) : null;
         // Only a new date is checked: renaming a list whose event already happened must still work.
         if (req.eventDate() != null && !req.eventDate().equals(list.getEventDate())) {
             ensureNotInThePast(req.eventDate());
@@ -88,8 +90,8 @@ public class GiftListService {
         return GiftListResponse.of(list);
     }
 
-    private Event eventType(String code) {
-        return eventTypes.findById(code).orElseThrow(() -> BusinessException.notFound("Event type"));
+    private Event event(String code) {
+        return events.findById(code).orElseThrow(() -> BusinessException.notFound("Event"));
     }
 
     private void ensureNotInThePast(LocalDate eventDate) {
@@ -140,11 +142,36 @@ public class GiftListService {
         item.archive();
     }
 
+    private static final int MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+
     public ItemResponse uploadPhoto(UUID ownerId, UUID id, Long itemId, byte[] data) {
+        String contentType = photoContentType(data);
         Item item = photoTarget(ownerId, id, itemId);
         String base64 = Base64.getEncoder().encodeToString(data);
-        item.setImageUrl("data:image/jpeg;base64," + base64);
+        item.setImageUrl("data:" + contentType + ";base64," + base64);
         return ItemResponse.of(item);
+    }
+
+    private static String photoContentType(byte[] data) {
+        if (data.length > MAX_PHOTO_BYTES) {
+            throw new BusinessException(ErrorCode.PHOTO_TOO_LARGE, "Photo is larger than 5 MB.");
+        }
+        if (startsWith(data, 0, new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF})) {
+            return "image/jpeg";
+        }
+        if (startsWith(data, 0, new byte[]{(byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1A, '\n'})) {
+            return "image/png";
+        }
+        if (startsWith(data, 0, "RIFF".getBytes(StandardCharsets.US_ASCII))
+                && startsWith(data, 8, "WEBP".getBytes(StandardCharsets.US_ASCII))) {
+            return "image/webp";
+        }
+        throw new BusinessException(ErrorCode.PHOTO_INVALID, "Photo must be a JPEG, PNG or WebP image.");
+    }
+
+    private static boolean startsWith(byte[] data, int offset, byte[] prefix) {
+        return data.length >= offset + prefix.length
+                && Arrays.equals(data, offset, offset + prefix.length, prefix, 0, prefix.length);
     }
 
     public ItemResponse removePhoto(UUID ownerId, UUID id, Long itemId) {

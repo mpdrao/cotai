@@ -148,7 +148,7 @@
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
                 <stringProp name="Argument.value">{&#xd;
-  &quot;eventTypeCode&quot;: &quot;BARBECUE&quot;,&#xd;
+  &quot;eventCode&quot;: &quot;BARBECUE&quot;,&#xd;
   &quot;title&quot;: &quot;Churrasco Teste de Carga&quot;,&#xd;
   &quot;eventDate&quot;: &quot;2027-12-20&quot;,&#xd;
   &quot;reservationTtlMinutes&quot;: 30,&#xd;
@@ -228,10 +228,10 @@ props.put(&apos;sharedItemId&apos;, vars.get(&apos;itemId&apos;))</stringProp>
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/event-types">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/events">
           <stringProp name="HTTPSampler.domain">localhost</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.path">/api/event-types</stringProp>
+          <stringProp name="HTTPSampler.path">/api/events</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>

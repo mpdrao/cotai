@@ -1,6 +1,6 @@
-import { EventType } from '../../core/models/event-type.model';
+import { Event } from '../../core/models/event.model';
 
-// Name ideas shown under the list title. Keys are the catalog codes (event_type.code in the API).
+// Name ideas shown under the list title. Keys are the catalog codes (event.code in the API).
 const TITLE_SUGGESTIONS: Record<string, string[]> = {
   BARBECUE: ['Churrasco da firma', 'Churras de fim de ano', 'Churrasco de aniversário', 'Resenha do fim de semana'],
   BIRTHDAY: ['Aniversário de 30 anos', 'Niver da Júlia', 'Festa surpresa', 'Aniversário do vovô'],
@@ -9,7 +9,7 @@ const TITLE_SUGGESTIONS: Record<string, string[]> = {
   OTHER: ['Bodas de prata', 'Formatura da turma', 'Chá de casa nova', 'Vaquinha da galera'],
 };
 
-export function titleSuggestionsFor(type: EventType | null): string[] {
-  if (!type) return [];
-  return TITLE_SUGGESTIONS[type.code] ?? TITLE_SUGGESTIONS['OTHER'];
+export function titleSuggestionsFor(event: Event | null): string[] {
+  if (!event) return [];
+  return TITLE_SUGGESTIONS[event.code] ?? TITLE_SUGGESTIONS['OTHER'];
 }

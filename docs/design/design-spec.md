@@ -59,9 +59,9 @@ cotai/
 │   ├── docker-compose.yml               # postgres:17
 │   └── src/
 │       ├── main/java/dev/cotai/
-│       │   ├── security/                # SecurityConfig, JwtService, AuthController, AuthDtos
+│       │   ├── security/                # SecurityConfig, JwtService, AuthController, AuthDtos, AppProperties
 │       │   ├── organizer/               # Organizer, OrganizerRepository
-│       │   ├── eventtype/               # EventType, TemplateItem, EventTypeController
+│       │   ├── event/                   # Event, EventController
 │       │   ├── giftlist/                # GiftList, Item, GiftListService, GiftListController,
 │       │   │                            #   PublicGiftListController, SlugGenerator
 │       │   ├── reservation/             # Reservation, ReservationFlow, ReservationService, ReservationExpiryJob
@@ -69,14 +69,14 @@ cotai/
 │       │   ├── mockgateway/             # @Profile("dev"): MockPaymentGateway, MockGatewayController, WebhookDispatcher
 │       │   ├── devsupport/              # @Profile("dev"): MutableClock, DevController
 │       │   └── common/                  # GlobalExceptionHandler, ErrorCode, BusinessException,
-│       │                                #   ClockConfig, AppProperties, Crypto, SpaForwardController
+│       │                                #   ClockConfig, Crypto, SpaForwardController
 │       ├── main/resources/
 │       │   ├── application.yml
 │       │   ├── application-dev.yml      # mock-gateway.*
 │       │   ├── templates/mock-checkout.html
 │       │   └── db/migration/
 │       │       ├── V1__schema.sql
-│       │       └── V2__event_type_seed.sql
+│       │       └── V2__event_seed.sql
 │       └── test/java/dev/cotai/
 │           ├── CotaiApiApplicationIT.java        # context + Flyway + schema validation
 │           ├── TestcontainersConfiguration.java
@@ -111,12 +111,12 @@ flowchart TB
 
   subgraph JAR["cotai.jar · Spring Boot 4 · Java 21 · serves the SPA build from /static"]
     direction TB
-    SEC["SecurityFilterChain<br/>JWT required: /api/gift-lists/**<br/>permitAll: /api/auth/**, /api/event-types/**,<br/>/api/public/**, /api/webhooks/**, /mock-gateway/**, /dev/**"]
+    SEC["SecurityFilterChain<br/>JWT required: /api/gift-lists/**<br/>permitAll: /api/auth/**, /api/events/**,<br/>/api/public/**, /api/webhooks/**, /mock-gateway/**, /dev/**"]
     subgraph FEATURES["Feature packages"]
       direction LR
       SEC_PKG["security<br/>SecurityConfig · JwtService · AuthController"]
       ORG["organizer<br/>Organizer · OrganizerRepository"]
-      EVT["eventtype<br/>EventTypeController"]
+      EVT["event<br/>EventController"]
       GL["giftlist<br/>GiftListController · GiftListService"]
       RES["reservation<br/>PublicReservationController · ReservationFlow<br/>ReservationService · ReservationExpiryJob"]
       PAY["payment<br/>PaymentWebhookController · PaymentService<br/>«interface» PaymentGateway"]
@@ -129,7 +129,7 @@ flowchart TB
     ERR["common<br/>GlobalExceptionHandler → ProblemDetail (RFC 9457)<br/>SecurityConfig · ClockConfig · Crypto"]
   end
 
-  DB[("PostgreSQL 17<br/>Flyway V1__schema · V2__event_type_seed")]
+  DB[("PostgreSQL 17<br/>Flyway V1__schema · V2__event_seed")]
 
   SPA -- "1 · REST/JSON /api/**" --> SEC
   SEC --> ORG & EVT & GL & RES
@@ -147,7 +147,7 @@ flowchart TB
 ### Para o Astah
 
 1. Um fluxograma não é UML. No Astah, este diagrama vira **dois**: um **diagrama de componentes** e um **diagrama de implantação**.
-2. **Componentes:** um componente por pacote (`organizer`, `eventtype`, `giftlist`, `reservation`, `payment`, `mockgateway`, `devsupport`). `PaymentGateway` é uma interface **fornecida** (bola) por `mockgateway` e **requerida** (soquete) por `payment`. O Mermaid não tem notação de bola e soquete.
+2. **Componentes:** um componente por pacote (`organizer`, `event`, `giftlist`, `reservation`, `payment`, `mockgateway`, `devsupport`). `PaymentGateway` é uma interface **fornecida** (bola) por `mockgateway` e **requerida** (soquete) por `payment`. O Mermaid não tem notação de bola e soquete.
 3. **Implantação:** nó `Browser` «device»; nó `JVM 21` «executionEnvironment» com o artefato `cotai.jar`; nó `PostgreSQL 17` «database». Caminhos de comunicação: HTTP(S) entre Browser e JVM, JDBC entre JVM e PostgreSQL.
 4. O webhook em dev é um **loopback** (JVM → JVM via HTTP). Desenhe como um caminho de comunicação do nó para ele mesmo e anote "dev only; in production the provider is an external node".
 5. Marque `mockgateway` e `devsupport` com o estereótipo «profile dev». Em produção eles não existem, e outro adaptador implementaria `PaymentGateway`.
@@ -258,22 +258,11 @@ classDiagram
     -Instant createdAt
   }
 
-  class EventType {
+  class Event {
     <<entity>>
     -String code
     -String name
     -int defaultReservationTtlMinutes
-  }
-
-  class TemplateItem {
-    <<entity>>
-    -Long id
-    -int position
-    -String name
-    -String unit
-    -long unitPriceCents
-    -int suggestedQuotas
-    -String imageUrl
   }
 
   class GiftList {
@@ -324,6 +313,7 @@ classDiagram
     -String manageTokenHash
     -Instant createdAt
     -Instant closedAt
+    -String message
     +effectiveStatus(Instant now) ReservationStatus
   }
 
@@ -363,9 +353,10 @@ classDiagram
     FAILED
   }
 
-  EventType "1" *-- "0..10" TemplateItem : templateItems
+  Event "0..1" o--> "0..*" Item : item
+  Event --> "1" GiftList : giftList
+  Event "0..1" --> "0..1" Event : event
   Organizer "1" <-- "0..*" GiftList : owner
-  GiftList "0..*" --> "1" EventType : eventType
   GiftList "1" *-- "0..100" Item : items
   Reservation "0..*" --> "1" Item : item
   ItemPhoto "0..1" --> "1" Item : itemId
@@ -379,7 +370,6 @@ classDiagram
 | Class | Constraint (put as OCL note in Astah) | Enforced by |
 | --- | --- | --- |
 | Organizer | email {unique}, lower-cased before save | UNIQUE index on lower(email) |
-| TemplateItem | (eventType, position) {unique}; position in 1..10 | UNIQUE + CHECK |
 | GiftList | slug {unique}; status = PUBLISHED implies items->select(not archived)->notEmpty() | UNIQUE; GiftList.publish() |
 | GiftList | reservationTtlMinutes in 10..1440 | CHECK + Bean Validation |
 | Item | totalQuotas >= 1; unitPriceCents >= 1 | CHECK |
@@ -506,9 +496,9 @@ classDiagram
 
 1. **Restrições.** Cole cada linha da tabela acima como nota de restrição (OCL) presa à classe. O Mermaid não desenha `{…}` nem notas ligadas a classes.
 2. **Atributo derivado.** Adicione `/availableQuotas : int {derived}` em `Item`. Ele ficou fora do diagrama Mermaid porque lá seria lido como campo persistido.
-3. **Nomes de papel nas pontas.** O Mermaid coloca o rótulo no meio da linha. No Astah, os nomes (`items`, `owner`, `eventType`, `item`, `reservation`, `payment`, `templateItems`) vão na ponta oposta à classe dona do atributo.
+3. **Nomes de papel nas pontas.** O Mermaid coloca o rótulo no meio da linha. No Astah, os nomes (`items`, `owner`, `event`, `giftList`, `item`, `reservation`, `payment`) vão na ponta oposta à classe dona do atributo.
 4. **Linhas tracejadas até os enums.** Elas existem só porque o Mermaid não liga um atributo ao seu tipo. No Astah, apague essas linhas: o atributo tipado (`status : ReservationStatus`) já expressa a relação.
-5. **Composições** (losango cheio): `GiftList ◆— Item` e `EventType ◆— TemplateItem`. `Organizer — GiftList` é associação simples, não agregação: apagar um organizador não é um caso de uso.
+5. **Composições** (losango cheio): `GiftList ◆— Item`. `Event ◇— Item` é agregação. `Organizer — GiftList` é associação simples, não agregação: apagar um organizador não é um caso de uso.
 6. `Reservation → Payment` é **0..1** e navegável só nesse sentido: a chave fica em `reservation.payment_id` e `Payment` não conhece a reserva.
 7. Na camada de aplicação, as setas cheias representam campos `private final` injetados pelo construtor. Por isso são associações e não dependências «use». Se o professor preferir dependência, troque todas, sem misturar.
 8. Estereótipos «entity», «enumeration», «interface», «service», «repository», «controller» e «component» precisam ser criados como estereótipos personalizados no Astah. A realização de `PaymentGateway` é tracejada com triângulo vazado.
@@ -755,9 +745,9 @@ A última coluna diz onde cada caso é reproduzido. collection roda no Postman o
 
 ## Itens padrão por tipo de evento
 
-São 10 sugestões por tipo, gravadas na migration `V2__event_type_seed.sql`, para `BARBECUE` (Churrasco), `BABY_SHOWER` (Chá de bebê), `WEDDING` (Casamento) e `OTHER` (Outro, sem sugestões). `BIRTHDAY` (Aniversário), citado na US-07, entrou depois com a `V5__birthday_event_type.sql`. Desde a `V4`, as sugestões ficam na própria tabela `item`, com `is_default = true` e o `event_type_code` do tipo. O organizador edita tudo antes de criar a lista. Os códigos são em inglês, e os nomes dos itens ficam em português porque são dados exibidos ao usuário. Os preços são exemplos. Todos os tipos usam 30 min de prazo por padrão.
+São 10 sugestões por evento, gravadas na migration `V2__event_seed.sql`, para `BARBECUE` (Churrasco), `BABY_SHOWER` (Chá de bebê), `WEDDING` (Casamento) e `BIRTHDAY` (Aniversário); `OTHER` (Outro) não tem sugestões. As sugestões ficam na tabela `item`, com `is_default = true` e o `event_code` do evento. O organizador edita tudo antes de criar a lista. Os códigos são em inglês, e os nomes dos itens ficam em português porque são dados exibidos ao usuário. Os preços são exemplos. Todos os eventos usam 30 min de prazo por padrão.
 
-Cada sugestão aceita uma foto de banco de imagens (`template_item.image_url`, migration `V3__item_photos.sql`), que é copiada para o item quando a lista é criada. As fotos ainda não foram adicionadas: a coluna está vazia e as sugestões aparecem sem foto. Para adicionar, coloque os arquivos em `frontend/public/suggestions/` com nomes no formato `barbecue-1.jpg` (código do tipo em minúsculas, `_` vira `-`, e a posição) e crie uma migration que preencha `image_url` com `/suggestions/<arquivo>`. A API só aceita `imageUrl` nesse formato (`^/suggestions/[a-z0-9-]+\.jpg$`).
+Cada sugestão aceita uma foto de banco de imagens (`item.image_url`, coluna criada na `V1__schema.sql`), que é copiada para o item quando a lista é criada. As fotos ainda não foram adicionadas: a coluna está vazia e as sugestões aparecem sem foto. Para adicionar, coloque os arquivos em `frontend/public/suggestions/` com nomes no formato `barbecue-1.jpg` (código do tipo em minúsculas, `_` vira `-`, e a posição) e crie uma migration que preencha `image_url` com `/suggestions/<arquivo>`. A API só aceita `imageUrl` nesse formato (`^/suggestions/[a-z0-9-]+\.jpg$`).
 
 O organizador também pode enviar a própria foto de cada item (JPEG, PNG ou WebP, até 5 MB, tipo detectado pelos bytes). Ela fica na tabela `item_photo`, substitui a foto anterior e é servida publicamente em `/api/item-photos/{photoId}`, com id aleatório que muda a cada envio, para os convidados verem na lista pública. Antes de enviar, o navegador reduz a foto para no máximo 1600 px no lado maior e a converte para JPEG (`shrink-photo.ts`), para a lista pública não baixar 5 MB por item; se o navegador não conseguir decodificar a imagem, envia o arquivo original. Itens arquivados não aceitam troca de foto (404).
 
@@ -767,8 +757,8 @@ O organizador também pode enviar a própria foto de cada item (JPEG, PNG ou Web
 | --- | --- | --- |
 | POST/api/auth/register | public | 201 · 400 · 409 |
 | POST/api/auth/login | public | 200 · 400 · 401 |
-| GET/api/event-types | public | 200 |
-| GET/api/event-types/{eventTypeCode}/template-items | public | 200 · 404 |
+| GET/api/events | public | 200 |
+| GET/api/events/{eventCode}/items | public | 200 · 404 |
 | GET/api/gift-lists | bearer | 200 · 401 |
 | POST/api/gift-lists | bearer | 201 · 400 · 401 · 404 · 422 |
 | GET/api/gift-lists/{giftListId} | bearer | 200 · 401 · 404 |

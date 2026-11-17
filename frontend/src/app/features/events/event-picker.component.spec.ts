@@ -1,49 +1,49 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { EventType } from '../../core/models/event-type.model';
+import { Event } from '../../core/models/event.model';
 import { EventCatalogService } from '../../core/services/event-catalog.service';
-import { EventTypePickerComponent } from './event-type-picker.component';
+import { EventPickerComponent } from './event-picker.component';
 
-const CATALOG: EventType[] = [
+const CATALOG: Event[] = [
   { code: 'BIRTHDAY', name: 'Aniversário', defaultReservationTtlMinutes: 30 },
   { code: 'WEDDING', name: 'Casamento', defaultReservationTtlMinutes: 30 },
 ];
 
-function render(eventTypes: () => Observable<EventType[]>) {
+function render(events: () => Observable<Event[]>) {
   TestBed.configureTestingModule({
-    imports: [EventTypePickerComponent],
-    providers: [{ provide: EventCatalogService, useValue: { eventTypes } }],
+    imports: [EventPickerComponent],
+    providers: [{ provide: EventCatalogService, useValue: { events } }],
   });
-  const fixture = TestBed.createComponent(EventTypePickerComponent);
+  const fixture = TestBed.createComponent(EventPickerComponent);
   fixture.detectChanges();
   return fixture;
 }
 
-describe('EventTypePickerComponent', () => {
-  it('shows one option per event type of the catalog', () => {
+describe('EventPickerComponent', () => {
+  it('shows one option per event of the catalog', () => {
     const page = render(() => of(CATALOG)).nativeElement as HTMLElement;
 
-    const labels = Array.from(page.querySelectorAll('.type span')).map((el) => el.textContent?.trim());
+    const labels = Array.from(page.querySelectorAll('.event-option span')).map((el) => el.textContent?.trim());
     expect(labels).toEqual(['Aniversário', 'Casamento']);
   });
 
-  it('tells the parent which type was picked', () => {
+  it('tells the parent which event was picked', () => {
     const fixture = render(() => of(CATALOG));
-    const picked: EventType[] = [];
-    fixture.componentInstance.picked.subscribe((type) => picked.push(type));
+    const picked: Event[] = [];
+    fixture.componentInstance.picked.subscribe((event) => picked.push(event));
 
-    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('#type-WEDDING')!.dispatchEvent(new Event('change'));
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLInputElement>('#event-WEDDING')!.dispatchEvent(new globalThis.Event('change'));
 
     expect(picked.map((t) => t.code)).toEqual(['WEDDING']);
   });
 
-  it('marks the type chosen by the parent', () => {
+  it('marks the event chosen by the parent', () => {
     const fixture = render(() => of(CATALOG));
     fixture.componentRef.setInput('selected', 'BIRTHDAY');
     fixture.detectChanges();
 
-    const selected = (fixture.nativeElement as HTMLElement).querySelector('.type--selected');
+    const selected = (fixture.nativeElement as HTMLElement).querySelector('.event-option--selected');
     expect(selected?.textContent?.trim()).toBe('Aniversário');
   });
 
@@ -60,6 +60,6 @@ describe('EventTypePickerComponent', () => {
     fixture.detectChanges();
 
     expect(page.querySelector('[role="alert"]')).toBeNull();
-    expect(page.querySelectorAll('.type')).toHaveLength(2);
+    expect(page.querySelectorAll('.event-option')).toHaveLength(2);
   });
 });

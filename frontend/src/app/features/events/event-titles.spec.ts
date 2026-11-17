@@ -1,6 +1,6 @@
 import { titleSuggestionsFor } from './event-titles';
 
-describe('title suggestions by event type', () => {
+describe('title suggestions by event', () => {
   it('has nothing to suggest before a type is chosen', () => {
     expect(titleSuggestionsFor(null)).toEqual([]);
   });

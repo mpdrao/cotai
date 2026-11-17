@@ -1,10 +1,10 @@
 package dev.cotai.giftlist;
 
-import dev.cotai.common.AppProperties;
+import dev.cotai.security.AppProperties;
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
-import dev.cotai.eventtype.Event;
-import dev.cotai.eventtype.EventTypeRepository;
+import dev.cotai.event.Event;
+import dev.cotai.event.EventRepository;
 import dev.cotai.giftlist.GiftListDtos.CreateGiftListRequest;
 import dev.cotai.giftlist.GiftListDtos.GiftListResponse;
 import dev.cotai.giftlist.GiftListDtos.ItemInput;
@@ -44,7 +44,7 @@ class GiftListServiceTest {
     @Mock
     private ItemRepository items;
     @Mock
-    private EventTypeRepository eventTypes;
+    private EventRepository events;
     @Mock
     private OrganizerRepository organizers;
     @Mock
@@ -69,7 +69,7 @@ class GiftListServiceTest {
                 "test-manage-secret"
         );
         service = new GiftListService(
-                giftLists, items, eventTypes, organizers, reservations, dashboard, slugGenerator, props, clock
+                giftLists, items, events, organizers, reservations, dashboard, slugGenerator, props, clock
         );
 
         organizer = new Organizer("Mario", "mario@example.com", "hash", now);
@@ -89,7 +89,7 @@ class GiftListServiceTest {
                 List.of(new ItemInput("Carvao", "saco", 3000, 1, null))
         );
 
-        when(eventTypes.findById("BARBECUE")).thenReturn(Optional.of(event));
+        when(events.findById("BARBECUE")).thenReturn(Optional.of(event));
         when(organizers.getReferenceById(ownerId)).thenReturn(organizer);
         when(slugGenerator.generate("Churrasco de Sabado")).thenReturn("churrasco-de-sabado");
         when(giftLists.existsBySlug("churrasco-de-sabado")).thenReturn(false);
@@ -176,32 +176,32 @@ class GiftListServiceTest {
         assertThat(response.title()).isEqualTo("Lista Nova");
         assertThat(response.eventDate()).isEqualTo(newDate);
         assertThat(response.reservationTtlMinutes()).isEqualTo(120);
-        assertThat(response.eventTypeCode()).isEqualTo("BARBECUE");
+        assertThat(response.eventCode()).isEqualTo("BARBECUE");
     }
 
     @Test
-    @DisplayName("update changes the event type and keeps the items (US-07)")
-    void updateChangesEventType() {
+    @DisplayName("update changes the event and keeps the items (US-07)")
+    void updateChangesEvent() {
         GiftList list = new GiftList(organizer, event, "Niver do Mario", "niver", LocalDate.now(clock).plusDays(5), 60, now);
         list.addItem("Carvao", "saco", 3000);
         Event birthday = new Event("BIRTHDAY", "Aniversário", 30);
         when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
-        when(eventTypes.findById("BIRTHDAY")).thenReturn(Optional.of(birthday));
+        when(events.findById("BIRTHDAY")).thenReturn(Optional.of(birthday));
 
         GiftListResponse response = service.update(organizer.getId(), list.getId(),
                 new UpdateGiftListRequest(null, null, null, " birthday "));
 
-        assertThat(response.eventTypeCode()).isEqualTo("BIRTHDAY");
+        assertThat(response.eventCode()).isEqualTo("BIRTHDAY");
         assertThat(response.items()).hasSize(1);
         assertThat(response.reservationTtlMinutes()).isEqualTo(60);
     }
 
     @Test
-    @DisplayName("update refuses an unknown event type")
-    void updateWithUnknownEventType() {
+    @DisplayName("update refuses an unknown event")
+    void updateWithUnknownEvent() {
         GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
-        when(eventTypes.findById("GRADUATION")).thenReturn(Optional.empty());
+        when(events.findById("GRADUATION")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.update(organizer.getId(), list.getId(),
                 new UpdateGiftListRequest(null, null, null, "GRADUATION")))
@@ -239,14 +239,14 @@ class GiftListServiceTest {
     }
 
     @Test
-    @DisplayName("a closed list cannot have its event type changed")
-    void closedListKeepsEventType() {
+    @DisplayName("a closed list cannot have its event changed")
+    void closedListKeepsEvent() {
         GiftList list = new GiftList(organizer, event, "Lista", "lista", LocalDate.now(clock).plusDays(5), 60, now);
         list.addItem("Carvao", "saco", 3000);
         list.publish(LocalDate.now(clock));
         list.close();
         when(giftLists.findWithItemsById(list.getId())).thenReturn(Optional.of(list));
-        when(eventTypes.findById("BIRTHDAY")).thenReturn(Optional.of(new Event("BIRTHDAY", "Aniversário", 30)));
+        when(events.findById("BIRTHDAY")).thenReturn(Optional.of(new Event("BIRTHDAY", "Aniversário", 30)));
 
         assertThatThrownBy(() -> service.update(organizer.getId(), list.getId(),
                 new UpdateGiftListRequest(null, null, null, "BIRTHDAY")))
@@ -257,14 +257,14 @@ class GiftListServiceTest {
     }
 
     @Test
-    @DisplayName("requests trim the title and normalize the event type code")
+    @DisplayName("requests trim the title and normalize the event code")
     void requestsAreNormalized() {
         UpdateGiftListRequest update = new UpdateGiftListRequest("  Festa  ", null, null, " wedding ");
         CreateGiftListRequest create = new CreateGiftListRequest(" barbecue", " Churras ", LocalDate.now(clock), null, List.of());
 
         assertThat(update.title()).isEqualTo("Festa");
-        assertThat(update.eventTypeCode()).isEqualTo("WEDDING");
+        assertThat(update.eventCode()).isEqualTo("WEDDING");
         assertThat(create.title()).isEqualTo("Churras");
-        assertThat(create.eventTypeCode()).isEqualTo("BARBECUE");
+        assertThat(create.eventCode()).isEqualTo("BARBECUE");
     }
 }

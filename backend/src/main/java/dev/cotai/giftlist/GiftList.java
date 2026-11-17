@@ -2,7 +2,7 @@ package dev.cotai.giftlist;
 
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
-import dev.cotai.eventtype.Event;
+import dev.cotai.event.Event;
 import dev.cotai.organizer.Organizer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,7 +44,7 @@ public class GiftList {
     private Organizer owner;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "event_type_code")
+    @JoinColumn(name = "event_code")
     private Event event;
 
     @Column(nullable = false, length = 80)
@@ -132,7 +132,7 @@ public class GiftList {
         }
     }
 
-    /** Changing the type keeps the items: suggestions are only used when the list is created. */
+    /** Changing the event keeps the items: suggestions are only used when the list is created. */
     public void changeEvent(Event newEvent) {
         ensureNotClosed();
         this.event = newEvent;

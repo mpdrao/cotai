@@ -1,6 +1,6 @@
 package dev.cotai.reservation;
 
-import dev.cotai.common.AppProperties;
+import dev.cotai.security.AppProperties;
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.Crypto;
 import dev.cotai.common.ErrorCode;

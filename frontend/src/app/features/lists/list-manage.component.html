@@ -6,7 +6,7 @@
       <cotai-status-badge [status]="badge()" />
       <h1 class="cotai-page-title">{{ l.title }}</h1>
       <p class="meta">
-        @if (eventTypeName()) { {{ eventTypeName() }} · }{{ l.eventDate | date: 'longDate' }} · prazo para pagar: {{ l.reservationTtlMinutes }} min
+        @if (eventName()) { {{ eventName() }} · }{{ l.eventDate | date: 'longDate' }} · prazo para pagar: {{ l.reservationTtlMinutes }} min
       </p>
     </header>
 
@@ -138,7 +138,7 @@
                                 [error]="photoErrorId() === item.id ? photoError() : ''"
                                 (picked)="uploadPhoto(item, $event)" (removed)="removePhoto(item)" />
                 <h3>{{ item.name }}</h3>
-                <p class="muted">{{ item.unit }} · {{ item.unitPriceCents / 100 | currency: 'BRL' }} por cota · {{ item.totalQuotas }} cotas</p>
+                <p class="muted">{{ item.unit }} · {{ item.unitPriceCents / 100 | currency: 'BRL' }} por cota · {{ item.totalQuotas }} {{ item.totalQuotas === 1 ? 'cota' : 'cotas' }}</p>
                 @if (totalsFor(item.id); as t) {
                   <cotai-progress [value]="((t.confirmedQuotas + t.pendingQuotas) / t.totalQuotas) * 100"
                                   [label]="'Cotas reservadas de ' + item.name" />
@@ -206,10 +206,10 @@
             </label>
             <label class="cotai-field">
               <span class="cotai-label">Tipo de evento</span>
-              <select class="cotai-input" id="edit-type" name="eventTypeCode" [(ngModel)]="eventTypeCode"
+              <select class="cotai-input" id="edit-event" name="eventCode" [(ngModel)]="eventCode"
                       aria-describedby="edit-type-hint">
-                @for (type of eventTypes(); track type.code) {
-                  <option [value]="type.code">{{ type.name }}</option>
+                @for (event of events(); track event.code) {
+                  <option [value]="event.code">{{ event.name }}</option>
                 }
               </select>
               <span class="cotai-hint" id="edit-type-hint">Os itens da lista continuam os mesmos.</span>

@@ -42,7 +42,7 @@ export async function createPublishedList(
   const created = await api.post('/api/gift-lists', {
     headers: auth(organizer.token),
     data: {
-      eventTypeCode: 'BARBECUE',
+      eventCode: 'BARBECUE',
       title: 'Churrasco E2E',
       eventDate,
       items: items.map((i) => ({ name: i.name, unit: 'un', unitPriceCents: i.unitPriceCents })),

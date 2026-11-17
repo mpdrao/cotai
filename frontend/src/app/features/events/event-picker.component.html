@@ -1,8 +1,8 @@
-<fieldset class="types" [attr.aria-describedby]="error() ? 'event-type-error' : null">
-  <legend class="section-title">Que tipo de evento?</legend>
+<fieldset class="events" [attr.aria-describedby]="error() ? 'event-error' : null">
+  <legend class="section-title">Qual é o evento?</legend>
 
   @if (loading()) {
-    <p class="cotai-hint" role="status">Carregando tipos de evento…</p>
+    <p class="cotai-hint" role="status">Carregando eventos…</p>
   } @else if (loadError()) {
     <div class="load-error" role="alert">
       <p class="cotai-field-error">{{ loadError() }}</p>
@@ -10,14 +10,14 @@
     </div>
   }
 
-  <div class="type-options">
-    @for (type of types(); track type.code) {
-      <label class="type" [class.type--selected]="selected() === type.code">
-        <input type="radio" name="eventType" [id]="'type-' + type.code" [value]="type.code"
-               [checked]="selected() === type.code" (change)="picked.emit(type)" />
-        <svg class="type-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+  <div class="event-options">
+    @for (event of events(); track event.code) {
+      <label class="event-option" [class.event-option--selected]="selected() === event.code">
+        <input type="radio" name="event" [id]="'event-' + event.code" [value]="event.code"
+               [checked]="selected() === event.code" (change)="picked.emit(event)" />
+        <svg class="event-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          @switch (type.code) {
+          @switch (event.code) {
             @case ('BARBECUE') {
               <path d="M5 9h14a7 7 0 0 1-14 0ZM8.5 15.2 6.5 21M15.5 15.2l2 5.8M12 16v5" />
               <path class="accent" d="M9 2.5c-.7.9-.7 1.9 0 2.8M12 2c-.7.9-.7 1.9 0 2.8M15 2.5c-.7.9-.7 1.9 0 2.8" />
@@ -41,12 +41,12 @@
             }
           }
         </svg>
-        <span>{{ type.name }}</span>
+        <span>{{ event.name }}</span>
       </label>
     }
   </div>
 
   @if (error()) {
-    <p class="cotai-field-error" id="event-type-error">{{ error() }}</p>
+    <p class="cotai-field-error" id="event-error">{{ error() }}</p>
   }
 </fieldset>

@@ -24,3 +24,7 @@ Thumbs.db
 # Env
 .env
 *.log
+
+# Astah
+*.asta.lock
+

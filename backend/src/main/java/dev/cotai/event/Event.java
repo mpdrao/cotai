@@ -1,28 +1,32 @@
-package dev.cotai.eventtype;
+package dev.cotai.event;
 
+import dev.cotai.giftlist.GiftList;
 import dev.cotai.giftlist.Item;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A type of event from the catalog (barbecue, birthday, wedding...). It brings the
+ * An event from the catalog (barbecue, birthday, wedding...). It brings the
  * suggested items and the default payment window used when a list is created.
- * The catalog is loaded by the Flyway migrations and is read-only for the app.
  */
 @Entity
-@Table(name = "event_type")
+@Table(name = "event")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Event {
 
@@ -36,9 +40,16 @@ public class Event {
     @Column(name = "default_reservation_ttl_minutes", nullable = false)
     private int defaultReservationTtlMinutes;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_code")
+    private Event event;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gift_list_id")
+    private GiftList giftList;
+
+    @OneToMany(mappedBy = "event")
     @OrderBy("id ASC")
-    @Getter(AccessLevel.NONE)
     private List<Item> items = new ArrayList<>();
 
     public Event(String code, String name, int defaultReservationTtlMinutes) {
@@ -47,11 +58,8 @@ public class Event {
         this.defaultReservationTtlMinutes = defaultReservationTtlMinutes;
     }
 
-    /** Items offered when an organizer picks this type, in catalog order. */
-    public List<Item> suggestedItems() {
-        return items.stream()
-                .filter(Item::isDefault)
-                .filter(item -> !item.isArchived())
-                .toList();
+    public Event(String code, String name, int defaultReservationTtlMinutes, Event event) {
+        this(code, name, defaultReservationTtlMinutes);
+        this.event = event;
     }
 }

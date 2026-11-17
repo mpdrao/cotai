@@ -4,12 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Observable, Subscription, catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import { ORGANIZER_COPY, errorMessage } from '../../core/copy/ui-copy';
-import { EventType } from '../../core/models/event-type.model';
+import { Event } from '../../core/models/event.model';
 import { GiftList } from '../../core/models/gift-list.model';
 import { EventCatalogService } from '../../core/services/event-catalog.service';
 import { OrganizerService } from '../../core/services/organizer.service';
 import { titleSuggestionsFor } from '../events/event-titles';
-import { EventTypePickerComponent } from '../events/event-type-picker.component';
+import { EventPickerComponent } from '../events/event-picker.component';
 import { ItemEditorComponent } from './item-editor.component';
 import { ItemPhotoComponent } from './item-photo.component';
 import {
@@ -36,7 +36,7 @@ function photoWarning(failed: number): string {
     CurrencyPipe,
     FormsModule,
     RouterLink,
-    EventTypePickerComponent,
+    EventPickerComponent,
     ItemEditorComponent,
     ItemPhotoComponent,
     CotaiButtonComponent,
@@ -51,14 +51,14 @@ export class ListNewComponent {
   private readonly router = inject(Router);
 
   protected readonly today = new Date().toLocaleDateString('en-CA');
-  protected readonly selectedType = signal<EventType | null>(null);
+  protected readonly selectedEvent = signal<Event | null>(null);
   protected readonly items = signal<ItemDraft[]>([]);
   protected readonly itemErrors = signal<ItemErrors[]>([]);
   protected readonly errors = signal<Record<string, string>>({});
   protected readonly error = signal('');
   protected readonly saving = signal(false);
   protected readonly loadingItems = signal(false);
-  protected readonly titleSuggestions = computed(() => titleSuggestionsFor(this.selectedType()));
+  protected readonly titleSuggestions = computed(() => titleSuggestionsFor(this.selectedEvent()));
   protected readonly titlePlaceholder = computed(() => `Ex.: ${this.titleSuggestions()[0] ?? 'Churrasco da firma'}`);
 
   private readonly edits = signal(0);
@@ -82,21 +82,21 @@ export class ListNewComponent {
     this.edits.update((n) => n + 1);
   }
 
-  protected chooseType(type: EventType): void {
+  protected chooseEvent(event: Event): void {
 
     const previousIndex = this.titleSuggestions().indexOf(this.title);
-    this.selectedType.set(type);
+    this.selectedEvent.set(event);
     if (previousIndex >= 0) this.title = this.titleSuggestions()[previousIndex] ?? this.titleSuggestions()[0];
-    this.ttl = type.defaultReservationTtlMinutes;
+    this.ttl = event.defaultReservationTtlMinutes;
     this.loadingItems.set(true);
     this.templateRequest?.unsubscribe();
-    this.templateRequest = this.catalog.suggestedItems(type.code).subscribe({
-      next: (templates) => {
+    this.templateRequest = this.catalog.suggestedItems(event.code).subscribe({
+      next: (suggested) => {
         this.loadingItems.set(false);
         this.releasePhotos();
         this.items.set(
-          templates.map((t) =>
-            draftFrom({ name: t.name, unit: t.unit, unitPriceCents: t.unitPriceCents, totalQuotas: t.suggestedQuotas, imageUrl: t.imageUrl }),
+          suggested.map((i) =>
+            draftFrom({ name: i.name, unit: i.unit, unitPriceCents: i.unitPriceCents, totalQuotas: i.totalQuotas, imageUrl: i.imageUrl }),
           ),
         );
         this.itemErrors.set([]);
@@ -149,7 +149,7 @@ export class ListNewComponent {
 
   protected submit(): void {
     const errors: Record<string, string> = {};
-    if (!this.selectedType()) errors['eventType'] = 'Escolha o tipo de evento.';
+    if (!this.selectedEvent()) errors['event'] = 'Escolha o evento.';
     if (this.title.trim().length < 3) errors['title'] = 'Use pelo menos 3 caracteres.';
     if (!this.eventDate) errors['eventDate'] = 'Informe a data do evento.';
     else if (this.eventDate < this.today) errors['eventDate'] = 'A data do evento já passou.';
@@ -167,7 +167,7 @@ export class ListNewComponent {
     this.saving.set(true);
     this.organizer
       .create({
-        eventTypeCode: this.selectedType()!.code,
+        eventCode: this.selectedEvent()!.code,
         title: this.title.trim(),
         eventDate: this.eventDate,
         reservationTtlMinutes: this.ttl!,
