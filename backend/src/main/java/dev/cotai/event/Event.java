@@ -2,7 +2,6 @@ package dev.cotai.event;
 
 import dev.cotai.giftlist.GiftList;
 import dev.cotai.giftlist.Item;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -49,7 +48,7 @@ public class Event {
     @JoinColumn(name = "gift_list_id")
     private GiftList giftList;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "event")
     @OrderBy("id ASC")
     private List<Item> items = new ArrayList<>();
 
@@ -62,13 +61,5 @@ public class Event {
     public Event(String code, String name, int defaultReservationTtlMinutes, Event event) {
         this(code, name, defaultReservationTtlMinutes);
         this.event = event;
-    }
-
-    /** Items offered when an organizer picks this event, in catalog order. */
-    public List<Item> suggestedItems() {
-        return items.stream()
-                .filter(Item::isDefault)
-                .filter(item -> !item.isArchived())
-                .toList();
     }
 }

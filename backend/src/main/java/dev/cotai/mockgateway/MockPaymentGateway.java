@@ -1,6 +1,6 @@
 package dev.cotai.mockgateway;
 
-import dev.cotai.common.AppProperties;
+import dev.cotai.security.AppProperties;
 import dev.cotai.common.Crypto;
 import dev.cotai.payment.PaymentGateway;
 import dev.cotai.payment.PaymentProperties;

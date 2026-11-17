@@ -1,6 +1,5 @@
 package dev.cotai.security;
 
-import dev.cotai.common.AppProperties;
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
 import dev.cotai.organizer.Organizer;

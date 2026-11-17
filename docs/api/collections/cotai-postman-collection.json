@@ -438,7 +438,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"eventTypeCode\": \"BARBECUE\",\n  \"title\": \"Churrasco da Turma\",\n  \"eventDate\": \"2027-12-15\",\n  \"reservationTtlMinutes\": 30,\n  \"items\": [\n    {\n      \"name\": \"Picanha maturata\",\n      \"unit\": \"kg\",\n      \"unitPriceCents\": 8500,\n      \"totalQuotas\": 2\n    },\n    {\n      \"name\": \"Carvao vegetal\",\n      \"unit\": \"saco 5kg\",\n      \"unitPriceCents\": 6000,\n      \"totalQuotas\": 2\n    }\n  ]\n}",
+              "raw": "{\n  \"eventCode\": \"BARBECUE\",\n  \"title\": \"Churrasco da Turma\",\n  \"eventDate\": \"2027-12-15\",\n  \"reservationTtlMinutes\": 30,\n  \"items\": [\n    {\n      \"name\": \"Picanha maturata\",\n      \"unit\": \"kg\",\n      \"unitPriceCents\": 8500,\n      \"totalQuotas\": 2\n    },\n    {\n      \"name\": \"Carvao vegetal\",\n      \"unit\": \"saco 5kg\",\n      \"unitPriceCents\": 6000,\n      \"totalQuotas\": 2\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
