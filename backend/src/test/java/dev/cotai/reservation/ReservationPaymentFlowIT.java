@@ -3,7 +3,7 @@ package dev.cotai.reservation;
 import dev.cotai.TestcontainersConfiguration;
 import dev.cotai.common.Crypto;
 import dev.cotai.devsupport.MutableClock;
-import dev.cotai.eventtype.EventTypeRepository;
+import dev.cotai.event.EventRepository;
 import dev.cotai.giftlist.GiftList;
 import dev.cotai.giftlist.GiftListRepository;
 import dev.cotai.organizer.Organizer;
@@ -45,7 +45,7 @@ class ReservationPaymentFlowIT {
     @Autowired
     private OrganizerRepository organizers;
     @Autowired
-    private EventTypeRepository events;
+    private EventRepository events;
     @Autowired
     private GiftListRepository giftLists;
     @Autowired

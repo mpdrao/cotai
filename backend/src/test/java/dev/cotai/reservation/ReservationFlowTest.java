@@ -2,7 +2,7 @@ package dev.cotai.reservation;
 
 import dev.cotai.common.BusinessException;
 import dev.cotai.common.ErrorCode;
-import dev.cotai.eventtype.Event;
+import dev.cotai.event.Event;
 import dev.cotai.giftlist.GiftList;
 import dev.cotai.giftlist.Item;
 import dev.cotai.organizer.Organizer;

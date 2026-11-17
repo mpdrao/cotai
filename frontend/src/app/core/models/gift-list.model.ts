@@ -20,7 +20,7 @@ export interface GiftList {
   id: string;
   title: string;
   slug: string;
-  eventTypeCode: string;
+  eventCode: string;
   eventDate: string;
   status: GiftListStatus;
   reservationTtlMinutes: number;
@@ -113,7 +113,7 @@ export interface ContributionPage {
 }
 
 export interface CreateGiftListRequest {
-  eventTypeCode: string;
+  eventCode: string;
   title: string;
   eventDate: string;
   reservationTtlMinutes?: number;
@@ -124,7 +124,7 @@ export interface UpdateGiftListRequest {
   title?: string;
   eventDate?: string;
   reservationTtlMinutes?: number;
-  eventTypeCode?: string;
+  eventCode?: string;
 }
 
 export interface PublicItem {
@@ -138,7 +138,7 @@ export interface PublicItem {
 
 export interface PublicGiftList {
   title: string;
-  eventTypeCode: string;
+  eventCode: string;
   eventDate: string;
   status: GiftListStatus;
   acceptsReservations: boolean;

@@ -26,29 +26,29 @@ public final class GiftListDtos {
             String imageUrl) {
     }
 
-    // Title and type code are cleaned before validation, so "   ab " does not pass as a 3+ letter title.
+    // Title and event code are cleaned before validation, so "   ab " does not pass as a 3+ letter title.
     public record CreateGiftListRequest(
-            @NotBlank String eventTypeCode,
+            @NotBlank String eventCode,
             @NotBlank @Size(min = 3, max = 80) String title,
             @NotNull LocalDate eventDate,
             @Min(10) @Max(1440) Integer reservationTtlMinutes,
             @NotNull @Size(max = 100) List<@Valid ItemInput> items) {
 
         public CreateGiftListRequest {
-            eventTypeCode = normalizedCode(eventTypeCode);
+            eventCode = normalizedCode(eventCode);
             title = trim(title);
         }
     }
 
-    /** US-07: the organizer can edit title, date and type of the event while the list is not closed. */
+    /** The organizer can edit title, date and event while the list is not closed. */
     public record UpdateGiftListRequest(
             @Size(min = 3, max = 80) String title,
             LocalDate eventDate,
             @Min(10) @Max(1440) Integer reservationTtlMinutes,
-            @Size(min = 1, max = 30) String eventTypeCode) {
+            @Size(min = 1, max = 30) String eventCode) {
 
         public UpdateGiftListRequest {
-            eventTypeCode = normalizedCode(eventTypeCode);
+            eventCode = normalizedCode(eventCode);
             title = trim(title);
         }
     }
@@ -69,7 +69,7 @@ public final class GiftListDtos {
         }
     }
 
-    public record GiftListResponse(UUID id, String title, String slug, String eventTypeCode, LocalDate eventDate,
+    public record GiftListResponse(UUID id, String title, String slug, String eventCode, LocalDate eventDate,
                                    GiftListStatus status, int reservationTtlMinutes, List<ItemResponse> items,
                                    Instant createdAt) {
         public static GiftListResponse of(GiftList l) {
@@ -102,7 +102,7 @@ public final class GiftListDtos {
                              int availableQuotas, String imageUrl) {
     }
 
-    public record PublicGiftList(String title, String eventTypeCode, LocalDate eventDate, GiftListStatus status,
+    public record PublicGiftList(String title, String eventCode, LocalDate eventDate, GiftListStatus status,
                                  boolean acceptsReservations, List<PublicItem> items) {
     }
 }

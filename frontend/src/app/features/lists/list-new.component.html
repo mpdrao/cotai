@@ -8,7 +8,7 @@
     <p class="cotai-lead">Escolha o tipo de evento que a gente já sugere os itens. Dá pra mudar tudo antes de publicar.</p>
   </header>
 
-  <app-event-type-picker [selected]="selectedType()?.code" [error]="errors()['eventType']" (picked)="chooseType($event)" />
+  <app-event-picker [selected]="selectedEvent()?.code" [error]="errors()['event']" (picked)="chooseEvent($event)" />
 
   <section class="panel" aria-labelledby="event-details-title">
     <h2 class="section-title" id="event-details-title">Sobre o encontro</h2>
@@ -52,8 +52,8 @@
         <p class="items-goal">{{ goalCents() / 100 | currency: 'BRL' }} <span>em {{ items().length }} {{ items().length === 1 ? 'item' : 'itens' }}</span></p>
       }
       <p class="cotai-hint items-hint">
-        @if (selectedType()) {
-          Sugestões para {{ selectedType()!.name }}. Mude o que quiser: nome, unidade, valor e número de cotas.
+        @if (selectedEvent()) {
+          Sugestões para {{ selectedEvent()!.name }}. Mude o que quiser: nome, unidade, valor e número de cotas.
         } @else {
           Escolha o tipo de evento para receber sugestões, ou adicione os itens você mesmo.
         }

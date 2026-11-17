@@ -8,7 +8,7 @@ import { PublicGiftList } from '../../core/models/gift-list.model';
 
 const LIST: PublicGiftList = {
   title: 'Churrasco',
-  eventTypeCode: 'BARBECUE',
+  eventCode: 'BARBECUE',
   eventDate: '2026-12-01',
   status: 'PUBLISHED',
   acceptsReservations: true,

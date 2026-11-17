@@ -5,7 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { collectionProgress } from '../../core/copy/progress-copy';
 import { ORGANIZER_COPY, errorCode, errorMessage } from '../../core/copy/ui-copy';
-import { EventType } from '../../core/models/event-type.model';
+import { Event } from '../../core/models/event.model';
 import { GiftList, GiftListSummaryReport, Item } from '../../core/models/gift-list.model';
 import { EventCatalogService } from '../../core/services/event-catalog.service';
 import { OrganizerService } from '../../core/services/organizer.service';
@@ -82,12 +82,12 @@ export class ListManageComponent {
   protected title = '';
   protected eventDate = '';
   protected ttl: number | null = null;
-  protected eventTypeCode = '';
+  protected eventCode = '';
 
   protected readonly today = new Date().toLocaleDateString('en-CA');
-  protected readonly eventTypes = signal<EventType[]>([]);
-  protected readonly eventTypeName = computed(
-    () => this.eventTypes().find((t) => t.code === this.list()?.eventTypeCode)?.name ?? '',
+  protected readonly events = signal<Event[]>([]);
+  protected readonly eventName = computed(
+    () => this.events().find((t) => t.code === this.list()?.eventCode)?.name ?? '',
   );
 
   protected readonly badge = computed(() => (this.list()?.status.toLowerCase() ?? 'draft') as CotaiStatus);
@@ -104,7 +104,7 @@ export class ListManageComponent {
     if (history.state?.warning) history.replaceState({ ...history.state, warning: undefined }, '');
     this.reload();
     // Without the catalog the page still works; only the type name and the type select stay empty.
-    inject(EventCatalogService).eventTypes().subscribe({ next: (types) => this.eventTypes.set(types), error: () => {} });
+    inject(EventCatalogService).events().subscribe({ next: (events) => this.events.set(events), error: () => {} });
   }
 
   protected totalsFor(itemId: number) {
@@ -265,7 +265,7 @@ export class ListManageComponent {
         title: this.title.trim(),
         eventDate: this.eventDate,
         reservationTtlMinutes: this.ttl!,
-        eventTypeCode: this.eventTypeCode || undefined,
+        eventCode: this.eventCode || undefined,
       })
       .subscribe({
         next: (l) => {
@@ -329,6 +329,6 @@ export class ListManageComponent {
     this.title = l.title;
     this.eventDate = l.eventDate;
     this.ttl = l.reservationTtlMinutes;
-    this.eventTypeCode = l.eventTypeCode;
+    this.eventCode = l.eventCode;
   }
 }

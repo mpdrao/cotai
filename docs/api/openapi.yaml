@@ -86,29 +86,29 @@ paths:
             application/problem+json:
               schema: { $ref: '#/components/schemas/Problem' }
 
-  /api/event-types:
+  /api/events:
     get:
-      tags: [Event types]
-      operationId: listEventTypes
-      summary: List event types
+      tags: [Events]
+      operationId: listEvents
+      summary: List events
       security: []
       responses:
         '200':
-          description: All event types, ordered by name.
+          description: All events, ordered by name.
           content:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/EventType' }
+                items: { $ref: '#/components/schemas/Event' }
 
-  /api/event-types/{eventTypeCode}/template-items:
+  /api/events/{eventCode}/items:
     get:
-      tags: [Event types]
-      operationId: listTemplateItems
-      summary: List template items
+      tags: [Events]
+      operationId: listEventItems
+      summary: List event items
       security: []
       parameters:
-        - $ref: '#/components/parameters/EventTypeCode'
+        - $ref: '#/components/parameters/EventCode'
       responses:
         '200':
           description: Suggested items, ordered by position. Empty for OTHER.
@@ -116,7 +116,7 @@ paths:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/TemplateItem' }
+                items: { $ref: '#/components/schemas/Item' }
         '404': { $ref: '#/components/responses/NotFound' }
 
   /api/gift-lists:
@@ -125,8 +125,8 @@ paths:
       operationId: createGiftList
       summary: Create gift list
       description: |
-        Creates a DRAFT list. The client sends the full item list (usually the template items after
-        the organizer edited them). Templates are copied, never referenced.
+        Creates a DRAFT list. The client sends the full item list (usually the event items after
+        the organizer edited them). Event items are copied, never referenced.
       requestBody:
         required: true
         content:
@@ -729,11 +729,11 @@ components:
       bearerFormat: JWT
 
   parameters:
-    EventTypeCode:
-      name: eventTypeCode
+    EventCode:
+      name: eventCode
       in: path
       required: true
-      schema: { $ref: '#/components/schemas/EventTypeCode' }
+      schema: { $ref: '#/components/schemas/EventCode' }
     GiftListId:
       name: giftListId
       in: path
@@ -792,7 +792,7 @@ components:
       maximum: 100000000
       description: Amount in BRL cents. 9000 = R$ 90,00.
 
-    EventTypeCode:
+    EventCode:
       type: string
       enum: [WEDDING, BABY_SHOWER, BARBECUE, BIRTHDAY, OTHER]
 
@@ -882,24 +882,13 @@ components:
         tokenType: { type: string, const: Bearer }
         expiresIn: { type: integer, description: Seconds., example: 3600 }
 
-    EventType:
+    Event:
       type: object
       required: [code, name, defaultReservationTtlMinutes]
       properties:
-        code: { $ref: '#/components/schemas/EventTypeCode' }
+        code: { $ref: '#/components/schemas/EventCode' }
         name: { type: string, example: Churrasco }
         defaultReservationTtlMinutes: { type: integer, example: 30 }
-
-    TemplateItem:
-      type: object
-      required: [position, name, unit, unitPriceCents, suggestedQuotas]
-      properties:
-        position: { type: integer, minimum: 1, maximum: 10 }
-        name: { type: string, example: Picanha }
-        unit: { type: string, example: kg }
-        unitPriceCents: { $ref: '#/components/schemas/Cents' }
-        suggestedQuotas: { type: integer, minimum: 1, example: 4 }
-        imageUrl: { type: string, example: /suggestions/barbecue-1.jpg }
 
     ItemInput:
       type: object
@@ -912,7 +901,7 @@ components:
         imageUrl:
           type: string
           pattern: '^/suggestions/[a-z0-9-]+\.jpg$'
-          description: Stock photo from the template item. Ignored on update; uploads use the photo endpoint.
+          description: Stock photo from the event item. Ignored on update; uploads use the photo endpoint.
 
     Item:
       type: object
@@ -929,9 +918,9 @@ components:
 
     CreateGiftListRequest:
       type: object
-      required: [eventTypeCode, title, eventDate, items]
+      required: [eventCode, title, eventDate, items]
       properties:
-        eventTypeCode: { $ref: '#/components/schemas/EventTypeCode' }
+        eventCode: { $ref: '#/components/schemas/EventCode' }
         title: { type: string, minLength: 3, maxLength: 80, example: Churrasco do Erick }
         eventDate: { type: string, format: date }
         reservationTtlMinutes:
@@ -952,18 +941,18 @@ components:
         title: { type: string, minLength: 3, maxLength: 80, description: Trimmed before validation. }
         eventDate: { type: string, format: date, description: A new date cannot be in the past (EVENT_DATE_IN_PAST). }
         reservationTtlMinutes: { type: integer, minimum: 10, maximum: 1440, description: Applies to new reservations only. }
-        eventTypeCode:
-          $ref: '#/components/schemas/EventTypeCode'
+        eventCode:
+          $ref: '#/components/schemas/EventCode'
           description: US-07. Changes the type of the event; the items of the list stay as they are.
 
     GiftList:
       type: object
-      required: [id, title, slug, eventTypeCode, eventDate, status, reservationTtlMinutes, items, createdAt]
+      required: [id, title, slug, eventCode, eventDate, status, reservationTtlMinutes, items, createdAt]
       properties:
         id: { type: string, format: uuid }
         title: { type: string }
         slug: { type: string, example: churrasco-do-erick-7f3k }
-        eventTypeCode: { $ref: '#/components/schemas/EventTypeCode' }
+        eventCode: { $ref: '#/components/schemas/EventCode' }
         eventDate: { type: string, format: date }
         status: { $ref: '#/components/schemas/GiftListStatus' }
         reservationTtlMinutes: { type: integer }
@@ -1082,10 +1071,10 @@ components:
 
     PublicGiftList:
       type: object
-      required: [title, eventTypeCode, eventDate, status, acceptsReservations, items]
+      required: [title, eventCode, eventDate, status, acceptsReservations, items]
       properties:
         title: { type: string }
-        eventTypeCode: { $ref: '#/components/schemas/EventTypeCode' }
+        eventCode: { $ref: '#/components/schemas/EventCode' }
         eventDate: { type: string, format: date }
         status: { $ref: '#/components/schemas/GiftListStatus' }
         acceptsReservations: { type: boolean, description: 'status = PUBLISHED and eventDate >= today (app.zone).' }

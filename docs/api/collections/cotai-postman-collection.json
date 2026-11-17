@@ -284,13 +284,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/event-types",
+              "raw": "{{baseUrl}}/api/events",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "event-types"
+                "events"
               ]
             },
             "auth": {
@@ -300,7 +300,7 @@
           "response": []
         },
         {
-          "name": "Get template items",
+          "name": "Get event items",
           "event": [
             {
               "listen": "test",
@@ -322,15 +322,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/event-types/BARBECUE/template-items",
+              "raw": "{{baseUrl}}/api/events/BARBECUE/items",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "event-types",
+                "events",
                 "BARBECUE",
-                "template-items"
+                "items"
               ]
             },
             "auth": {
@@ -340,7 +340,7 @@
           "response": []
         },
         {
-          "name": "Template items of OTHER are empty",
+          "name": "Items of OTHER are empty",
           "event": [
             {
               "listen": "test",
@@ -351,7 +351,7 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "const items = pm.response.json();",
-                  "pm.test('OTHER has empty template list', function () {",
+                  "pm.test('OTHER has empty item list', function () {",
                   "    pm.expect(items).to.be.an('array').that.is.empty;",
                   "});"
                 ]
@@ -362,15 +362,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/event-types/OTHER/template-items",
+              "raw": "{{baseUrl}}/api/events/OTHER/items",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "event-types",
+                "events",
                 "OTHER",
-                "template-items"
+                "items"
               ]
             },
             "auth": {
