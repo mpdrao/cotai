@@ -26,6 +26,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/register.component').then((m) => m.RegisterComponent),
   },
   {
+    path: 'proxy',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/proxy/proxy.component').then((m) => m.ProxyComponent),
+  },
+  {
     path: 'dashboard',
     canActivate: [authGuard],
     loadChildren: () =>

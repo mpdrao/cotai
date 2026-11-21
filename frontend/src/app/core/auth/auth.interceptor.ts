@@ -5,7 +5,7 @@ import { catchError, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith('/api/gift-lists')) {
+  if (!req.url.startsWith('/api/gift-lists') && !req.url.startsWith('/api/proxy')) {
     return next(req);
   }
   const auth = inject(AuthService);

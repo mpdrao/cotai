@@ -13,6 +13,7 @@ O organizador parte de 10 itens sugeridos por tipo de evento, ajusta nome, unida
 | Camada | Tecnologia |
 | --- | --- |
 | Backend | Java 21 · Spring Boot 4 · Spring Web MVC · Spring Data JPA · Spring Security (JWT) |
+| Proxy de saída | Squid no Docker · autenticação Basic com senha bcrypt · cliente Java HttpClient |
 | Banco | PostgreSQL 17 · Flyway |
 | Frontend | Angular 22 (standalone components, signals) |
 | Contrato | OpenAPI 3.1 (`/openapi.yaml` e `/swagger-ui`) · erros em RFC 9457 (Problem Details) |
@@ -23,7 +24,8 @@ O organizador parte de 10 itens sugeridos por tipo de evento, ajusta nome, unida
 
 ```
 cotai/
-├── backend/                 # Spring Boot: pom.xml, mvnw, docker-compose.yml (postgres:17)
+├── backend/                 # Spring Boot: pom.xml, mvnw, docker-compose.yml (PostgreSQL + Squid)
+│   ├── proxy/                # Dockerfile, configuração ACL e entrypoint do Squid
 │   └── src/main/java/dev/cotai/
 │       ├── security/        # SecurityConfig, JwtService, AuthController, AuthDtos
 │       ├── organizer/       # Organizer, OrganizerRepository
@@ -51,17 +53,24 @@ cotai/
 Pré-requisitos: **Java 21**, **Node 24.15+** (para o Angular 22) e **Docker**.
 
 ```bash
-# 1. Banco
-cd backend && docker compose up -d
+# 1. Configure as credenciais do proxy (faça isso uma única vez)
+cd backend
+cp .env.example .env
+# Edite .env e substitua PROXY_PASSWORD por uma senha forte (mínimo 12 caracteres)
 
-# 2. API (perfil dev: gateway simulado + relógio controlável) em http://localhost:8080
+# 2. Banco + servidor Squid autenticado
+# A porta 3128 fica publicada somente no loopback (127.0.0.1)
+docker compose up -d --build
+
+# 3. API (perfil dev: gateway simulado + relógio controlável) em http://localhost:8080
+# O Spring lê as variáveis do arquivo backend/.env
 ./mvnw -DskipWeb spring-boot:run
 
-# 3. Swagger UI e contrato OpenAPI 3.1
+# 4. Swagger UI e contrato OpenAPI 3.1
 #    Swagger UI: http://localhost:8080/swagger-ui
 #    OpenAPI YAML: http://localhost:8080/openapi.yaml
 
-# 4. Frontend com proxy para a API em http://localhost:4200 (outro terminal, a partir da raiz)
+# 5. Frontend com proxy para a API em http://localhost:4200 (outro terminal, a partir da raiz)
 cd frontend && npm install && npm start
 ```
 
@@ -94,6 +103,29 @@ java -Dspring.profiles.active=dev -jar target/cotai.jar
   jmeter -n -t docs/api/scripts/cotai-load-test.jmx -l jmeter-results.jtl
   ```
 
+## Proxy de saída do COTAI (Squid)
+
+O ambiente de desenvolvimento também inicia um Squid autenticado em `127.0.0.1:3128`. O painel fica em `http://localhost:4200/proxy` (frontend de desenvolvimento) ou `/proxy` na aplicação empacotada, após autenticar no COTAI.
+
+- `backend/proxy/` contém o Dockerfile, a configuração ACL e o entrypoint que cria o usuário do Squid com hash bcrypt.
+- `cotaiExternalHttpClient` e `cotaiExternalRestClient` são os clientes destinados a integrações HTTP externas. Injete o `RestClient` com `@Qualifier("cotaiExternalRestClient")` nos serviços que chamarem APIs externas.
+- O `WebhookDispatcher` continua usando conexão direta porque chama o próprio COTAI em `localhost`; tráfego interno não deve passar pelo proxy.
+- A API `/api/proxy/status` exige autenticação JWT e informa apenas metadados/status. A senha não é retornada ao navegador.
+- A porta do Squid é vinculada a `127.0.0.1`, não à rede pública. O painel não transforma o navegador em cliente de proxy e não redireciona o tráfego geral do computador.
+- O código atual não possui integração real com serviços HTTP externos (o gateway de pagamento é simulado). Portanto, a infraestrutura fica pronta para as futuras integrações, sem alterar o fluxo de pagamento atual.
+
+Para validar o Squid manualmente no PowerShell, depois de iniciar o Docker e definir as variáveis do `.env` na sessão:
+
+```powershell
+$env:PROXY_USERNAME = "cotai_proxy"
+$env:PROXY_PASSWORD = "sua-senha-configurada-no-env"
+curl.exe -I -x http://127.0.0.1:3128 -U "$($env:PROXY_USERNAME):$($env:PROXY_PASSWORD)" https://example.com
+```
+
+Uma senha incorreta deve resultar em `407 Proxy Authentication Required`. Uma autenticação válida deve permitir a requisição ao destino externo. No JMeter, configure o Proxy Server do HTTP Request Defaults com host `127.0.0.1`, porta `3128` e as mesmas credenciais; use um GET HTTPS para `https://example.com/` e uma Assertion para validar o status HTTP.
+
+Para desativar o proxy localmente, defina `COTAI_PROXY_ENABLED=false`. Não use credenciais padrão em ambientes compartilhados.
+
 ## Configuração
 
 Variáveis de ambiente (valores padrão servem **apenas** para desenvolvimento):
@@ -105,6 +137,8 @@ Variáveis de ambiente (valores padrão servem **apenas** para desenvolvimento):
 | `MANAGE_TOKEN_SECRET` | deriva o token de gerenciamento do convidado |
 | `PAYMENT_WEBHOOK_SECRET` | chave HMAC do webhook |
 | `PUBLIC_BASE_URL` | base dos links de checkout / QR |
+| `PROXY_USERNAME`, `PROXY_PASSWORD` | credenciais do Squid (senha mínima de 12 caracteres) |
+| `COTAI_PROXY_ENABLED`, `COTAI_PROXY_HOST`, `COTAI_PROXY_PORT` | ativação e endereço do proxy para o backend |
 
 > Aviso: Troque todos os segredos antes de qualquer ambiente real.
 

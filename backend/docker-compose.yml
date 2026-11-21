@@ -16,5 +16,21 @@ services:
       timeout: 3s
       retries: 10
 
+  proxy:
+    build:
+      context: ./proxy
+    container_name: cotai-proxy
+    environment:
+      PROXY_USERNAME: ${PROXY_USERNAME:-cotai_proxy}
+      PROXY_PASSWORD: ${PROXY_PASSWORD:?Defina PROXY_PASSWORD no arquivo .env}
+    ports:
+      - "127.0.0.1:3128:3128"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "test -s /etc/squid/passwd && /usr/sbin/squid -k check -f /etc/squid/squid.conf"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   pgdata:

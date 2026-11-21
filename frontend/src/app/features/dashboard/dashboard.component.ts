@@ -22,6 +22,7 @@ import { CotaiButtonComponent, CotaiCardComponent, CotaiStatus, CotaiStatusBadge
         </div>
         <div class="head-actions">
           <a routerLink="/lists/new" class="cotai-link-button cotai-link-button--primary">Criar minha lista</a>
+          <a routerLink="/proxy" class="cotai-link-button cotai-link-button--secondary">Gerenciar proxy</a>
           <cotai-button variant="ghost" (pressed)="logout()">Sair</cotai-button>
         </div>
       </header>

@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: cotai
   datasource:
@@ -51,3 +53,12 @@ payment:
   webhook-secret: ${PAYMENT_WEBHOOK_SECRET:change-me-webhook-secret}
   gateway-timeout-ms: 3000
   max-pending-reservations-per-email: 3
+
+
+cotai:
+  proxy:
+    enabled: ${COTAI_PROXY_ENABLED:false}
+    host: ${COTAI_PROXY_HOST:127.0.0.1}
+    port: ${COTAI_PROXY_PORT:3128}
+    username: ${PROXY_USERNAME:cotai_proxy}
+    password: ${PROXY_PASSWORD:}
