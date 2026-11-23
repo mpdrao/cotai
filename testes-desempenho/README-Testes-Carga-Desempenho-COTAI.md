@@ -59,6 +59,15 @@ docker compose up -d
 ```
 ![Resultado do docker compose up -d](./Imagens/docker%20compose.png)
 
+Caso mesmo assim, eles não apareçam, inicie eles manualmente:
+
+```powershell
+docker start cotai-postgres
+docker start cotai-proxy
+```
+![Resultado do docker start](./Imagens/docker%20start.png)
+
+
 ## 4.2.1 Configuração das versões do Java
 
 O projeto COTAI utiliza versões diferentes do Java para executar o backend e o Apache JMeter.
@@ -83,6 +92,7 @@ if (-not $java25) {
 $env:JAVA_HOME = $java25.FullName
 $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
 ```
+Somente não irá aparecer nenhuma resposta SE o Java25 for o java padrão. Somente irá aparecer resultados de comando para Java de versões diferentes.
 
 Não execute o backend e o JMeter no mesmo terminal sem ajustar novamente o JAVA_HOME e o PATH
 
@@ -123,6 +133,8 @@ $env:JAVA_HOME = $java17.FullName
 $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
 java -version
 ```
+![Resultado do java 17 do jmeter](./Imagens/java17-jmeter.png)
+
 
 A saída deve indicar **Java 17**. Essa configuração vale para o terminal atual.
 
@@ -161,13 +173,14 @@ Test Plan
     └── Constant Timer (1000 ms)
 ```
 
-O `Constant Timer` pode aparecer em outra posição dentro do mesmo `Thread Group`; sua abrangência depende da hierarquia do JMeter. Para comparar os cenários, mantenha o mesmo escopo e o mesmo valor em todas as rodadas.
-
 **Configurações dos HTTP Requests:**
 
 - Login: `POST http://localhost:8080/api/auth/login`, corpo `${LOGIN_JSON}`, `Content-Type: application/json`.
 - Proxy Status: `GET http://localhost:8080/api/proxy/status`, `Authorization: Bearer ${JWT_TOKEN}`.
 - Proxy Test: `GET http://localhost:8080/api/proxy/test`, **desabilitado durante a carga**.
+
+![Estrutura do HTTP Request - Login](./Imagens/jmeter-login.png)
+![Estrutura do HTTP Request - Proxy Status](./Imagens/jmeter-proxystatus.png)
 
 O `JSR223 Sampler` prepara os dados de login. Seu tempo de execução não deve ser confundido com latência de requisição HTTP.
 
@@ -181,7 +194,7 @@ Em `Thread Group` é o local que dirá quantos testes de carga será feitos. Qua
 
 Em `Thread Group`, marque **Infinite** no campo `Loop Count`, habilite **Specify Thread lifetime** e configure a duração. Salve com `Ctrl + S` **antes** de executar no terminal. Os cenários são executados **separadamente**, ajustando o mesmo plano entre rodadas.
 
-![Composição do Jmeter](./Imagens/Jmeter.png)
+![Composição do Jmeter](./Imagens/jmeter-threadgroup.png)
 
 ## 6. Executar um teste de carga
 
@@ -190,14 +203,21 @@ Abra um PowerShell com **Java 17** configurado conforme a seção 4.2.3.
 O bloco abaixo é reutilizável: altere apenas `$cenario` para `10`, `25` ou `50`, depois de salvar as configurações correspondentes no arquivo `.jmx`.
 
 ```powershell
-cd "C:\...\cotai\teste-desempenho\resultado" (Insira o caminho correto)
+cd "C:\...\cotai\testes-desempenho" (Insira o caminho correto)
 
-$cenario = "10"  # Alterar para "25" ou "50" na rodada correspondente.
-$arquivoJtl = ".\resultado-carga-$cenario-novo.jtl"
-$arquivoLog = ".\jmeter-carga-$cenario-novo.log"
+$cenario = "10" # Alterar para "25" ou "50" na rodada correspondente.
 
-if (Test-Path $arquivoJtl) {
-    throw "O arquivo $arquivoJtl já existe. Escolha outro nome para não misturar resultados."
+$arquivoJtl = ".\resultados\resultado-carga-$cenario.jtl"
+$arquivoLog = ".\resultados\jmeter-carga-$cenario.log"
+
+if (-not (Test-Path ".\COTAI-Teste-Carga.jmx")) {
+    throw "Arquivo COTAI-Teste-Carga.jmx não encontrado."
+}
+
+New-Item -ItemType Directory -Force -Path ".\resultados" | Out-Null
+
+if ((Test-Path $arquivoJtl) -or (Test-Path $arquivoLog)) {
+    throw "Já existem arquivos desta execução."
 }
 
 $email = Read-Host "E-mail da conta de teste COTAI" #Com o backend rodando, é necessário ter um usuário e senha cadastrado no banco de dados
@@ -210,8 +230,8 @@ try {
         -t ".\COTAI-Teste-Carga.jmx" `
         "-Jcotai.email=$email" `
         "-Jcotai.password=$senha" `
-        -l $arquivoJtl ` #Exemplo: -l ".\resultado\resultado-carga-10-v3.jtl" `
-        -j $arquivoLog   #Exemplo: -j ".\relatorio\jmeter-carga-10-v3.log"
+        -l $arquivoJtl `
+        -j $arquivoLog
 }
 finally {
     Remove-Variable senha, senhaSegura -ErrorAction SilentlyContinue
@@ -227,13 +247,29 @@ O JMeter exibirá um resumo com quantidade de amostras, tempo médio e erros. Ag
 Exemplo para uma nova execução de **10 usuários** (`resultado-carga-10-novo.jtl`):
 
 ```powershell
-cd "C:\...\cotai\teste-desempenho\resultado" (Insira o caminho correto)
+cd "C:\...\cotai\testes-desempenho" (Insira o caminho correto)
+
+$cenario = "10"
+
+# Definir os caminhos
+$arquivoJtl = ".\resultados\resultado-carga-$cenario.jtl"
+$pastaRelatorio = ".\relatorio\relatorio-carga-$cenario"
+$arquivoLogRelatorio = ".\resultados\jmeter-relatorio-carga-$cenario.log"
+
+New-Item -ItemType Directory -Force -Path ".\relatorio" | Out-Null
+
+if (-not (Test-Path $arquivoJtl)) {
+    throw "Arquivo de resultados não encontrado: $arquivoJtl"
+}
+
+if (Test-Path $pastaRelatorio) {
+    throw "A pasta $pastaRelatorio já existe. Escolha outro nome de execução."
+}
 
 & "C:\Ferramentas\apache-jmeter-5.6.3\bin\jmeter.bat" `
-    -g ".\resultado\resultado-carga-10-novo.jtl" `
-    -o ".\resultado\relatorio-carga-10-novo"
-
-Start-Process ".\relatorio\relatorio-carga-10-novo\index.html"
+    -g $arquivoJtl `
+    -o $pastaRelatorio `
+    -j $arquivoLogRelatorio
 ```
 
 Para **25** ou **50** usuários, troque `10` pelo número do cenário. A pasta indicada em `-o` deve estar vazia ou não existir.
@@ -241,34 +277,14 @@ Para **25** ou **50** usuários, troque `10` pelo número do cenário. A pasta i
 Para abrir relatórios **já gerados**:
 
 ```powershell
-Start-Process "C:\...\cotai\teste-desempenho\relatorio\relatorio-carga-10-v3\index.html" (Insira o caminho correto)
-Start-Process "C:\...\cotai\teste-desempenho\relatorio\relatorio-carga-25\index.html" (Insira o caminho correto)
-Start-Process "C:\...\cotai\teste-desempenho\relatorio\relatorio-carga-50\index.html" (Insira o caminho correto)
+Start-Process "C:\...\cotai\testes-desempenho\relatorio\relatorio-carga-10-v3\index.html" (Insira o caminho correto)
+Start-Process "C:\...\cotai\testes-desempenho\relatorio\relatorio-carga-25\index.html" (Insira o caminho correto)
+Start-Process "C:\...\cotai\testes-desempenho\relatorio\relatorio-carga-50\index.html" (Insira o caminho correto)
 ```
 
 ## 8. Consultar métricas no PowerShell
 
-Altere o caminho do `.jtl` para o cenário desejado:
-
-```powershell
-cd "C:\...\cotai\teste-desempenho\resultado" (Insira o caminho correto)
-
-Import-Csv ".\resultado-carga-50.jtl" |
-    Group-Object label |
-    ForEach-Object {
-        $tempos = $_.Group | ForEach-Object { [double]$_.elapsed }
-        $erros = @($_.Group | Where-Object { $_.success -eq "false" }).Count
-
-        [PSCustomObject]@{
-            Requisicao = $_.Name
-            Total = $_.Count
-            Erros = $erros
-            TaxaErro = "{0:N2}%" -f (100 * $erros / $_.Count)
-            MediaMs = [math]::Round(($tempos | Measure-Object -Average).Average, 2)
-            MaximoMs = ($tempos | Measure-Object -Maximum).Maximum
-        }
-    } | Format-Table -AutoSize
-```
+Após gerar o relatório HTML, conforme a seção 7, abra o arquivo index.html correspondente ao cenário executado.
 
 No Dashboard HTML, consulte principalmente a tabela **Statistics** (Average, Median, 90th/95th/99th pct, Error % e Throughput) e os gráficos **Response Times Over Time** e **Transactions per Second**.
 

@@ -173,7 +173,7 @@ $(document).ready(function() {
     });
 
     // Creates APDEX table
-    createTable($("#apdexTable"), {"supportsControllersDiscrimination": true, "overall": {"data": [0.984152503445108, 500, 1500, "Total"], "isController": false}, "titles": ["Apdex", "T (Toleration threshold)", "F (Frustration threshold)", "Label"], "items": [{"data": [1.0, 500, 1500, "HTTP Request - Proxy Status"], "isController": false}, {"data": [0.9998279421885754, 500, 1500, "JSR223 Sampler"], "isController": false}, {"data": [0.9526841018582244, 500, 1500, "HTTP Request - Login"], "isController": false}]}, function(index, item){
+    createTable($("#apdexTable"), {"supportsControllersDiscrimination": true, "overall": {"data": [0.9989888776541962, 500, 1500, "Total"], "isController": false}, "titles": ["Apdex", "T (Toleration threshold)", "F (Frustration threshold)", "Label"], "items": [{"data": [1.0, 500, 1500, "HTTP Request - Proxy Status"], "isController": false}, {"data": [0.9985029940119761, 500, 1500, "JSR223 Sampler"], "isController": false}, {"data": [0.9984802431610942, 500, 1500, "HTTP Request - Login"], "isController": false}]}, function(index, item){
         switch(index){
             case 0:
                 item = item.toFixed(3);
@@ -187,7 +187,7 @@ $(document).ready(function() {
     }, [[0, 0]], 3);
 
     // Create statistics table
-    createTable($("#statisticsTable"), {"supportsControllersDiscrimination": true, "overall": {"data": ["Total", 8708, 0, 0.0, 122.25792374827746, 0, 846, 7.0, 391.0, 472.0, 540.0, 72.41218733368814, 25.834169331987592, 14.176560057294438], "isController": false}, "titles": ["Label", "#Samples", "FAIL", "Error %", "Average", "Min", "Max", "Median", "90th pct", "95th pct", "99th pct", "Transactions/s", "Received", "Sent"], "items": [{"data": ["HTTP Request - Proxy Status", 2896, 0, 0.0, 8.733770718232053, 1, 90, 7.0, 16.0, 21.0, 35.0, 24.417388958213888, 12.076813585018211, 8.774999156858117], "isController": false}, {"data": ["JSR223 Sampler", 2906, 0, 0.0, 0.6507226428079842, 0, 846, 0.0, 1.0, 1.0, 1.0, 24.229387094891486, 0.0, 0.0], "isController": false}, {"data": ["HTTP Request - Login", 2906, 0, 0.0, 356.9986235375087, 122, 617, 340.0, 498.0, 524.6500000000001, 580.0, 24.372856052536672, 14.042954170895154, 5.569578433880451], "isController": false}]}, function(index, item){
+    createTable($("#statisticsTable"), {"supportsControllersDiscrimination": true, "overall": {"data": ["Total", 989, 0, 0.0, 62.85844287158744, 0, 594, 6.0, 176.0, 196.5, 287.20000000000005, 8.32141354648717, 2.953039545645772, 1.618324700252419], "isController": false}, "titles": ["Label", "#Samples", "FAIL", "Error %", "Average", "Min", "Max", "Median", "90th pct", "95th pct", "99th pct", "Transactions/s", "Received", "Sent"], "items": [{"data": ["HTTP Request - Proxy Status", 326, 0, 0.0, 9.515337423312882, 2, 268, 6.0, 12.0, 17.0, 145.46000000000004, 2.818923102198933, 1.3956972781395107, 1.0130504898527415], "isController": false}, {"data": ["JSR223 Sampler", 334, 0, 0.0, 3.005988023952092, 0, 594, 1.0, 2.0, 2.0, 4.0, 2.8158089970998854, 0.0, 0.0], "isController": false}, {"data": ["HTTP Request - Login", 329, 0, 0.0, 176.4772036474165, 134, 527, 164.0, 207.0, 251.5, 435.1999999999998, 2.8112209585494443, 1.6197464507267305, 0.6424079143560253], "isController": false}]}, function(index, item){
         switch(index){
             // Errors pct
             case 3:
@@ -228,7 +228,7 @@ $(document).ready(function() {
     }, [[1, 1]]);
 
         // Create top5 errors by sampler
-    createTable($("#top5ErrorsBySamplerTable"), {"supportsControllersDiscrimination": false, "overall": {"data": ["Total", 8708, 0, "", "", "", "", "", "", "", "", "", ""], "isController": false}, "titles": ["Sample", "#Samples", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors"], "items": [{"data": [], "isController": false}, {"data": [], "isController": false}, {"data": [], "isController": false}]}, function(index, item){
+    createTable($("#top5ErrorsBySamplerTable"), {"supportsControllersDiscrimination": false, "overall": {"data": ["Total", 989, 0, "", "", "", "", "", "", "", "", "", ""], "isController": false}, "titles": ["Sample", "#Samples", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors", "Error", "#Errors"], "items": [{"data": [], "isController": false}, {"data": [], "isController": false}, {"data": [], "isController": false}]}, function(index, item){
         return item;
     }, [[0, 0]], 0);
 

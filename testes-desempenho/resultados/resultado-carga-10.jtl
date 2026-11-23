@@ -1,0 +1,990 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1795464986365,594,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,1,1,null,0,0,0
+1795464988184,241,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,2,2,http://localhost:8080/api/auth/login,232,0,45
+1795464989355,4,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,2,2,null,0,0,0
+1795464989496,14,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,2,2,http://localhost:8080/api/proxy/status,12,0,0
+1795464990528,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,2,2,null,0,0,0
+1795464990373,183,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,2,2,http://localhost:8080/api/auth/login,183,0,4
+1795464991568,8,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,3,3,http://localhost:8080/api/proxy/status,7,0,0
+1795464991537,223,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,3,3,http://localhost:8080/api/auth/login,223,0,0
+1795464992363,4,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,3,3,null,0,0,0
+1795464992584,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,3,3,null,0,0,0
+1795464992771,7,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,3,3,http://localhost:8080/api/proxy/status,7,0,0
+1795464993379,155,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,3,3,http://localhost:8080/api/auth/login,155,0,1
+1795464993600,162,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,3,3,http://localhost:8080/api/auth/login,162,0,0
+1795464993787,2,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,3,3,null,0,0,0
+1795464994550,14,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,4,4,http://localhost:8080/api/proxy/status,12,0,0
+1795464994767,7,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,4,4,http://localhost:8080/api/proxy/status,6,0,0
+1795464994798,197,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,4,4,http://localhost:8080/api/auth/login,197,0,0
+1795464995362,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,4,4,null,0,0,0
+1795464995580,2,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,4,4,null,0,0,0
+1795464995780,2,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,4,4,null,0,0,0
+1795464995999,13,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,4,4,http://localhost:8080/api/proxy/status,13,0,0
+1795464996376,165,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,4,4,http://localhost:8080/api/auth/login,165,0,2
+1795464996595,163,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,4,4,http://localhost:8080/api/auth/login,163,0,0
+1795464996797,152,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,4,4,http://localhost:8080/api/auth/login,152,0,0
+1795464997016,3,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,4,4,null,0,0,0
+1795464997545,7,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,5,5,http://localhost:8080/api/proxy/status,4,0,0
+1795464997759,5,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,5,5,http://localhost:8080/api/proxy/status,5,0,0
+1795464997952,6,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,5,5,http://localhost:8080/api/proxy/status,6,0,0
+1795464998021,159,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,5,5,http://localhost:8080/api/auth/login,159,0,0
+1795464998358,2,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,5,5,null,0,0,0
+1795464998561,2,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,5,5,null,0,0,0
+1795464998778,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,5,5,null,0,0,0
+1795464998966,2,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,5,5,null,0,0,0
+1795464999182,6,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,5,5,http://localhost:8080/api/proxy/status,6,0,0
+1795464999373,164,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,5,5,http://localhost:8080/api/auth/login,164,0,2
+1795464999575,155,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,5,5,http://localhost:8080/api/auth/login,155,0,0
+1795464999792,155,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,5,5,http://localhost:8080/api/auth/login,155,0,0
+1795464999979,149,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,5,5,http://localhost:8080/api/auth/login,149,0,0
+1795465000199,2,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,5,5,null,0,0,0
+1795465000539,8,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,6,6,http://localhost:8080/api/proxy/status,8,0,0
+1795465000732,7,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,6,6,http://localhost:8080/api/proxy/status,6,0,0
+1795465000948,5,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,6,6,http://localhost:8080/api/proxy/status,4,0,0
+1795465001129,7,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,6,6,http://localhost:8080/api/proxy/status,7,0,0
+1795465001352,2,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,6,6,null,0,0,0
+1795465001203,161,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,6,6,http://localhost:8080/api/auth/login,161,0,0
+1795465001553,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,6,6,null,0,0,0
+1795465001741,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,6,6,null,0,0,0
+1795465001960,2,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,6,6,null,0,0,0
+1795465002147,0,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,6,6,null,0,0,0
+1795465002366,6,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,6,6,http://localhost:8080/api/proxy/status,5,0,0
+1795465002364,167,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,6,6,http://localhost:8080/api/auth/login,167,0,2
+1795465002567,155,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,6,6,http://localhost:8080/api/auth/login,155,0,0
+1795465002756,155,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,6,6,http://localhost:8080/api/auth/login,155,0,0
+1795465002974,161,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,6,6,http://localhost:8080/api/auth/login,161,0,0
+1795465003150,183,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,6,6,http://localhost:8080/api/auth/login,183,0,0
+1795465003381,0,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,7,7,null,0,0,0
+1795465003533,7,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,7,7,http://localhost:8080/api/proxy/status,6,0,0
+1795465003723,7,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,7,7,http://localhost:8080/api/proxy/status,7,0,0
+1795465003913,8,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,7,7,http://localhost:8080/api/proxy/status,7,0,0
+1795465004138,6,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,7,7,http://localhost:8080/api/proxy/status,6,0,0
+1795465004334,6,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,7,7,http://localhost:8080/api/proxy/status,6,0,0
+1795465004348,2,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,7,7,null,0,0,0
+1795465004552,2,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,7,7,null,0,0,0
+1795465004395,197,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,7,7,http://localhost:8080/api/auth/login,196,0,0
+1795465004740,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,7,7,null,0,0,0
+1795465004926,2,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,7,7,null,0,0,0
+1795465005148,2,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,7,7,null,0,0,0
+1795465005348,2,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,7,7,null,0,0,0
+1795465005366,162,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,7,7,http://localhost:8080/api/auth/login,162,0,2
+1795465005597,7,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,7,7,http://localhost:8080/api/proxy/status,6,0,0
+1795465005568,164,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,7,7,http://localhost:8080/api/auth/login,164,0,0
+1795465005754,185,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,7,7,http://localhost:8080/api/auth/login,185,0,0
+1795465005942,320,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,7,7,http://localhost:8080/api/auth/login,320,0,0
+1795465006160,190,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,8,8,http://localhost:8080/api/auth/login,190,0,0
+1795465006531,4,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,8,8,http://localhost:8080/api/proxy/status,4,0,0
+1795465006360,199,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,8,8,http://localhost:8080/api/auth/login,199,0,0
+1795465006607,2,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,8,8,null,0,0,0
+1795465006735,6,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,8,8,http://localhost:8080/api/proxy/status,6,0,0
+1795465006943,8,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,8,8,http://localhost:8080/api/proxy/status,7,0,0
+1795465007266,8,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,8,8,http://localhost:8080/api/proxy/status,8,0,0
+1795465007357,2,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,8,8,null,0,0,0
+1795465007358,7,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,8,8,http://localhost:8080/api/proxy/status,6,0,0
+1795465007543,2,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,8,8,null,0,0,0
+1795465007575,7,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,8,8,http://localhost:8080/api/proxy/status,7,0,0
+1795465007744,2,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,8,8,null,0,0,0
+1795465007620,160,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,8,8,http://localhost:8080/api/auth/login,160,0,0
+1795465007964,3,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,8,8,null,0,0,0
+1795465008278,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,8,8,null,0,0,0
+1795465008372,0,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,8,8,null,0,0,0
+1795465008372,156,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,8,8,http://localhost:8080/api/auth/login,156,0,1
+1795465008591,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,8,8,null,0,0,0
+1795465008560,176,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,8,8,http://localhost:8080/api/auth/login,176,0,0
+1795465008793,7,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,8,8,http://localhost:8080/api/proxy/status,7,0,0
+1795465008748,199,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,8,8,http://localhost:8080/api/auth/login,199,0,0
+1795465008982,138,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,8,8,http://localhost:8080/api/auth/login,137,0,0
+1795465009281,166,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,9,9,http://localhost:8080/api/auth/login,166,0,0
+1795465009375,160,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,9,9,http://localhost:8080/api/auth/login,160,0,0
+1795465009532,5,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,9,9,http://localhost:8080/api/proxy/status,5,0,0
+1795465009737,4,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,9,9,http://localhost:8080/api/proxy/status,4,0,0
+1795465009593,157,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,9,9,http://localhost:8080/api/auth/login,157,0,0
+1795465009803,2,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,9,9,null,0,0,0
+1795465009948,8,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,9,9,http://localhost:8080/api/proxy/status,7,0,0
+1795465010120,11,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,9,9,http://localhost:8080/api/proxy/status,10,0,0
+1795465010356,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,9,9,null,0,0,0
+1795465010450,5,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,9,9,http://localhost:8080/api/proxy/status,5,0,0
+1795465010543,2,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,9,9,null,0,0,0
+1795465010543,8,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,9,9,http://localhost:8080/api/proxy/status,8,0,0
+1795465010746,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,9,9,null,0,0,0
+1795465010762,7,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,9,9,http://localhost:8080/api/proxy/status,7,0,0
+1795465010964,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,9,9,null,0,0,0
+1795465010808,160,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,9,9,http://localhost:8080/api/auth/login,160,0,0
+1795465011135,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,9,9,null,0,0,0
+1795465011463,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,9,9,null,0,0,0
+1795465011555,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,9,9,null,0,0,0
+1795465011370,244,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,9,9,http://localhost:8080/api/auth/login,244,0,1
+1795465011774,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,9,9,null,0,0,0
+1795465011556,315,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,9,9,http://localhost:8080/api/auth/login,315,0,0
+1795465011758,163,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,9,9,http://localhost:8080/api/auth/login,163,0,0
+1795465011978,4,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,9,9,http://localhost:8080/api/proxy/status,4,0,0
+1795465011978,141,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,9,9,http://localhost:8080/api/auth/login,141,0,0
+1795465012150,144,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,9,9,http://localhost:8080/api/auth/login,144,0,0
+1795465012620,21,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,21,0,0
+1795465012466,177,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,177,0,0
+1795465012557,173,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,173,0,0
+1795465012885,7,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465012931,3,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465012791,191,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,191,0,0
+1795465012993,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465013135,4,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465013306,5,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465013368,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465013649,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465013650,8,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465013744,7,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465013898,2,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465013945,2,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465013992,5,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465014147,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465014007,152,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,152,0,0
+1795465014320,2,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465014385,187,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,187,0,2
+1795465014663,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465014757,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465014663,149,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,149,0,0
+1795465015005,0,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465014913,158,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,158,0,0
+1795465014959,155,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,155,0,0
+1795465015161,4,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465015161,155,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,155,0,0
+1795465015335,158,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,158,0,0
+1795465015583,5,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465015820,9,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,9,0,0
+1795465015678,211,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,211,0,0
+1795465015773,179,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,179,0,0
+1795465016086,4,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465016116,3,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465016006,160,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,160,0,0
+1795465016179,2,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465016319,6,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465016504,8,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465016595,3,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465016833,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465016895,14,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,13,0,0
+1795465016958,15,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,15,0,0
+1795465017099,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465017131,0,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465017178,49,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,48,0,0
+1795465017334,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465017194,250,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,250,0,0
+1795465017520,3,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465017600,155,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,155,0,0
+1795465017911,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465017989,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465017850,161,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,161,0,0
+1795465018238,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465018114,170,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,170,0,0
+1795465018144,162,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,162,0,0
+1795465018457,5,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465018349,176,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,175,0,0
+1795465018533,176,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,176,0,0
+1795465018768,7,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465019018,6,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465018925,177,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,177,0,0
+1795465019002,165,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,165,0,0
+1795465019299,5,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465019315,4,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465019254,160,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,160,0,0
+1795465019468,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465019531,8,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465019719,9,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465019779,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465020029,0,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465020107,41,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,41,0,0
+1795465020168,5,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465020306,2,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465020322,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465020417,9,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,8,0,0
+1795465020542,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465020480,165,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,165,0,0
+1795465020729,2,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465020790,154,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,154,0,0
+1795465021152,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465021184,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465021058,177,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,177,0,0
+1795465021436,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465021310,207,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,207,0,0
+1795465021326,200,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,200,0,0
+1795465021653,5,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465021545,158,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,158,0,0
+1795465021747,151,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,151,0,0
+1795465021951,34,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,33,0,0
+1795465022245,5,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465022167,162,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,162,0,0
+1795465022198,156,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,156,0,0
+1795465022525,12,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,12,0,0
+1795465022541,42,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,10,0,0
+1795465022666,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465022712,16,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,15,0,0
+1795465022446,424,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,424,0,0
+1795465022913,5,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465022991,0,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465023256,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465023335,9,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,8,0,0
+1795465023367,7,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465023552,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465023598,2,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465023740,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465023678,158,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,158,0,0
+1795465023881,34,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,33,0,0
+1795465023927,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465024006,195,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,195,0,0
+1795465024348,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465024380,0,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465024271,154,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,154,0,0
+1795465024566,165,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,165,0,0
+1795465024613,158,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,158,0,0
+1795465024848,4,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465024753,169,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,169,0,0
+1795465024925,2,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465024941,148,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,148,0,0
+1795465025204,5,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465025436,8,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465025359,209,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,209,0,0
+1795465025390,206,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,206,0,0
+1795465025732,7,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465025779,7,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465025856,2,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465025935,8,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,8,0,0
+1795465025936,153,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,153,0,0
+1795465026090,4,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465026215,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465026448,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465026574,7,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465026605,7,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465026746,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465026792,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465026950,0,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465026872,179,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,178,0,0
+1795465027091,4,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465027106,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465027231,162,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,162,0,0
+1795465027589,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465027621,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465027464,166,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465027762,170,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,170,0,0
+1795465027808,196,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,196,0,0
+1795465028059,22,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,22,0,0
+1795465028105,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465027964,289,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,289,0,0
+1795465028121,259,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,259,0,0
+1795465028402,4,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465028634,4,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465028603,138,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,138,0,0
+1795465028634,135,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,135,0,0
+1795465028935,4,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465029010,5,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465029088,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465029262,4,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465029121,150,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,150,0,0
+1795465029387,9,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,9,0,0
+1795465029418,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465029652,0,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465029745,3,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465029776,16,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,16,0,0
+1795465029946,2,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465030025,3,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465030105,154,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,154,0,0
+1795465030275,2,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465030276,16,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,16,0,0
+1795465030399,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465030431,168,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,168,0,0
+1795465030759,0,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465030806,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465030667,152,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,152,0,0
+1795465030963,213,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,213,0,0
+1795465031041,188,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,188,0,0
+1795465031274,6,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465031304,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465031290,167,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,167,0,0
+1795465031413,171,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,171,0,0
+1795465031601,7,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465031834,4,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465031772,169,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,169,0,0
+1795465031818,157,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,0
+1795465032181,7,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465032243,9,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,9,0,0
+1795465032291,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465032462,4,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465032307,174,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,174,0,0
+1795465032587,4,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465032617,2,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465032851,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465032945,4,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465032976,6,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465033194,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465033257,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465033304,171,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,171,0,0
+1795465033475,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465033491,4,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465033601,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465033632,168,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,168,0,0
+1795465033959,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465033990,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465033865,147,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,147,0,0
+1795465034208,163,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,0
+1795465034271,158,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,158,0,0
+1795465034490,7,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465034505,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465034491,158,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,158,0,0
+1795465034616,150,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,150,0,0
+1795465034805,4,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465035023,6,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465034976,207,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,207,0,0
+1795465034992,198,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,198,0,0
+1795465035382,5,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465035444,5,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465035507,2,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465035662,4,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465035523,163,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,0
+1795465035770,6,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465035816,2,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465036036,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465036192,6,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465036192,6,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465036395,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465036459,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465036677,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465036693,4,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465036521,181,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,181,0,0
+1795465036788,2,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465036820,156,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,156,0,0
+1795465037210,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465037210,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465037054,184,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,184,0,0
+1795465037400,166,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465037464,155,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,155,0,0
+1795465037698,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465037715,17,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,14,0,0
+1795465037683,204,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,204,0,0
+1795465037793,183,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,183,0,0
+1795465037980,4,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465038245,4,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465038215,170,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,170,0,0
+1795465038215,171,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,171,0,0
+1795465038573,7,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465038621,9,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,9,0,0
+1795465038743,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465038713,148,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,148,0,0
+1795465038900,3,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465038977,8,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,8,0,0
+1795465038992,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465039258,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465039397,7,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465039397,8,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465039585,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465039632,2,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465039868,5,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465039915,0,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465039758,163,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,0
+1795465039994,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465039995,148,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,148,0,0
+1795465040412,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465040412,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465040274,166,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465040601,199,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,199,0,0
+1795465040647,178,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,178,0,0
+1795465040883,2,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465040930,7,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465040930,162,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,162,0,0
+1795465041148,3,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465041008,157,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,0
+1795465041444,4,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465041416,157,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,0
+1795465041416,157,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,0
+1795465041802,8,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,8,0,0
+1795465041833,6,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465041941,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465041895,188,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,188,0,0
+1795465042097,4,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465042160,0,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465042176,5,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465042455,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465042582,6,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465042582,6,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465042817,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465042848,2,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465043096,4,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465043111,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465042956,157,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,0
+1795465043188,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465043173,190,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,190,0,0
+1795465043595,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465043595,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465043469,175,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,174,0,0
+1795465043830,176,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,176,0,0
+1795465043861,165,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,165,0,0
+1795465044109,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465044126,5,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465044126,164,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,164,0,0
+1795465044204,154,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,154,0,0
+1795465044376,7,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465044658,17,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,17,0,0
+1795465044611,284,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,284,0,0
+1795465044611,300,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,300,0,0
+1795465045016,8,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465045032,6,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465045139,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465045124,150,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,150,0,0
+1795465045295,6,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465045359,7,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465045389,2,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465045687,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465045905,7,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465045921,7,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465046029,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465046044,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465046279,3,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465046309,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465046155,173,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,173,0,0
+1795465046372,2,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465046404,149,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,149,0,0
+1795465046703,157,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,0
+1795465046922,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465046937,2,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465047047,164,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,164,0,0
+1795465047049,162,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,162,0,0
+1795465047296,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465047343,5,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465047327,188,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,187,0,0
+1795465047389,174,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,174,0,0
+1795465047560,6,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465047873,14,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,12,0,0
+1795465047936,164,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,164,0,0
+1795465047951,161,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,161,0,0
+1795465048216,7,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465048216,7,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465048354,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465048309,163,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,0
+1795465048527,6,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465048574,2,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465048574,6,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465048888,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465049107,5,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465049122,4,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465049232,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465049232,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465049481,7,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465049543,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465049356,196,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,196,0,4
+1795465049590,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465049590,159,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,159,0,0
+1795465049904,152,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,152,0,0
+1795465050122,2,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465050138,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465050248,191,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,191,0,0
+1795465050248,191,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,191,0,0
+1795465050496,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465050559,4,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465050545,155,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,155,0,0
+1795465050605,154,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,154,0,0
+1795465050761,5,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465051058,7,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465051136,164,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,164,0,0
+1795465051152,162,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,162,0,0
+1795465051448,7,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465051448,6,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465051571,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465051510,179,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,179,0,3
+1795465051711,6,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465051759,6,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465051774,2,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465052072,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465052307,8,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465052321,5,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465052461,2,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465052461,2,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465052695,3,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465052726,0,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465052588,150,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,150,0,0
+1795465052773,2,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465052788,156,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,156,0,0
+1795465053085,160,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,160,0,0
+1795465053317,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465053333,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465053474,163,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,0
+1795465053474,163,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,0
+1795465053708,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465053740,3,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465053739,158,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,158,0,0
+1795465053785,153,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,153,0,0
+1795465053957,9,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,8,0,0
+1795465054254,4,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465054332,167,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,167,0,0
+1795465054347,163,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,1
+1795465054643,2,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,2,0,0
+1795465054643,2,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,2,0,0
+1795465054753,0,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465054907,5,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465054721,220,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,220,0,0
+1795465054953,3,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465054967,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465055266,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465055516,5,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465055516,5,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465055655,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465055655,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465055921,0,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465055766,186,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,186,0,0
+1795465055952,9,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,8,0,0
+1795465055968,0,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465055970,179,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,179,0,0
+1795465056280,158,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,158,0,0
+1795465056530,2,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465056530,2,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465056671,166,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465056671,167,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,167,0,0
+1795465056965,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465056966,4,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465056934,169,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,169,0,0
+1795465056970,164,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,164,0,0
+1795465057152,5,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465057449,5,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465057542,157,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,0
+1795465057542,157,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,1
+1795465057841,7,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465057841,7,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465057982,3,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465058105,4,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465058137,3,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,2,0,0
+1795465057983,159,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,159,0,0
+1795465058168,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465058464,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465058714,9,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,9,0,0
+1795465058714,12,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,12,0,0
+1795465058854,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465058854,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465059119,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465058995,134,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,134,0,0
+1795465059150,2,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465059150,6,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465059181,152,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,152,0,0
+1795465059478,152,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,152,0,0
+1795465059728,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465059728,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465059868,283,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,283,0,0
+1795465059868,287,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,287,0,0
+1795465060134,25,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,25,0,0
+1795465060165,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465060336,29,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,28,0,0
+1795465060134,468,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,468,0,0
+1795465060165,440,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,440,0,2
+1795465060632,5,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465060740,165,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,165,0,0
+1795465060740,166,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465061159,7,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465061159,7,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465061174,2,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465061175,157,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,0
+1795465061377,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465061613,6,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465061613,6,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465061644,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465061907,4,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465061922,4,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465062171,2,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465062171,3,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465062188,152,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,152,0,0
+1795465062342,3,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465062390,149,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,149,0,0
+1795465062625,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465062625,2,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465062656,154,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,154,0,0
+1795465062920,2,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465062936,2,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465063341,5,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465063356,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465063185,218,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,217,0,0
+1795465063185,220,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,220,0,0
+1795465063544,7,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465063639,169,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,169,0,0
+1795465063639,170,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,170,0,3
+1795465063825,3,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465063934,163,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,0
+1795465063950,156,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,156,0,0
+1795465064355,2,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465064417,11,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,11,0,0
+1795465064417,14,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,14,0,0
+1795465064557,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465064371,203,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,203,0,0
+1795465064823,6,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465064822,10,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,10,0,0
+1795465064838,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465065104,7,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465065120,6,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465065431,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465065447,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465065369,178,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,178,0,0
+1795465065587,12,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,10,0,0
+1795465065571,190,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,190,0,0
+1795465065838,0,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465065838,0,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465065853,183,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,183,0,0
+1795465066119,0,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465066135,0,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465066554,5,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465066599,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465066447,171,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,171,0,1
+1795465066463,166,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465066771,8,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465066848,163,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,0
+1795465066848,163,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,0
+1795465067036,8,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,8,0,0
+1795465067128,184,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,184,0,0
+1795465067144,182,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,182,0,0
+1795465067566,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465067629,5,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465067629,6,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465067613,166,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465067787,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465068022,6,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465068021,8,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465068052,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465068317,5,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465068333,6,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465068647,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465068647,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465068570,196,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,196,0,0
+1795465068790,3,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,2,0,0
+1795465068790,166,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465069041,2,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465069041,2,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465069057,153,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,153,0,0
+1795465069336,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465069352,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465069776,5,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465069807,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465069652,166,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465069652,167,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,167,0,2
+1795465069966,6,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465070214,6,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465070046,189,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,189,0,0
+1795465070046,189,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,189,0,0
+1795465070340,170,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,170,0,0
+1795465070356,164,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,164,0,0
+1795465070793,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465070824,10,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,9,0,0
+1795465070824,10,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,10,0,0
+1795465070977,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465070810,195,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,195,0,0
+1795465071230,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465071245,10,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,9,0,0
+1795465071245,10,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,10,0,0
+1795465071512,3,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465071527,7,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465071838,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465071838,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465071808,168,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,168,0,0
+1795465072010,4,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465071979,150,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,150,0,0
+1795465072260,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465072260,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465072245,159,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,159,0,3
+1795465072529,2,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465072544,2,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465072978,11,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,11,0,0
+1795465073024,4,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465072854,253,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,253,0,0
+1795465072854,254,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,254,0,0
+1795465073135,5,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465073415,3,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465073275,156,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,156,0,0
+1795465073275,156,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,156,0,0
+1795465073542,166,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465073556,166,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465073997,2,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465074121,5,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465074121,6,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465074152,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465074030,175,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,175,0,0
+1795465074433,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465074433,3,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465074433,3,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465074714,5,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465074729,5,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465075134,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465075134,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465075011,157,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,0
+1795465075212,4,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465075165,151,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,151,0,1
+1795465075443,2,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465075443,2,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465075445,165,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,165,0,0
+1795465075727,0,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465075742,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465076181,4,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465076226,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465076150,160,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,160,0,0
+1795465076150,163,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,0
+1795465076320,7,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465076459,156,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,156,0,0
+1795465076613,3,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465076459,160,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,160,0,0
+1795465076739,166,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465076753,164,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,164,0,0
+1795465077193,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465077319,5,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465077319,5,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465077334,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465077240,161,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,161,0,0
+1795465077629,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465077629,6,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465077629,7,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465077911,6,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465077926,6,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465078332,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465078332,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465078207,184,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,184,0,0
+1795465078410,3,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465078348,197,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,197,0,0
+1795465078641,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465078641,2,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465078641,152,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,152,0,0
+1795465078923,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465078939,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465079407,4,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465079422,0,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465079344,162,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,162,0,0
+1795465079344,162,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,162,0,0
+1795465079546,5,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465079795,13,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,10,0,0
+1795465079655,202,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,202,0,0
+1795465079655,208,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,208,0,0
+1795465079937,159,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,159,0,0
+1795465079952,157,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,0
+1795465080420,2,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465080513,4,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465080513,5,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465080560,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465080436,160,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,160,0,0
+1795465080809,3,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465080872,7,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465080872,7,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465081106,9,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,8,0,0
+1795465081120,8,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465081527,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465081527,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465081433,162,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,162,0,0
+1795465081606,5,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465081575,168,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,168,0,0
+1795465081887,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465081887,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465081824,158,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,158,0,0
+1795465082120,2,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465082136,2,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465082624,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465082610,24,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,12,0,0
+1795465082752,4,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465082531,226,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,226,0,0
+1795465082531,230,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,230,0,0
+1795465082986,4,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465082893,164,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,164,0,0
+1795465082893,165,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,165,0,0
+1795465083127,165,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,165,0,0
+1795465083142,161,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,161,0,0
+1795465083643,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465083768,0,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465083768,9,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,9,0,0
+1795465083768,11,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,10,0,0
+1795465083628,174,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,174,0,0
+1795465084001,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465084063,7,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465084063,7,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465084313,8,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,8,0,0
+1795465084298,31,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,31,0,0
+1795465084780,0,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465084780,0,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465084655,155,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,155,0,0
+1795465084811,4,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465084780,156,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,156,0,0
+1795465085074,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465085074,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465085013,161,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,161,0,0
+1795465085324,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465085340,0,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465085824,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465085824,12,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,9,0,0
+1795465085950,4,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465085793,167,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,167,0,0
+1795465085793,170,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,170,0,0
+1795465086186,4,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465086076,161,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,161,0,0
+1795465086076,162,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,162,0,0
+1795465086326,165,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,165,0,0
+1795465086342,163,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,0
+1795465086839,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465086963,0,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465086963,3,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465086963,5,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465086839,184,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,184,0,0
+1795465087198,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465087244,5,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465087244,7,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465087493,8,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465087508,5,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465087977,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465087977,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465088025,7,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465087852,185,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,185,0,0
+1795465087977,186,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,186,0,0
+1795465088258,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465088258,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465088211,154,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,154,0,0
+1795465088508,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465088523,0,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465089035,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465089050,4,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465088990,158,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,0
+1795465088990,159,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,159,0,0
+1795465089174,4,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465089378,6,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465089268,196,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,196,0,0
+1795465089268,204,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,204,0,0
+1795465089517,145,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,145,0,0
+1795465089533,147,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,147,0,0
+1795465090067,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465090160,3,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465090160,4,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465090191,0,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465090052,151,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,151,0,0
+1795465090395,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465090473,6,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465090473,6,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465090676,6,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465090691,5,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465091176,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465091176,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465091207,5,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465091084,155,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,155,0,0
+1795465091207,148,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,148,0,0
+1795465091488,0,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465091488,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465091410,165,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,165,0,0
+1795465091690,2,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465091706,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465092222,0,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465092254,5,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465092363,4,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465092190,209,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,209,0,0
+1795465092190,210,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,210,0,0
+1795465092580,7,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465092502,181,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,181,0,0
+1795465092502,181,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,181,0,0
+1795465092704,156,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,156,0,0
+1795465092720,154,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,154,0,0
+1795465093269,0,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465093378,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465093225,166,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465093409,7,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465093409,9,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,8,0,0
+1795465093595,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465093690,8,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465093690,8,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465093862,4,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465093877,6,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465094393,3,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465094424,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465094424,2,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465094284,155,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,155,0,0
+1795465094393,151,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,151,0,0
+1795465094703,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465094703,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465094610,157,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,157,0,0
+1795465094875,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465094891,0,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465095408,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465095441,16,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,15,0,0
+1795465095549,5,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465095442,160,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,160,0,0
+1795465095442,160,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,160,0,0
+1795465095782,3,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465095719,160,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,160,0,0
+1795465095720,160,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,160,0,0
+1795465095890,151,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,151,0,0
+1795465095905,152,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,152,0,0
+1795465096466,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465096561,0,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465096420,176,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,176,0,0
+1795465096608,4,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465096608,5,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465096796,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465096891,4,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465096891,5,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465097047,5,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465097063,5,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465097606,4,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465097621,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465097621,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465097469,159,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,159,0,0
+1795465097575,173,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,173,0,0
+1795465097901,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465097901,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465098060,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465098075,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465097808,527,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,527,0,0
+1795465098621,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465098637,9,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465098761,4,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465098638,165,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,165,0,0
+1795465098638,166,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,166,0,0
+1795465098903,162,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,162,0,0
+1795465098903,162,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,162,0,0
+1795465099076,155,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,155,0,0
+1795465099090,155,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,155,0,0
+1795465099341,4,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465099654,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465099623,144,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,144,0,0
+1795465099779,1,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465099811,3,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465099810,4,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465100077,7,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465100077,8,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465100246,5,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465100246,6,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,5,0,0
+1795465100357,2,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465100781,3,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465100826,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465100826,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465100670,183,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,183,0,0
+1795465100781,168,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,168,0,0
+1795465101093,2,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,10,10,null,0,0,0
+1795465101093,2,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465101263,2,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465101263,2,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465101372,149,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,149,0,0
+1795465101794,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,10,10,null,0,0,0
+1795465101857,4,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465101950,3,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,3,0,0
+1795465101841,161,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,161,0,0
+1795465101841,163,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,163,0,0
+1795465102097,268,HTTP Request - Login,200,,Thread Group 1-5,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,268,0,0
+1795465102094,272,HTTP Request - Login,200,,Thread Group 1-6,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,272,0,0
+1795465102279,176,HTTP Request - Login,200,,Thread Group 1-4,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,176,0,0
+1795465102279,181,HTTP Request - Login,200,,Thread Group 1-3,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,181,0,0
+1795465102527,8,HTTP Request - Proxy Status,200,,Thread Group 1-9,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465102869,1,JSR223 Sampler,200,OK,Thread Group 1-1,text,true,,0,0,10,10,null,0,0,0
+1795465102808,154,HTTP Request - Login,200,,Thread Group 1-2,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,154,0,0
+1795465102963,2,JSR223 Sampler,200,OK,Thread Group 1-10,text,true,,0,0,10,10,null,0,0,0
+1795465103010,7,HTTP Request - Proxy Status,200,,Thread Group 1-8,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,7,0,0
+1795465103010,7,HTTP Request - Proxy Status,200,,Thread Group 1-7,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,6,0,0
+1795465103541,1,JSR223 Sampler,200,OK,Thread Group 1-9,text,true,,0,0,10,10,null,0,0,0
+1795465103465,144,HTTP Request - Proxy Status,200,,Thread Group 1-4,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,144,0,0
+1795465103371,240,HTTP Request - Proxy Status,200,,Thread Group 1-5,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,240,0,0
+1795465103465,146,HTTP Request - Proxy Status,200,,Thread Group 1-3,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,146,0,0
+1795465103371,268,HTTP Request - Proxy Status,200,,Thread Group 1-6,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,268,0,0
+1795465103963,4,HTTP Request - Proxy Status,200,,Thread Group 1-2,text,true,,507,368,10,10,http://localhost:8080/api/proxy/status,4,0,0
+1795465104025,1,JSR223 Sampler,200,OK,Thread Group 1-7,text,true,,0,0,10,10,null,0,0,0
+1795465104025,1,JSR223 Sampler,200,OK,Thread Group 1-8,text,true,,0,0,10,10,null,0,0,0
+1795465103872,169,HTTP Request - Login,200,,Thread Group 1-1,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,169,0,0
+1795465103978,154,HTTP Request - Login,200,,Thread Group 1-10,text,true,,590,234,10,10,http://localhost:8080/api/auth/login,154,0,0
+1795465104620,1,JSR223 Sampler,200,OK,Thread Group 1-4,text,true,,0,0,10,10,null,0,0,0
+1795465104620,1,JSR223 Sampler,200,OK,Thread Group 1-5,text,true,,0,0,10,10,null,0,0,0
+1795465104620,1,JSR223 Sampler,200,OK,Thread Group 1-3,text,true,,0,0,10,10,null,0,0,0
+1795465104650,1,JSR223 Sampler,200,OK,Thread Group 1-6,text,true,,0,0,7,7,null,0,0,0
+1795465104557,156,HTTP Request - Login,200,,Thread Group 1-9,text,true,,590,234,6,6,http://localhost:8080/api/auth/login,156,0,0
+1795465104980,1,JSR223 Sampler,200,OK,Thread Group 1-2,text,true,,0,0,5,5,null,0,0,0
+1795465105043,6,HTTP Request - Proxy Status,200,,Thread Group 1-1,text,true,,507,368,4,4,http://localhost:8080/api/proxy/status,3,0,0
+1795465105135,8,HTTP Request - Proxy Status,200,,Thread Group 1-10,text,true,,507,368,3,3,http://localhost:8080/api/proxy/status,8,0,0
+1795465105027,186,HTTP Request - Login,200,,Thread Group 1-7,text,true,,590,234,2,2,http://localhost:8080/api/auth/login,186,0,0
+1795465105027,188,HTTP Request - Login,200,,Thread Group 1-8,text,true,,590,234,1,1,http://localhost:8080/api/auth/login,188,0,0
