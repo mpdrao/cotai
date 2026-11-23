@@ -322,3 +322,112 @@ A ausência de erros não significa que a aplicação atenda a um SLA de desempe
 Os testes de carga planejados foram encerrados em **50 usuários virtuais**. Preserve os arquivos `.jmx`, `.jtl`, logs e pastas HTML para documentação e comparação com futuras alterações do backend.
 
 > **Nota:** o teste funcional do proxy Squid foi validado separadamente por `GET /api/proxy/test` e pelo registro `TCP_TUNNEL/200` no log do Squid. Esse resultado funcional não deve ser confundido com um teste de carga do tráfego HTTPS externo.
+
+## Plano unificado API, Angular Web e carga combinada
+
+Foi acrescentado o plano `COTAI-Teste-Angular-Completo.jmx`. Ele reúne em um único arquivo os cenários API, Web Angular e combinado. A execução principal é pela interface gráfica do JMeter; não é necessário alterar o XML ou criar scripts PowerShell.
+
+### Cenários disponíveis
+
+| Cenário | Grupo ativo | Objetivo |
+|---|---|---|
+| API | `API - Backend 8080` | medir login, eventos, listas públicas, métricas e painel |
+| Web | `WEB - Angular 4200` | medir entrega das páginas e assets do Angular |
+| Combinado | `WEB - Angular 4200` + `API - Backend 8080` | reproduzir usuários públicos e organizadores ao mesmo tempo |
+| Corrida | `RACE - ultima cota` | validar concorrência da última cota |
+
+A configuração inicial fica em `Test Plan > User Defined Variables`:
+
+- `webThreads`: usuários do grupo Angular;
+- `apiThreads`: usuários do grupo da API;
+- `raceThreads`: usuários da corrida;
+- `rampSeconds`: tempo de ramp-up;
+- `loopCount`: quantas vezes cada usuário repete;
+- `frontendHost` e `frontendPort`: servidor Angular, padrão `localhost:4200`;
+- `apiHost` e `apiPort`: backend, padrão `localhost:8080`;
+- `squidEnabled`: reservado ao controle futuro do cenário Squid;
+- `recorderPort`: porta sugerida para o recorder, padrão `8081`.
+
+### Executar pela GUI
+
+1. Inicie PostgreSQL e Squid pelo Docker.
+2. Inicie o backend Spring Boot em `http://localhost:8080`.
+3. Inicie o Angular em `http://localhost:4200` com `npm start`.
+4. Abra o JMeter com Java 17.
+5. Abra `COTAI-Teste-Angular-Completo.jmx`.
+6. Pressione `Ctrl+S` para salvar o plano.
+7. Ajuste `webThreads`, `apiThreads` e `raceThreads` em `User Defined Variables`.
+8. Habilite ou desabilite os grupos conforme o cenário.
+9. Pressione o botão Start.
+
+### Cenário API
+
+- Desabilite `WEB - Angular 4200`.
+- Mantenha habilitado `API - Backend 8080`.
+- Ajuste `apiThreads`, `rampSeconds` e `loopCount`.
+- Os samplers começam com `API -` no nome e devem ser analisados separadamente.
+- O endpoint `/api/proxy/status` permanece desabilitado por padrão.
+
+### Cenário Web Angular
+
+- Desabilite `API - Backend 8080`.
+- Mantenha habilitado `WEB - Angular 4200`.
+- Ajuste `webThreads`, `rampSeconds` e `loopCount`.
+- Os fluxos disponíveis são `/`, `/login` e `/l/{slug}`.
+- O JMeter mede a entrega HTTP do Angular. Ele não executa JavaScript nem valida elementos da tela; essa parte continua no Playwright.
+
+### Cenário combinado
+
+- Mantenha habilitados `WEB - Angular 4200` e `API - Backend 8080`.
+- Ajuste `webThreads` e `apiThreads` com os volumes desejados.
+- Execute os dois grupos ao mesmo tempo.
+- Use os prefixos `WEB -` e `API -` para comparar os grupos no relatório.
+- Para uma carga misturada inicial, use proporções como 20 threads Web e 30 threads API.
+- Não habilite a corrida da última cota no mesmo plano utilizado para testes gerais, exceto em rodada controlada, pois ela cria uma disputa concorrente específica.
+
+### Cenário da corrida de cotas
+
+- O setup cria uma lista publicada com uma única cota.
+- Habilite `RACE - ultima cota`.
+- Habilite também `99 - Verificar resumo da corrida`.
+- Configure `raceThreads` com a quantidade desejada.
+- O `Synchronizing Timer` dispara todas as reservas juntas.
+- Cada reserva usa uma `Idempotency-Key` UUID exclusiva.
+- A resposta esperada é `201` ou `409`; `409` representa cota indisponível e não é uma falha funcional.
+
+### Gravar fluxos reais no navegador
+
+O recorder é usado apenas para criar ou revisar o plano. Não substitui os grupos de carga já presentes.
+
+1. Abra o JMeter em GUI.
+2. Adicione `HTTP(S) Test Script Recorder`.
+3. Configure a porta em `8081`, ou use o valor de `recorderPort`.
+4. Gere o certificado do JMeter e instale-o no Windows se a gravação incluir HTTPS.
+5. Configure Chrome ou Edge em proxy manual `127.0.0.1:8081`.
+6. Grave uma vez os fluxos login, cadastro, criação de lista, reserva e painel.
+7. Exclua imagens, fontes, telemetria e serviços externos não relacionados ao COTAI.
+8. Adicione prefixos `WEB -`, `API -` ou `RACE -` aos requests preservados.
+9. Correlacione JWT, slug, IDs, reservationId e providerReference.
+10. Desative o proxy manual do navegador após a gravação.
+11. Salve o `.jmx` e execute o cenário correspondente pela GUI.
+
+Os proxies são diferentes:
+
+- proxy do Angular: encaminha `/api` do `localhost:4200` para o backend em `localhost:8080`;
+- proxy de gravação do JMeter: captura o navegador em uma porta local;
+- Squid: encaminha tráfego externo feito pelo backend em `127.0.0.1:3128`.
+
+Não configure o browser para o Squid quando o objetivo for somente gravar o Angular. Não execute o proxy recorder durante a carga reproduzida.
+
+### Execução não gráfica opcional
+
+O plano pode ser executado sem interface quando necessário, mas a interface gráfica continua como fluxo principal:
+
+```powershell
+& "C:\Ferramentas\apache-jmeter-5.6.3\bin\jmeter.bat" `
+  -n -t ".\COTAI-Teste-Angular-Completo.jmx" `
+  -l ".\resultados\angular-api-web-combinado.jtl" `
+  -j ".\resultados\angular-api-web-combinado.log"
+```
+
+Use parâmetros `-J` apenas quando desejar sobrescrever variáveis em uma execução não gráfica. Não grave senhas ou tokens no `.jmx` ou no `.jtl`.
