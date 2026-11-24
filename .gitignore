@@ -28,3 +28,10 @@ Thumbs.db
 # Astah
 *.asta.lock
 
+# JMeter - Testes de Carga e Desempenho
+testes-desempenho/relatorio/dashboard-*/
+testes-desempenho/relatorio/*-exec-*/
+testes-desempenho/resultados/*-exec-*
+testes-desempenho/resultados/*.jtl
+testes-desempenho/*.log
+
