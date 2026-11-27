@@ -28,3 +28,10 @@ Thumbs.db
 # Astah
 *.asta.lock
 
+# JMeter (relatorios HTML gerados, resultados e logs)
+testes-desempenho/relatorio/
+testes-desempenho/relatorios/
+testes-desempenho/resultados/
+*.jtl
+
+
