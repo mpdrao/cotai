@@ -70,11 +70,6 @@
             <stringProp name="Argument.value">${__P(totalQuotas,1)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="squidEnabled" elementType="Argument">
-            <stringProp name="Argument.name">squidEnabled</stringProp>
-            <stringProp name="Argument.value">${__P(squidEnabled,false)}</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
           <elementProp name="recorderPort" elementType="Argument">
             <stringProp name="Argument.name">recorderPort</stringProp>
             <stringProp name="Argument.value">${__P(recorderPort,8081)}</stringProp>
@@ -383,27 +378,6 @@ props.put(&apos;sharedItemId&apos;, vars.get(&apos;itemId&apos;))</stringProp>
             <intProp name="Assertion.test_type">8</intProp>
             <stringProp name="Assertion.custom_message"></stringProp>
           </ResponseAssertion>
-          <hashTree/>
-        </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="API - GET /api/proxy/status" enabled="false">
-          <stringProp name="HTTPSampler.path">/api/proxy/status</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer Auth Header" enabled="true">
-            <collectionProp name="HeaderManager.headers">
-              <elementProp name="" elementType="Header">
-                <stringProp name="Header.name">Authorization</stringProp>
-                <stringProp name="Header.value">Bearer ${__P(sharedAccessToken)}</stringProp>
-              </elementProp>
-            </collectionProp>
-          </HeaderManager>
           <hashTree/>
         </hashTree>
       </hashTree>

@@ -44,7 +44,6 @@ Dentro da pasta `testes-desempenho/`:
 | `COTAI-Teste-Angular-Completo.jmx` | **Plano Unificado Principal**: Contém os grupos de API, Web Angular, gravação por Proxy e métricas. |
 | `abrir-jmeter.bat` | Script de duplo clique para iniciar o JMeter já carregando o plano de testes. |
 | `executar-carga-cli.ps1` | Script PowerShell automatizado para rodar testes sem interface (CLI) e gerar o relatório HTML. |
-| `COTAI-Teste-Carga.jmx` | Plano legado focado apenas no backend (login e métricas). |
 | `resultados/` | Pasta onde são gerados os arquivos de execução de métricas (`.jtl` e logs). |
 | `relatorios/` | Pasta onde são criados os Dashboards HTML interativos com gráficos e estatísticas. |
 
